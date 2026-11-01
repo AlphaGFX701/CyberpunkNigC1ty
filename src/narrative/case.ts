@@ -11,7 +11,6 @@ export type CinematicLayer = {
     | 'cable'
     | 'signal'
     | 'file'
-    | 'door'
     | 'tamper'
     | 'network'
     | 'memory'
@@ -58,21 +57,12 @@ const opening: readonly StoryShot[] = [
     title: 'ของที่หายไป',
     location: 'ห้องนิรภัยอาราซาก้า · 03:12 น.',
     art: '/assets/blackbox/vault.webp',
-    description:
-      'ผู้บุกรุกปิดบังใบหน้าถอด BLACKBOX จากแท่นในห้องนิรภัยอาราซาก้า ก่อนประตูปิดตามหลัง',
+    description: 'ผู้บุกรุกปิดบังใบหน้าถือ BLACKBOX ในห้องนิรภัยอาราซาก้า ก่อนเปิดประตูหนีออกไป',
     connection: 'local',
     reveal: 'anonymous',
     composition: {
       name: 'vault',
-      layers: [
-        { id: 'tamper', kind: 'tamper', placement: { left: '67%', top: '44%' }, delayMs: 500 },
-        {
-          id: 'vault-door',
-          kind: 'door',
-          placement: { right: '0', top: '0', width: '20%', height: '100%' },
-          delayMs: 700,
-        },
-      ],
+      layers: [],
     },
     cues: [
       { cue: 'relay', atMs: 0 },
@@ -94,10 +84,10 @@ const opening: readonly StoryShot[] = [
         {
           id: 'emergency-network',
           kind: 'network',
-          placement: { left: '48%', top: '24%', width: '36%', height: '29%' },
+          placement: { left: '46.09375%', top: '25%', width: '42.1875%', height: '22.22222%' },
           delayMs: 150,
         },
-        { id: 'kin', kind: 'kin', placement: { left: '18%', bottom: '24%', height: '53%' } },
+        { id: 'kin', kind: 'kin', placement: { left: '14%', bottom: '12%', height: '47%' } },
       ],
     },
     cues: [{ cue: 'connect', atMs: 0 }],
@@ -238,9 +228,9 @@ export const caseNarrative = {
       detail: 'คุยกับอรุณ แล้วตรวจ CAM-07 เพื่อหาเส้นทางของผู้ถือ BLACKBOX',
     },
     device: {
-      name: 'ภายในเครื่องบันทึกกล้อง',
-      sub: 'CAM-07 / EVIDENCE RECOVERY',
-      objective: 'กู้หน้าหลักฐานการขนย้าย',
+      name: 'ภายในเครื่องซ่อมหน้าบันทึก',
+      sub: 'ARUN-RECOVERY-01 / HTML RECOVERY',
+      objective: 'คืนโครงสร้าง HTML ก่อนเปิดภาพ CAM-07',
       detail: 'ซ่อมหน้ารายงาน HTML เพื่ออ่านหลักฐาน ไม่ใช่เข้าควบคุมเครือข่ายจริง',
     },
     boss: {
@@ -282,12 +272,12 @@ export const caseNarrative = {
     arunSummary:
       'ภาพบันทึกจากร้านอรุณอาจบอกเส้นทางของผู้ถือ BLACKBOX ซ่อมหน้าหลักฐานเพื่ออ่านข้อมูลที่เหลือ',
     relay: {
-      summary: 'ร่องรอยจาก CAM-07 ตรงกับจุดส่งสัญญาณฝั่งตะวันออก เปิดตรวจบันทึกสถานีได้แล้ว',
+      summary: 'ร่องรอยจาก CAM-07 ชี้มายังสถานีฝั่งตะวันออก ลงพื้นที่และกู้บันทึก RELAY-02 เพื่อตามเส้นทาง BLACKBOX',
       lead: 'มีการส่งหมายเลขชุดอุปกรณ์ต่อไปยังศูนย์ควบคุม',
       paragraphs: [
         'บันทึกสถานีระบุว่ามีอุปกรณ์ใช้หมายเลขชุดเดียวกับ BLACKBOX ติดต่อเข้ามาหลังเหตุโจรกรรม ช่องนี้ไม่ได้อยู่ในรายงานสรุปของผู้ว่าจ้าง',
         'ปลายทางของรายการส่งต่อคือศูนย์ควบคุมเครือข่าย บันทึกเบาะแสนี้เพื่อเปิดตำแหน่งบนแผนที่',
-        'รอบนี้เปิดให้สำรวจข่าวกรองเท่านั้น ภารกิจภาคสนามและโจทย์สื่อเสียงของสถานียังอยู่ในแผนพัฒนาถัดไป',
+        'คุยเจ้าหน้าที่เวร ตรวจใบงานกับโมดูล แล้วซ่อมหน้าบันทึกใน Circuit City เพื่ออ่านต้นฉบับ รายการข่าวกรองเดิมไม่ถือว่าผ่านภารกิจนี้',
       ],
     },
     control: {
@@ -296,7 +286,7 @@ export const caseNarrative = {
       paragraphs: [
         'ข้อมูลที่ได้รับจากสถานีมีช่วงเวลาส่งคำสั่งเพิ่มจากรายงานของอาราซาก้า ยังบอกไม่ได้ว่าใครเป็นคนตัดรายการนั้นออก',
         'คินเก็บข้อมูลไว้ตรวจต่อ การเห็นหมายเลขหน่วยเก่าหรือชื่อแฝง NULL ยังไม่ยืนยันว่าคู่หูที่หายไปเป็นคนร้าย',
-        'นี่คือจุดจบของเส้นทางข่าวกรองในต้นแบบแผนที่ ภารกิจเต็มของศูนย์ควบคุมและการเปิดใช้ BLACKBOX ยังไม่เกิดขึ้น',
+        'พบรายการส่งต่อ BLACKBOX-17 เวลา 03:21 ใน RELAY-02 แต่ไม่มีในสำเนารายงานผู้ว่าจ้าง ภารกิจเต็มของศูนย์ควบคุมและการเปิดใช้ BLACKBOX ยังไม่เกิดขึ้น',
       ],
     },
   },

@@ -840,8 +840,9 @@
   width: 100%;
   max-width: none;
   height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
 }
 .game-toolbar {
   display: flex;
@@ -850,6 +851,7 @@
   gap: 9px;
   padding: 6px 18px;
   flex: 0 0 54px;
+  min-height: 54px;
   border-bottom: 1px solid var(--line);
   background: var(--bg);
 }
@@ -878,6 +880,9 @@
 .game-layer main {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  container-type: size;
   padding: 0;
   margin: 0;
   max-width: none;
@@ -887,13 +892,19 @@
   flex-direction: column;
 }
 .game-layer .world-frame {
-  width: min(100vw, calc((100dvh - 54px) * 16 / 9));
+  width: min(100cqw, calc(100cqh * 16 / 9));
   aspect-ratio: 16/9;
   flex: 0 0 auto;
-  max-height: none;
+  max-height: 100%;
   margin: 0;
   border: 0;
   box-shadow: none;
+}
+.game-layer main > .world-frame:not(.city-map):not(.circuit-map) {
+  width: min(100cqw, calc(100cqh * 16 / 9));
+  height: auto;
+  max-height: 100%;
+  flex: none;
 }
 .game-layer .world-tag {
   display: flex;
@@ -913,8 +924,7 @@
   display: none;
 }
 .game-layer .desktop-note {
-  padding: 12px 20px;
-  margin: 0;
+  display: none;
 }
 @keyframes rain-fall {
   to {

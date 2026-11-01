@@ -40,18 +40,22 @@ test('new case offers base and Arun; locked actions cannot mutate state', () => 
   assert.equal(progress.get(), initial)
 })
 
-test('CAM-07 recovery and reading relay intel unlock regions in dependency order', () => {
+test('only playable relay recovery opens control; old intel action cannot bypass it', () => {
   const progress = createCityProgress(memoryStorage().storage)
+  progress.recordRelayRecovery()
+  assert.deepEqual(progress.get().completed, [])
   progress.recordCamRecovery()
   assert.equal(canAccessArea(progress.get(), 'relay'), true)
   assert.equal(canAccessArea(progress.get(), 'control'), false)
   assert.equal(progress.arrive('relay'), true)
   assert.equal(progress.get().currentArea, 'relay')
-  assert.equal(progress.readIntel('relay'), true)
+  assert.equal(progress.readIntel('relay'), false)
+  assert.equal(canAccessArea(progress.get(), 'control'), false)
+  progress.recordRelayRecovery()
   assert.equal(canAccessArea(progress.get(), 'control'), true)
-  assert.equal(progress.get().currentArea, 'relay', 'reading intel does not implicitly travel')
+  assert.equal(progress.get().currentArea, 'relay', 'recovery does not implicitly travel')
   assert.equal(progress.readIntel('control'), true)
-  assert.deepEqual(progress.get().completed, ['recover-cam07', 'read-relay', 'read-control'])
+  assert.deepEqual(progress.get().completed, ['recover-cam07', 'recover-relay', 'read-control'])
   assert.equal(progress.arrive('control'), true)
 })
 
@@ -60,13 +64,13 @@ test('browser save reloads progress only, retaining preferences outside the case
   const { storage, values } = memoryStorage({ 'techcare.entry.v1': preferences })
   const progress = createCityProgress(storage)
   progress.recordCamRecovery()
-  progress.readIntel('relay')
+  progress.recordRelayRecovery()
   progress.arrive('control')
   const payload = JSON.parse(values.get(cityProgressKey)!)
   assert.deepEqual(Object.keys(payload).sort(), ['completed', 'currentArea', 'version'])
   assert.deepEqual(payload, {
-    version: 1,
-    completed: ['recover-cam07', 'read-relay'],
+    version: 2,
+    completed: ['recover-cam07', 'recover-relay'],
     currentArea: 'control',
   })
   assert.deepEqual(createCityProgress(storage).get(), progress.get())
@@ -78,7 +82,7 @@ test('malformed, unknown-version and inconsistent saves recover defaults with a 
     '{broken',
     'null',
     '[]',
-    '{"version":2,"completed":[],"currentArea":"base"}',
+    '{"version":3,"completed":[],"currentArea":"base"}',
     '{"version":1,"completed":["read-relay"],"currentArea":"base"}',
     '{"version":1,"completed":["recover-cam07","read-control"],"currentArea":"base"}',
     '{"version":1,"completed":[],"currentArea":"control"}',
@@ -90,7 +94,7 @@ test('malformed, unknown-version and inconsistent saves recover defaults with a 
     assert.deepEqual(
       progress.get(),
       {
-        version: 1,
+        version: 2,
         completed: [],
         currentArea: 'base',
         storageWarning: true,
@@ -170,17 +174,61 @@ test('new case removes only case progress and preserves local name/settings', ()
   const { storage, removed, values } = memoryStorage({ 'techcare.entry.v1': preferences })
   const progress = createCityProgress(storage)
   progress.recordCamRecovery()
-  progress.readIntel('relay')
+  progress.recordRelayRecovery()
   progress.arrive('control')
   progress.reset()
   assert.deepEqual(removed, [cityProgressKey])
   assert.equal(values.get('techcare.entry.v1'), preferences)
   assert.equal(values.has(cityProgressKey), false)
   assert.deepEqual(progress.get(), {
-    version: 1,
+    version: 2,
     completed: [],
     currentArea: 'base',
     storageWarning: false,
   })
   assert.deepEqual(createCityProgress(storage).get(), progress.get())
+})
+
+test('legacy control intel migrates without losing history or completing the relay chapter', () => {
+  const old = {
+    version: 1,
+    completed: ['recover-cam07', 'read-relay', 'read-control'],
+    currentArea: 'control',
+  }
+  const { storage, values } = memoryStorage({ [cityProgressKey]: JSON.stringify(old) })
+  const progress = createCityProgress(storage)
+  assert.equal(progress.get().version, 2)
+  assert.equal(progress.get().currentArea, 'relay')
+  assert.deepEqual(progress.get().completed, old.completed)
+  assert.equal(progress.get().storageWarning, false)
+  assert.equal(canAccessArea(progress.get(), 'control'), false)
+  progress.recordRelayRecovery()
+  assert.equal(canAccessArea(progress.get(), 'control'), true)
+  assert.deepEqual(progress.get().completed, [
+    'recover-cam07',
+    'read-relay',
+    'recover-relay',
+    'read-control',
+  ])
+  assert.equal(JSON.parse(values.get(cityProgressKey)!).version, 2)
+  assert.deepEqual(createCityProgress(storage).get(), progress.get())
+})
+
+test('owner switching cannot leak recovered relay progress and reset keeps other owner intact', () => {
+  const { storage } = memoryStorage()
+  const progress = createCityProgress(storage)
+  progress.activateOwner('alice-case')
+  progress.recordCamRecovery()
+  progress.recordRelayRecovery()
+  progress.activateOwner('bob-case')
+  assert.deepEqual(progress.get().completed, [])
+  progress.recordCamRecovery()
+  assert.equal(canAccessArea(progress.get(), 'control'), false)
+  progress.activateOwner('alice-case')
+  assert.equal(canAccessArea(progress.get(), 'control'), true)
+  progress.reset()
+  progress.activateOwner('bob-case')
+  assert.deepEqual(progress.get().completed, ['recover-cam07'])
+  progress.activateOwner('alice-case')
+  assert.deepEqual(progress.get().completed, [])
 })

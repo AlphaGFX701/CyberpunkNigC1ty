@@ -24,9 +24,13 @@ test('title leads through all five manual story shots to the existing case map',
   await expect(story).toHaveAttribute('data-shot', '1')
   await page.getByRole('button', { name: 'ย้อนกลับ', exact: true }).click()
   await expect(story).toHaveAttribute('data-shot', '0')
-  for (let i = 1; i <= 4; i++) {
-    await page.getByRole('button', { name: 'ถัดไป', exact: true }).click()
-    await expect(story).toHaveAttribute('data-shot', String(i))
+  const turns = [[0, 0], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [3, 0], [3, 1], [4, 0], [4, 1], [4, 2]]
+  for (const [index, [shot, line]] of turns.entries()) {
+    await expect(story).toHaveAttribute('data-shot', String(shot))
+    await expect(story).toHaveAttribute('data-line', String(line))
+    await expect(page.locator('.story-lines > p')).toHaveCount(1)
+    if (index < turns.length - 1)
+      await page.getByRole('button', { name: 'ถัดไป', exact: true }).click()
   }
   await expect(story).toContainText('อยากได้ BLACKBOX คืน')
   await page.getByRole('button', { name: 'เริ่มตามรอย', exact: true }).click()
@@ -195,7 +199,7 @@ test('narrow title and long Thai profile stay readable without horizontal overfl
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
-test('one music player survives repeated story and game transitions without duplicate tracks', async ({
+test('two bounded music slots survive repeated story and game transitions without settled duplicate tracks', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -208,13 +212,8 @@ test('one music player survives repeated story and game transitions without dupl
     Object.defineProperty(window, '__musicPlayers', { value: players })
   })
   await enterTitle(page)
-  expect(
-    await page.evaluate(() => {
-      const players = (window as unknown as { __musicPlayers: Set<HTMLMediaElement> })
-        .__musicPlayers
-      return [...players].some((player) => !player.paused)
-    })
-  ).toBe(false)
+  const activeTrack = page.locator('audio[data-techcare-music][data-music-role="active"]')
+  await expect(activeTrack).toHaveAttribute('src', '/assets/music/concrete-tears.mp3')
   await page.getByRole('button', { name: 'เริ่มภารกิจ', exact: true }).click()
   await page.getByRole('button', { name: 'ข้ามบทนำ', exact: true }).click()
   await expect(page.locator('canvas')).toBeVisible()
@@ -225,11 +224,12 @@ test('one music player survives repeated story and game transitions without dupl
     await page.getByRole('button', { name: 'ดูบทนำอีกครั้ง', exact: true }).click()
     await page.getByRole('button', { name: 'ข้ามบทนำ', exact: true }).click()
   }
-  expect(
-    await page.evaluate(() => {
+  await expect(activeTrack).toHaveAttribute('src', '/assets/music/midnight-protocol.mp3')
+  await expect.poll(() => page.evaluate(() => {
       const players = (window as unknown as { __musicPlayers: Set<HTMLMediaElement> })
         .__musicPlayers
       return [...players].filter((player) => !player.paused).length
-    })
-  ).toBeLessThanOrEqual(1)
+    })).toBeLessThanOrEqual(1)
+  expect(await page.evaluate(() => (window as unknown as { __musicPlayers: Set<HTMLMediaElement> }).__musicPlayers.size)).toBeLessThanOrEqual(2)
+  await expect(page.locator('audio[data-techcare-music]')).toHaveCount(2)
 })

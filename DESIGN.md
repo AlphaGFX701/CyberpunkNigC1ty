@@ -79,7 +79,7 @@ The Pixel UI family is owned by tools/build-ui.mjs and generated manifest metada
 
 The existing PixelButton owns normal/hover/pressed/disabled frames; feedback=menu adds one140ms sweep,2pxiconmotion and1pxpress consistently. MenuFeedback owns fine-pointer eligibility, the24pxreticle, RAF cleanup, and reduced-motion fallback. The title background moves at most4px, foreground8px; the menu and Thai text never parallax.
 
-Runtime third-party art is limited to the verified free-demo files listed in public/assets/vendor/manifest.json. The cinematic frame and cursor are original work, not a claim to own the full NULLSIGNAL kit. ASSET_CREDITS.md and in-game credits retain attribution. No paid Clutch or Godot files are imported.
+Runtime third-party entry UI art is limited to the verified free-demo files listed in public/assets/vendor/manifest.json. The cinematic frame and cursor are original work, not a claim to own the full NULLSIGNAL kit. ASSET_CREDITS.md and in-game credits retain attribution. No paid Clutch or Godot files are imported. The Arun environment selection has its separate local registry in public/assets/chapter-one/vendor/manifest.json.
 
 ## City-map interaction
 
@@ -90,3 +90,26 @@ The scene is the main surface, with compact location/status at the upper left an
 The temporary coaching dock follows a pixel adventure dialogue layout: canonical blond Kin at the left, name/channel above readable Thai, choices below. It reserves camera space rather than covering the city and hides duplicate objectives during coaching. Walking tasks collapse it to an edge strip. Real modals host an inline coach within their existing focus trap. Normal free play restores the low-chrome layout.
 
 Chakra Petch22px desktop/20px narrow is the coaching prose family; existing IBM Plex Thai remains the general game prose. BoldPixels is limited to short Latin instrumentation. Thai grapheme reveal never displays detached marks. The five portraits keep a shared anchor and animate eyes/mouth only. Reduced motion uses complete text and still art; screen readers receive full sentences once. Talk blips are short and separately disabled while respecting SFX volume.
+
+Current local iteration: desktop only. Gate lamps gently dim10–25%, no near-black off phase, extra cage, or repainted flat bright core. Story uses one speaker at a time with28–32px text and22–24px labels. The manual first Next launches a2.8s walk through the vault door. No publication until explicitly requested again.
+
+## Arun courtyard and recovery chapter
+
+The repair shop now uses one coherent 2.5D plate for back wall, glass, tiled floor, counters and two stock islands. Two solid islands force a loop instead of one horizontal lane. The recorder interior uses a separate coherent motherboard-room plate with free movement around two raised chips, seven grounded service pads and an exit. The LuKaRaii Neon City layer moves faintly in the shop windows; the SakPix free-demo machine marks the repair console. The JustCreate3D sample tower was removed from this scene because its perspective made it float. Cyan marks the repair connection, amber marks evidence and current work, pink marks the hidden signal.
+
+Author visible scene motion by default: practical lamp dimming, window traffic, slowly moving window reflections, relay LEDs and fans in the shop; coolant pulses, damaged-sector sparks and fans inside the recorder. Keep these localized; do not pan the entire scene as its only animation. Dialogue and settings pause world input and ambient world motion. Reduced motion freezes decorative cycles while keeping controls and progress legible. Buttons retain hover/focus/pressed feedback.
+
+Keep one collapsible objective cluster at upper right and a small optional Kin guide at lower left, toggled by button or H. The current target alone has an animated world marker; completed/locked recorder pads have quieter labels. Leave the center clear for walking. Long evidence and HTML instruction belong in keyboard-accessible DOM modals. Arun's portrait changes expression on his witness turns; Kin uses the existing portrait language, plus a four-direction full-body sheet with walking and directional idle animation. Both full-line and typed dialogue use the entry-owned short speech effects, respecting the separate text-sound toggle.
+
+The connection screen is original TechCare dark-tech UI with orbit rings, a moving grid, four acknowledged loading stages and cancellation. Do not describe private NULLSIGNAL OBS templates or unowned paid HUDs as imported game assets. Seven lessons are actual original tasks; assistance observations remain separate from game points.
+
+## Circuit City revision
+
+The device scene is now an original low-poly PCB stage map, replacing the walking motherboard plate. Dark green substrate, desaturated locked chips, cyan active traces, copper contacts and restored district lights share one physical board. Seven sectors surround the central camera tower. Stage selection inspects before starting; a small Kin marker identifies progress. The camera module is shared with East Bank. Live data packets follow the authored ninety-degree traces, with fans and signal lights providing local motion. Pause and repair windows stop the map; reduced motion freezes decoration.
+
+One compact progress cluster and one place-list toggle protect the center. The list closes when a stage is selected and clears selection when reopened, preventing list/detail interception. Stage pins are normal projected DOM controls rather than nested React roots. The shop retains its composition, with added cyan rectangle/LED and painted lamp strips removed; bloom remains aligned to the depicted lamps. The game shell fits the actual remaining grid row; explanatory prototype text and the account badge no longer extend or cover the playfield.
+
+Repair windows use original navy/white/cyan surfaces, CodeMirror HTML line numbers and syntax, contextual caret snippets with Undo, an inline sandbox preview, source-location diagnostics and a fixed visible submit row. RuneCode is a typing-interface reference only. Puzzle cards precede code scaffolds and never award points themselves. Hints and the pink answer button retain the existing assistance policy. See ADR0007 and CIRCUIT_CITY.md for editable model and save details.
+# Relay station visual extension — 2 November 2026
+
+Match the existing Arun workshop pixel scale, 1600x900 plate and character size. Relay uses blue-gray steel, aged yellow rails, cyan operation lights, amber fault/working lamps and plum city depth. Its identity is a communications room with an antenna maintenance deck, not reused shop furniture. A low server island creates looped circulation. Practical motion must be visible: separate dish on a mount, rotating fan, changing waveform, dimming tubes and distant traffic. Keep top-right objectives compact so the antenna stays visible; details expand on demand. The circuit counterpart uses router/antenna/archive shapes around an original-record tower and the original camera/input language.

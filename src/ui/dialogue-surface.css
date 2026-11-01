@@ -1,0 +1,282 @@
+.dialogue-surface {
+  --dialogue-edge: #69cbd4;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  height: clamp(254px, 27dvh, 260px);
+  padding: 14px 22px 16px 14px;
+  background-color: #0a1e2df5;
+  color: #e5f2ef;
+  font-family: 'Chakra Petch', Tahoma, sans-serif;
+  box-shadow: 0 10px 36px #02081188;
+  isolation: isolate;
+  animation: dialogue-dock-open 180ms ease-out both;
+}
+.dialogue-surface__portrait {
+  width: 164px;
+  flex: 0 0 164px;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  align-self: stretch;
+  background: linear-gradient(145deg, #183e4f88, #081b28);
+  border-bottom: 2px solid var(--dialogue-edge);
+}
+.dialogue-surface__portrait > * {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+.dialogue-surface__portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+}
+.dialogue-surface__portrait .relay-portrait > img {
+  object-fit: cover;
+  object-position: center top;
+}
+.dialogue-surface__body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.dialogue-surface__speaker {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding-right: 48px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #34607180;
+}
+.dialogue-surface__speaker h3 {
+  margin: 0;
+  color: #f0c781;
+  font:
+    600 24px/1.35 'Chakra Petch',
+    Tahoma,
+    sans-serif;
+}
+.dialogue-surface__speaker > span {
+  color: #90c6ce;
+  font:
+    10px/1.5 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 1.5px;
+}
+.dialogue-surface__text {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #487d89 #102b38;
+  padding-top: 10px;
+}
+.dialogue-surface__text p {
+  margin: 0;
+  font:
+    400 clamp(24px, 1.65vw, 28px)/1.6 'Chakra Petch',
+    Tahoma,
+    sans-serif;
+}
+.dialogue-surface__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+.dialogue-surface__actions > small {
+  margin-right: auto;
+  color: #99bcc4;
+  font:
+    12px 'IBM Plex Mono',
+    monospace;
+}
+.dialogue-surface__actions .pixel-button {
+  min-height: 40px;
+  font-size: 17px;
+}
+.dialogue-surface--compact {
+  height: auto;
+  min-height: 180px;
+  max-height: 220px;
+  gap: 16px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.dialogue-surface--compact .dialogue-surface__portrait {
+  width: 106px;
+  flex-basis: 106px;
+}
+.dialogue-surface--compact .dialogue-surface__speaker h3 {
+  font-size: 21px;
+}
+.dialogue-surface--compact .dialogue-surface__text p {
+  font-size: 22px;
+}
+.dialogue-surface--compact .dialogue-surface__text {
+  padding-top: 4px;
+}
+.dialogue-surface--compact .dialogue-surface__actions {
+  padding-top: 6px;
+}
+.modal-backdrop[data-placement='dialogue'] {
+  align-items: end;
+  justify-items: center;
+  padding: 0 4.5vw 24px;
+  background: #020b125c;
+  backdrop-filter: blur(4px);
+}
+.modal-backdrop[data-placement='dialogue'] > .modal {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-image: none;
+  background: none;
+  box-shadow: none;
+}
+.modal-backdrop[data-placement='dialogue'] .modal-head {
+  position: absolute;
+  z-index: 6;
+  top: 13px;
+  right: 14px;
+  padding: 0;
+  border: 0;
+}
+.modal-backdrop[data-placement='dialogue'] .modal-head > div {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.modal-backdrop[data-placement='dialogue'] .modal-head .pixel-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 3px;
+}
+.dialogue-evidence-above {
+  position: absolute;
+  width: min(900px, 90%);
+  bottom: calc(100% + 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 22px;
+  color: #deeeed;
+  background: #0a2030f5;
+  border: 1px solid #467787;
+  box-shadow: 0 8px 28px #020b1366;
+  font-family: 'Chakra Petch', Tahoma, sans-serif;
+}
+.dialogue-evidence-above h3 {
+  margin: 0 0 8px;
+  color: #f1c881;
+  font-size: 23px;
+}
+.dialogue-evidence-above p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.6;
+}
+.field-guide.dialogue-guide,
+.relay-hint.dialogue-guide {
+  left: 4.5%;
+  right: 4.5%;
+  bottom: 18px;
+  width: auto;
+  max-width: none;
+  pointer-events: none;
+  z-index: 7;
+}
+.dialogue-guide > .dialogue-surface {
+  pointer-events: auto;
+}
+.dialogue-guide > .pixel-button {
+  pointer-events: auto;
+}
+.dialogue-guide .dialogue-surface {
+  margin-bottom: 8px;
+}
+.world-frame:has(.dialogue-guide > .dialogue-surface) .interaction {
+  bottom: 312px;
+}
+@keyframes dialogue-dock-open {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.dialogue-surface[data-reduced-motion='true'] {
+  animation: none;
+}
+@media (max-height: 780px) {
+  .dialogue-surface {
+    height: 254px;
+    gap: 18px;
+  }
+  .dialogue-surface__portrait {
+    width: 140px;
+    flex-basis: 140px;
+  }
+  .dialogue-surface--compact {
+    height: auto;
+  }
+  .dialogue-surface--compact .dialogue-surface__portrait {
+    width: 90px;
+    flex-basis: 90px;
+  }
+  .modal-backdrop[data-placement='dialogue'] {
+    padding-bottom: 16px;
+  }
+  .dialogue-evidence-above {
+    padding: 12px 18px;
+    bottom: calc(100% + 12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialogue-surface {
+    animation: none;
+  }
+}
+
+.dialogue-guide > .dialogue-surface {
+  padding: 6px 18px;
+  background-color: #0a1e2df5;
+  border-left: 0;
+}
+.relay-evidence-above {
+  padding: 12px 14px;
+}
+.relay-evidence-above .relay-record-comparison {
+  margin: 0;
+  gap: 14px;
+}
+.relay-evidence-above .relay-record-comparison > section {
+  padding: 10px 14px;
+}
+.relay-evidence-above .relay-record-comparison p {
+  font-size: 18px;
+}
+.relay-evidence-above .relay-record-comparison strong {
+  font-size: 20px;
+}
+.dialogue-surface__portrait .relay-system-face b {
+  font-size: 36px;
+  padding: 10px;
+}

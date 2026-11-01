@@ -1,0 +1,206 @@
+{
+  "version": 1,
+  "localOnly": true,
+  "assets": [
+    {
+      "path": "public/assets/chapter-one/vendor/city-ext/Cyberpunk_City_Character_01.png",
+      "bytes": 6276,
+      "sha256": "e7fdd009dfafba94808efedb86df3ab72ab37f4f3bbafc4d4d53a591eaca1943",
+      "width": 96,
+      "height": 256
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/city-ext/Cyberpunk_City_Character_02.png",
+      "bytes": 4579,
+      "sha256": "9c0bd266056289cb7152a5d36c9479647a4ef17c4089bc269eb606bac8985eee",
+      "width": 96,
+      "height": 256
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/city-ext/Cyberpunk_City_Doors_Windows_Signs.png",
+      "bytes": 40740,
+      "sha256": "194f74f691c50b8e2adcd936135da9188530f72c5e6423bc3017f2f1f9d3a067",
+      "width": 320,
+      "height": 800
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/city-ext/Cyberpunk_City_Props.png",
+      "bytes": 43878,
+      "sha256": "fd2146c7cd2e09439765649ea83e4c735e844405fe3e010c469ceede3b98de0c",
+      "width": 320,
+      "height": 576
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/city-ext/Cyberpunk_City_Tiles_Fences.png",
+      "bytes": 31554,
+      "sha256": "f95787111eb042cb2a9c4161cfe10d257b7fafbef735b75124063a1529e89eb8",
+      "width": 320,
+      "height": 640
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neo-zero/neo_zero_char_01.png",
+      "bytes": 5143,
+      "sha256": "df49ee5c2af74f5c303c74ead65f36304e404df69d482a0f2ed0d847eaabd524",
+      "width": 96,
+      "height": 288
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neo-zero/neo_zero_props_and_items_01.png",
+      "bytes": 5924,
+      "sha256": "80b6616de5e2462871964410e65309bb7174d56a51c88b887cf19ebe39767cd5",
+      "width": 160,
+      "height": 160
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neo-zero/neo_zero_tiles_and_buildings_01.png",
+      "bytes": 9196,
+      "sha256": "914f412031b9b503164e692ad55a9729c20cb7286ba36570ba1cff0ff80d7c25",
+      "width": 320,
+      "height": 320
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/LICENSE.txt",
+      "bytes": 496,
+      "sha256": "6fa4c09cdef6b7dde2c963746818beeb58b871f2314e09ecca2b3609b0440652"
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/neon_city_night_L0_sky.png",
+      "bytes": 3207,
+      "sha256": "c607b866036537d9a4375ee7d93a9754420a22cb5ad4aeec6a151890e65d6237",
+      "width": 320,
+      "height": 180
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/neon_city_night_L1_far_buildings.png",
+      "bytes": 1315,
+      "sha256": "f82dea97dbdb07553de9121c37ecc6e4756966d02ff3d6b3c4b725eb3bb93175",
+      "width": 320,
+      "height": 180
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/neon_city_night_L2_mid_buildings.png",
+      "bytes": 2355,
+      "sha256": "35c23595f7c132ac483c92bbae0e51aac9d9ec3dad04b220a487dda2bf10324e",
+      "width": 320,
+      "height": 180
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/neon_city_night_L3_near_rooftops.png",
+      "bytes": 1211,
+      "sha256": "03cec4b5590248c88ad4dea474499eeee7513e3c07a206b4090621f28756d9a3",
+      "width": 320,
+      "height": 180
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/neon_city_night_L4_foreground_wires.png",
+      "bytes": 1058,
+      "sha256": "b72cbe18dbbc6b0f45f9dc31e5f5686e8cc77f32613e6904e3e76bf11efb8982",
+      "width": 320,
+      "height": 180
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/neon-city/parallax.json",
+      "bytes": 625,
+      "sha256": "f6b3806fdc7671f159ba4687e26dd5db2d1292cf4980321a25c0dcf38a30f6e6"
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/crate.png",
+      "bytes": 38568,
+      "sha256": "beaf1f68f5abfdadc1c07d4abec1c1b3b21af262b7d8eeef114537e66465d346",
+      "width": 126,
+      "height": 129
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/floor-a.png",
+      "bytes": 39529,
+      "sha256": "8b955e19b4a04333a1f2c85143cbbc9d714f0172cf2346d588d8968a8321047d",
+      "width": 95,
+      "height": 162
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/floor-b.png",
+      "bytes": 49532,
+      "sha256": "a1cbfcaab00f0df96622ff64ac212eefa906cdedf71798c6df091f4c7d80fa2a",
+      "width": 102,
+      "height": 161
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/floor-c.png",
+      "bytes": 40670,
+      "sha256": "e9366c7c507681f556a27c20b44c38ee4a994cb1bc8e07a14abec98c4957030a",
+      "width": 105,
+      "height": 161
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/floor-d.png",
+      "bytes": 41747,
+      "sha256": "1d1d4eca57ee93fbbfd62c51ea10c64df462e82f3af99b0195778b310b354c3e",
+      "width": 101,
+      "height": 160
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/hologram.png",
+      "bytes": 97429,
+      "sha256": "9bfa193bab45f28eb8601ee6a45884c4912b7011d1e473ab49b99b403bae5831",
+      "width": 173,
+      "height": 220
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/machine.png",
+      "bytes": 76076,
+      "sha256": "491a42d0e6c62cc0c6287c09b3cceeb3829d501e7807c171014da0f5de22499a",
+      "width": 157,
+      "height": 215
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/plant.png",
+      "bytes": 47148,
+      "sha256": "6ea8b46dc5641fa71690e019c9d1de3310ad8388b9d9166497a326a79671eba2",
+      "width": 123,
+      "height": 202
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/portal.png",
+      "bytes": 74559,
+      "sha256": "a27be916339d5fbaa24e1bf2a04445b91b6dd92f4b2ab4771f67e6b7b9c5073d",
+      "width": 210,
+      "height": 229
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/rooftop.png",
+      "bytes": 139277,
+      "sha256": "a6456d8321c83223fcd7e7ccc672024f743af78a75cf4539da4bbfd066708e80",
+      "width": 262,
+      "height": 208
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/room.png",
+      "bytes": 239527,
+      "sha256": "08b0111a0bdef0870a6f5cb957acea72323afe0b1dc8992c1da32a639da9ad06",
+      "width": 376,
+      "height": 240
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/sign.png",
+      "bytes": 82119,
+      "sha256": "ab6a486942aa551ed6be3810a87c920e44be6cce0fe547a4c05a1df59c1535bb",
+      "width": 146,
+      "height": 225
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/sakpix/vehicle.png",
+      "bytes": 114273,
+      "sha256": "fd681e4a3619053d9d50d13339888d0f94561c4212ccc0107270c1cc06237cca",
+      "width": 322,
+      "height": 194
+    },
+    {
+      "path": "public/assets/chapter-one/vendor/justcreate3d/building-06-render.png",
+      "width": 326,
+      "height": 512,
+      "bytes": 85590,
+      "sha256": "4a5fce4177db40f02e11bb48ac34a47038a0311df549a5650b2325fa42f958e9",
+      "source": "User-provided Free Sample.zip / Free Sample/Building_06.fbx; rendered locally through Three.js FBXLoader orthographic camera, no original FBX shipped"
+    }
+  ]
+}

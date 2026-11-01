@@ -1,34 +1,34 @@
-export type EntryCue = 'rain' | 'relay' | 'alarm' | 'static' | 'connect' | 'confirm'
+import { SceneMusic, type MusicScene } from './music.ts'
+export type { MusicScene } from './music.ts'
+export type EntryCue =
+  'rain' | 'relay' | 'alarm' | 'static' | 'connect' | 'confirm' | 'door-open' | 'footsteps'
 export type EntryAudioStatus = {
   music: 'idle' | 'playing' | 'blocked' | 'error'
   sfxAvailable: boolean
 }
+export type TalkVoice = 'kin' | 'arun' | 'system'
 
 const level = (value: number) => (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0)
 const noop = () => {}
 
 /** One music transport and a separately muted, cancellable bus for original procedural effects. */
 export class EntryAudio {
-  private music: HTMLAudioElement | null = null
+  private music: SceneMusic
   private context: AudioContext | null = null
   private effects: GainNode | null = null
-  private musicLevel = 0.35
   private effectsLevel = 0.6
   private unlocked = false
   private disposed = false
-  private musicActive = false
-  private playPending: Promise<void> | null = null
   private cancellations = new Set<() => void>()
   private lastTalkAt = -Infinity
   private talkPitch = 0
   private status: EntryAudioStatus = { music: 'idle', sfxAvailable: false }
   private onStatus?: (status: EntryAudioStatus) => void
-  private onMusicError = () => this.publish({ music: 'error' })
 
   constructor(onStatus?: (status: EntryAudioStatus) => void) {
     this.onStatus = onStatus
+    this.music = new SceneMusic((music) => this.publish({ music }))
   }
-
   private publish(next: Partial<EntryAudioStatus>): void {
     if (this.disposed) return
     const status = { ...this.status, ...next }
@@ -37,33 +37,11 @@ export class EntryAudio {
     this.status = status
     this.onStatus?.({ ...status })
   }
-
-  private reportPlaybackError(reason: unknown): void {
-    const name = reason && typeof reason === 'object' && 'name' in reason ? reason.name : ''
-    this.publish({ music: name === 'NotAllowedError' ? 'blocked' : 'error' })
-  }
-
-  /** Call directly from a click/key gesture; rejected autoplay never rejects the game action. */
+  /** Music starts synchronously in the gesture. This promise is SFX readiness only. */
   async unlock(): Promise<void> {
     if (this.disposed) return
     this.unlocked = true
-    if (!this.music && typeof Audio !== 'undefined') {
-      try {
-        this.music = new Audio('/assets/theme.wav')
-        this.music.loop = true
-        this.music.preload = 'metadata'
-        this.music.volume = this.musicLevel
-        this.music.hidden = true
-        this.music.setAttribute?.('data-testid', 'music-transport')
-        this.music.setAttribute?.('data-techcare-music', '')
-        this.music.setAttribute?.('aria-hidden', 'true')
-        this.music.addEventListener?.('error', this.onMusicError)
-        if (typeof document !== 'undefined') document.body.append(this.music)
-      } catch {
-        this.publish({ music: 'error' })
-      }
-    }
-    if (!this.music) this.publish({ music: 'error' })
+    this.music.unlock()
     if (!this.context) {
       try {
         const scope = globalThis as typeof globalThis & { webkitAudioContext?: typeof AudioContext }
@@ -79,60 +57,30 @@ export class EntryAudio {
         this.effects = null
       }
     }
-    const resume =
-      this.context?.state === 'suspended'
-        ? this.context
-            .resume()
-            .then(() => {
-              this.publish({ sfxAvailable: this.context?.state === 'running' })
-            })
-            .catch(() => this.publish({ sfxAvailable: false }))
-        : Promise.resolve(this.publish({ sfxAvailable: this.context?.state === 'running' }))
-    // Start both transports within the original activation event, before awaiting either.
-    await Promise.all([resume, this.syncMusic()])
+    try {
+      if (this.context?.state === 'suspended') await this.context.resume()
+      this.publish({ sfxAvailable: this.context?.state === 'running' })
+    } catch {
+      this.publish({ sfxAvailable: false })
+    }
   }
-
   setLevels(music: number, sfx: number): void {
-    this.musicLevel = level(music)
+    this.music.setLevel(level(music))
     this.effectsLevel = level(sfx)
-    if (this.music) this.music.volume = this.musicLevel
     if (this.effects) this.effects.gain.value = this.effectsLevel
   }
-
-  setMusicActive(active: boolean): void {
-    if (this.disposed) return
-    this.musicActive = active
-    void this.syncMusic()
+  setMusicScene(scene: MusicScene): void {
+    this.music.setScene(scene)
   }
-
-  private syncMusic(): Promise<void> {
-    const audio = this.music
-    if (!audio || this.disposed || !this.unlocked) return Promise.resolve()
-    if (!this.musicActive) {
-      audio.pause()
-      if (this.status.music !== 'error') this.publish({ music: 'idle' })
-      return Promise.resolve()
-    }
-    if (this.playPending) return this.playPending
-    if (!audio.paused) return Promise.resolve()
-    try {
-      this.playPending = Promise.resolve(audio.play())
-        .then(() => this.publish({ music: this.musicActive ? 'playing' : 'idle' }))
-        .catch((reason) => this.reportPlaybackError(reason))
-        .finally(() => {
-          this.playPending = null
-          // A menu transition/dispose may have happened while play() was pending.
-          if (this.disposed || !this.musicActive) audio.pause()
-        })
-      return this.playPending
-    } catch (reason) {
-      this.reportPlaybackError(reason)
-      return Promise.resolve()
-    }
+  prepareMusicScene(scene: MusicScene): void {
+    this.music.prepare(scene)
+  }
+  setMusicActive(active: boolean): void {
+    this.music.setActive(active)
   }
 
   /** A soft syllable for revealed text, using the same gesture-unlocked effects bus. */
-  playTalkBlip(): () => void {
+  playTalkBlip(voice: TalkVoice = 'kin'): () => void {
     const ctx = this.context,
       bus = this.effects
     if (
@@ -158,7 +106,7 @@ export class EntryAudio {
         try {
           source.stop()
         } catch {
-          /* The scheduled 22ms blip may already have ended. */
+          /* The scheduled short blip may already have ended. */
         }
         source.disconnect()
       }
@@ -169,21 +117,54 @@ export class EntryAudio {
       gain = ctx.createGain()
       const at = ctx.currentTime + 0.004
       source.type = 'triangle'
-      source.frequency.value = [290, 326, 308][this.talkPitch % 3]
+      const pitches =
+        voice === 'arun' ? [175, 196, 185] : voice === 'system' ? [430, 460, 445] : [290, 326, 308]
+      source.frequency.value = pitches[this.talkPitch % 3]
       gain.gain.setValueAtTime(0, at)
-      gain.gain.linearRampToValueAtTime(0.055, at + 0.003)
-      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.022)
+      gain.gain.linearRampToValueAtTime(0.11, at + 0.005)
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.052)
       source.connect(gain)
       gain.connect(bus)
       source.onended = cancel
       this.cancellations.add(cancel)
       source.start(at)
-      source.stop(at + 0.022)
+      source.stop(at + 0.052)
       this.lastTalkAt = ctx.currentTime
       this.talkPitch++
     } catch {
       cancel()
     }
+    return cancel
+  }
+
+  /** Full visible lines still get a brief voice effect; no typing animation is required. */
+  playTalkLine(text: string, voice: TalkVoice = 'kin'): () => void {
+    if (
+      !text.trim() ||
+      !this.unlocked ||
+      this.disposed ||
+      this.context?.state !== 'running' ||
+      this.effectsLevel === 0
+    )
+      return noop
+    const count = Math.min(8, Math.max(2, Math.ceil(text.trim().length / 10)))
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const syllables: (() => void)[] = []
+    let cancelled = false
+    const cancel = () => {
+      if (cancelled) return
+      cancelled = true
+      timers.forEach(clearTimeout)
+      syllables.forEach((stop) => stop())
+      this.cancellations.delete(cancel)
+    }
+    const emit = () => {
+      if (!cancelled) syllables.push(this.playTalkBlip(voice))
+    }
+    this.cancellations.add(cancel)
+    emit()
+    for (let i = 1; i < count; i++) timers.push(setTimeout(emit, i * 144))
+    timers.push(setTimeout(cancel, count * 144))
     return cancel
   }
 
@@ -308,6 +289,14 @@ export class EntryAudio {
           tone(660, 0.11, 0.1, 0.08)
           tone(880, 0.22, 0.16, 0.07)
           break
+        case 'door-open':
+          tone(130, 0, 0.16, 0.07, 'triangle')
+          noise(0.9, 0.055, 450, 'lowpass')
+          tone(80, 0.8, 0.11, 0.07)
+          break
+        case 'footsteps':
+          for (const offset of [0, 0.3, 0.6, 0.9, 1.2]) tone(95, offset, 0.055, 0.045, 'triangle')
+          break
         case 'confirm':
           tone(620, 0, 0.08, 0.08)
           tone(930, 0.065, 0.11, 0.065)
@@ -326,18 +315,10 @@ export class EntryAudio {
   dispose(): void {
     if (this.disposed) return
     this.disposed = true
-    this.musicActive = false
     this.stopCues()
-    if (this.music) {
-      this.music.pause()
-      this.music.removeEventListener?.('error', this.onMusicError)
-      this.music.removeAttribute('src')
-      this.music.load()
-      this.music.remove?.()
-    }
+    this.music.dispose()
     if (this.context && this.context.state !== 'closed') void this.context.close().catch(noop)
     this.effects?.disconnect()
-    this.music = null
     this.effects = null
     this.context = null
   }

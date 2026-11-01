@@ -1,0 +1,1 @@
+TechCare RELAY-02 original environment and duty technician. Generated with built-in imagegen using the original Arun workshop as style reference, 2 November 2026. Source art retained locally under art-source/relay. Crops are source-aligned runtime layers, not independent perspective props. See RELAY_CHAPTER.md and tools/prepare-relay-art.mjs.

@@ -39,11 +39,10 @@ export const cityAreas: readonly CityArea[] = [
     name: 'สถานีสื่อสาร',
     code: 'RL / 02',
     district: 'ฝั่งตะวันออก · แนวเสาสัญญาณ',
-    kind: 'intel',
+    kind: 'mission',
     summary: caseNarrative.city.relay.summary,
-    task: 'อ่านและบันทึกข่าวกรอง',
+    task: 'สำรวจสถานีและกู้บันทึก RELAY-02',
     evidence: 'เวลาส่งสัญญาณและจุดหมายต่อไป',
-    intel: caseNarrative.city.relay,
   },
   {
     id: 'control',
@@ -60,8 +59,8 @@ export const cityAreas: readonly CityArea[] = [
 export const areaById = (id: AreaId) => cityAreas.find((a) => a.id === id)!
 export function currentObjective(progress: CityProgressSnapshot) {
   if (!progress.completed.includes('recover-cam07')) return caseNarrative.firstObjective
-  if (!progress.completed.includes('read-relay'))
-    return 'อ่านข่าวกรองที่สถานีสื่อสาร เพื่อตามสัญญาณ BLACKBOX'
+  if (!progress.completed.includes('recover-relay'))
+    return 'สำรวจสถานีสื่อสารและกู้บันทึก RELAY-02 เพื่อตามสัญญาณ BLACKBOX'
   if (!progress.completed.includes('read-control'))
     return 'ตรวจบันทึกศูนย์ควบคุม แล้วเชื่อมเบาะแสของผู้ว่าจ้าง'
   return 'บันทึกข้อมูลครบแล้ว · รอภารกิจภาคสนามตอนถัดไป'

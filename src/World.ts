@@ -1,4 +1,7 @@
 import Phaser from 'phaser'
+import { fieldScenes, fieldTextures } from './field/scenes'
+import { KIN_FRAME, KIN_DIRECTIONS, KIN_FOOT_EDGE, type KinDirection } from './field/kin-frames'
+import { streetSize } from './chapter/layout'
 import { assets } from './assets'
 import { caseNarrative } from './narrative/case'
 import { tutorialCanMove } from './tutorial/controls'
@@ -22,30 +25,49 @@ export class World extends Phaser.Scene {
   private unsubscribe = () => {}
   private current: View = 'map'
   private rain!: Phaser.GameObjects.Graphics
-  private facing = 'down'
+  private facing: KinDirection = 'down'
   private moving = false
   private restored = false
+  private drawing?: ReturnType<typeof fieldScenes.arun.draw>
+  private chapterId: 'arun' | 'relay' = 'arun'
+  private baseScale = 0.85
   constructor() {
     super('World')
   }
   preload() {
-    this.load.spritesheet('kin', assets.kin, { frameWidth: 32, frameHeight: 64 })
+    this.load.spritesheet('kin', '/assets/chapter-one/characters/kin-walk.png', {
+      frameWidth: KIN_FRAME.width,
+      frameHeight: KIN_FRAME.height,
+    })
+    for (const [key, url] of Object.entries(fieldTextures)) this.load.image(key, url)
     this.load.spritesheet('witness', assets.witness, { frameWidth: 32, frameHeight: 64 })
     this.load.atlas('pixel-ui', assets.uiAtlas, assets.uiFrames)
     for (const key of ['props', 'city', 'null'] as const) this.load.image(key, assets[key])
     this.load.on('loaderror', () => store.set({ error: 'โหลดภาพไม่สำเร็จ ลองโหลดฉากใหม่อีกครั้ง' }))
   }
   create() {
-    const dirs = ['down', 'left', 'right', 'up']
+    const dirs = KIN_DIRECTIONS
     for (const name of ['kin', 'witness'])
       dirs.forEach((dir, i) =>
         this.anims.create({
           key: `${name}-${dir}`,
-          frames: this.anims.generateFrameNumbers(name, { start: i * 3, end: i * 3 + 2 }),
-          frameRate: 7,
+          frames: this.anims.generateFrameNumbers(name, {
+            start: i * (name === 'kin' ? 4 : 3),
+            end: i * (name === 'kin' ? 4 : 3) + (name === 'kin' ? 3 : 2),
+          }),
+          frameRate: name === 'kin' ? 9 : 7,
           repeat: -1,
         })
       )
+    dirs.forEach((dir, i) => {
+      const first = i * 4
+      this.anims.create({
+        key: `kin-idle-${dir}`,
+        frames: [{ key: 'kin', frame: first }],
+        frameRate: 1,
+        repeat: -1,
+      })
+    })
     this.crop('front-a', 'city', 48, 208, 48, 112)
     this.crop('front-b', 'city', 96, 208, 48, 112)
     this.crop('front-c', 'city', 144, 208, 48, 112)
@@ -65,15 +87,17 @@ export class World extends Phaser.Scene {
     const gameEvents = this.game.events
     const resetOnBlur = () => {
       this.input.keyboard?.resetKeys()
+      if (this.player?.active) this.idle()
     }
     gameEvents.on('blur', resetOnBlur)
     this.unsubscribe = store.subscribe(() => {
       const s = store.get()
       if (this.input.keyboard) {
-        const blocked = Boolean(s.overlay || s.paused || s.view === 'map')
+        const blocked = Boolean(s.overlay || s.paused || s.view === 'map' || s.view === 'device')
         this.input.keyboard.enabled = !blocked
         if (blocked) {
           this.input.keyboard.resetKeys()
+          if (this.player?.active) this.idle()
           // Global capture is separate from the Scene plugin's enabled state.
           // Release arrows/Space so DOM sliders, text fields and buttons work.
           this.input.keyboard.disableGlobalCapture()
@@ -83,10 +107,12 @@ export class World extends Phaser.Scene {
         this.rain?.clear()
         this.cameras.main.resetFX()
       }
-      if (s.view !== this.current && s.view !== 'map') this.renderWorld(s.view)
-      if (s.repaired !== this.restored && s.view === 'device') {
-        this.renderWorld('device')
-      }
+      if (
+        (s.view !== this.current || s.activeChapter !== this.chapterId) &&
+        s.view !== 'map' &&
+        s.view !== 'device'
+      )
+        this.renderWorld(s.view)
     })
     // A whole Phaser game teardown emits Scene DESTROY without SHUTDOWN.
     // Both paths must release the external store and game-event subscriptions.
@@ -179,13 +205,16 @@ export class World extends Phaser.Scene {
       }
   }
   private renderWorld(view: View) {
-    if (view === 'map') return
+    if (view === 'map' || view === 'device') return
     this.current = view
+    this.chapterId = store.get().activeChapter
     this.restored = store.get().repaired
+    this.tweens.killAll()
+    this.cameras.main.stopFollow()
     this.children.removeAll(true)
-    this.ground()
-    if (view === 'street') this.drawStreet()
-    if (view === 'device') this.drawDevice()
+    if (view === 'boss') this.ground()
+    this.drawing = undefined
+    if (view === 'street') this.drawing = fieldScenes[this.chapterId].draw(this)
     if (view === 'boss') this.drawBoss()
     const p = store.get().positions[view]
     this.shadow = this.add
@@ -194,110 +223,21 @@ export class World extends Phaser.Scene {
     this.player = this.add
       .sprite(p.x, p.y, 'kin', 0)
       .setOrigin(0.5, 1)
-      .setScale(view === 'device' ? 0.65 : view === 'boss' ? 2.8 : 1.6)
+      .setScale(view === 'boss' ? 1.8 : 0.85)
       .setDepth(100)
-    this.rain = this.add.graphics().setDepth(150)
+    this.baseScale = view === 'boss' ? 1.8 : 0.85
+    const size = view === 'street' ? streetSize : { width: W, height: H }
+    this.cameras.main.setBounds(0, 0, size.width, size.height)
+    this.cameras.main.setZoom(view === 'boss' ? 1 : 0.8)
+    this.cameras.main.startFollow(this.player, true, 0.1, 0.1)
+    this.cameras.main.setDeadzone(170, 100)
+    this.rain = this.add.graphics().setDepth(2500)
     this.moving = false
     this.facing = 'down'
+    this.player.play('kin-idle-down')
+    this.anchorFeet()
     this.cameras.main.fadeIn(store.get().reduceMotion ? 0 : 260, 10, 20, 27)
     store.set({ ready: true })
-  }
-  private drawStreet() {
-    this.rect(0, 445, W, 245, 0x273b41)
-    for (let x = 0; x < W; x += 64) {
-      this.rect(x, 445, 62, 10, 0x73817b, 0.65)
-      this.rect(x, 655, 62, 7, 0x778279, 0.55)
-    }
-    this.rect(0, 675, W, 45, 0x11252c)
-    this.building(55, 95, 260, 330, 0, 'TECHCARE / SERVICE')
-    this.building(365, 100, 245, 325, 2, 'ARUN / REPAIR')
-    this.building(770, 72, 355, 353, 3, 'CAMERA / RECORDING')
-    this.rect(630, 140, 94, 305, 0x0d222a)
-    for (let y = 160; y < 420; y += 48) this.rect(638, y, 75, 2, 0x35545a)
-    this.add.image(1050, 610, 'car').setScale(1.1)
-    this.add.image(1140, 290, 'shop').setScale(1.5).setAlpha(0.8)
-    this.add.image(95, 332, 'aircon').setScale(1.2)
-    this.lamp(310, 570)
-    this.lamp(750, 570)
-    this.lamp(1195, 580)
-    this.add.ellipse(570, 472, 34, 10, 0x000000, 0.4)
-    this.add.sprite(575, 470, 'witness', 0).setOrigin(0.5, 1).setScale(1.5).setDepth(75)
-    this.add.image(575, 357, 'pixel-ui', 'quest-new').setScale(2)
-    this.rect(818, 425, 62, 44, 0x10232b)
-    this.rect(824, 431, 49, 23, 0x507c79)
-    this.rect(827, 434, 42, 4, 0xd1b77d)
-    this.rect(834, 471, 34, 5, 0xb99d63)
-    this.add.circle(850, 452, 48, 0xd8b270, 0.05)
-    this.text(790, 496, caseNarrative.worldLabels.cameraOffline, 12, '#e4bf7c')
-    this.line(
-      [
-        [825, 463],
-        [825, 520],
-        [760, 520],
-      ],
-      0x9b8b61,
-      2,
-      0.6
-    )
-    for (let i = 0; i < 10; i++) {
-      this.rect(90 + i * 113, 585 + (i % 3) * 18, 42, 2, 0x6b959e, 0.2)
-      this.rect(88 + i * 113, 589 + (i % 3) * 18, 27, 1, 0xd6ac68, 0.15)
-    }
-    this.text(52, 692, 'EAST BANK / SOI 07', 11, '#78959b')
-  }
-  private drawDevice() {
-    this.rect(0, 0, W, H, 0x0d1f2a)
-    const g = this.add.graphics()
-    g.lineStyle(1, 0x274655, 0.34)
-    for (let x = 0; x < W; x += 32) g.lineBetween(x, 0, x, H)
-    for (let y = 0; y < H; y += 32) g.lineBetween(0, y, W, y)
-    const path = circuitPath.map((n) => [n.x, n.y])
-    this.line(path, 0x06151d, 80)
-    this.line(path, 0x25454e, 66)
-    this.line(path, 0x91c6bd, 2, 0.4)
-    nodes.forEach((n, i) => {
-      const repaired = i === 0 && store.get().repaired
-      this.rect(n.x - 39, n.y - 45, 78, 64, 0x233c47)
-      this.rect(n.x - 34, n.y - 40, 68, 53, 0x122b37)
-      for (let k = 0; k < 6; k++) {
-        this.rect(n.x - 45, n.y - 37 + k * 8, 6, 3, 0x9a9f7c)
-        this.rect(n.x + 39, n.y - 37 + k * 8, 6, 3, 0x9a9f7c)
-      }
-      this.rect(n.x - 25, n.y - 31, 50, 34, repaired ? 0x2f7a6f : 0x563e4c)
-      this.text(n.x - 18, n.y - 27, repaired ? 'OK' : n.tag, 19, repaired ? '#b8efd0' : '#eab28c')
-      this.rect(n.x - 37, n.y + 24, 74, 3, repaired ? 0x9bd9b5 : 0xcba86d, 0.7)
-      this.add.image(n.x + 29, n.y - 43, 'pixel-ui', repaired ? 'quest-complete' : 'quest-active')
-    })
-    // Board traces, solder pads, and memory banks establish the scale of the tiny avatar.
-    for (let i = 0; i < 18; i++) {
-      const x = 48 + ((i * 79) % 1190),
-        y = 160 + ((i * 113) % 460)
-      this.line(
-        [
-          [x, y],
-          [x + 34, y],
-          [x + 34, y + 35],
-          [x + 70, y + 35],
-        ],
-        0x528b84,
-        2,
-        0.25
-      )
-      this.add.circle(x, y, 4, 0xb4ae7a, 0.3)
-    }
-    for (const [x, y] of [
-      [80, 200],
-      [440, 190],
-      [770, 600],
-      [1090, 620],
-    ]) {
-      this.rect(x, y, 100, 32, 0x263641)
-      for (let i = 0; i < 8; i++) this.rect(x + i * 12, y - 3, 6, 5, 0x9e9e7e)
-      this.text(x + 8, y + 10, 'MEM / CAM', 9, '#749b9c')
-    }
-    this.rect(40, 90, 270, 42, 0x142e39)
-    this.text(56, 104, caseNarrative.worldLabels.cameraRecovery, 14, '#a0cec4')
-    this.text(43, 675, 'LOCAL DEVICE SPACE  /  7 RECOVERY NODES', 11, '#668b99')
   }
   private drawBoss() {
     this.rect(0, 0, W, H, 0x111f2a)
@@ -339,7 +279,10 @@ export class World extends Phaser.Scene {
     if (!this.player || !this.keys) return
     const s = store.get(),
       p = s.positions[s.view]
-    if (s.overlay || s.paused || s.view === 'map') {
+    // Blocking input is distinct from pausing the world: practical lights and
+    // machinery remain alive behind a conversation's blur.
+    this.drawing?.update(time, delta, s.reduceMotion, s.paused)
+    if (s.overlay || s.paused || s.view === 'map' || s.view === 'device') {
       this.idle()
       this.rain.clear()
       return
@@ -352,34 +295,50 @@ export class World extends Phaser.Scene {
         Number(this.keys.S.isDown || this.keys.DOWN.isDown) -
         Number(this.keys.W.isDown || this.keys.UP.isDown)
       if (dx || dy) {
-        setPosition(movePoint(p, dx, dy, delta / 1000, solids[s.view], s.view === 'device'))
-        this.walk(dx, dy)
+        const next = movePoint(p, dx, dy, delta / 1000, solids[s.view])
+        const vx = next.x - p.x,
+          vy = next.y - p.y
+        if (Math.hypot(vx, vy) > 0.001) {
+          setPosition(next)
+          this.walk(vx, vy)
+        } else {
+          this.face(dx, dy)
+          this.idle()
+        }
       } else this.idle()
-    } else this.idle()
-    const next = store.get().positions[s.view]
-    this.player.setPosition(Math.round(next.x), Math.round(next.y))
-    this.shadow.setPosition(next.x, next.y - 2)
-    this.rain.clear()
-    if (!s.reduceMotion && s.view !== 'device' && s.view !== 'boss') {
-      this.rain.lineStyle(1, 0xa9c4cd, 0.12)
-      for (let i = 0; i < 55; i++) {
-        const x = (i * 173 + time * 0.014) % W,
-          y = (i * 89 + time * 0.27) % H
-        this.rain.lineBetween(x, y, x - 3, y + 12)
-      }
+    } else {
+      this.input.keyboard?.resetKeys()
+      this.idle()
     }
+    const next = store.get().positions[s.view]
+    this.player.setPosition(Math.round(next.x), Math.round(next.y)).setDepth(next.y + 5)
+    this.shadow.setPosition(next.x, next.y - 2).setDepth(next.y - 1)
+    this.player.setScale(this.baseScale)
+    this.anchorFeet()
+    this.rain.clear()
+  }
+  private face(dx: number, dy: number) {
+    const horizontal: KinDirection = dx > 0 ? 'right' : 'left',
+      vertical: KinDirection = dy > 0 ? 'down' : 'up'
+    if (Math.abs(dx) > Math.abs(dy) + 0.001) this.facing = horizontal
+    else if (Math.abs(dy) > Math.abs(dx) + 0.001) this.facing = vertical
+    else if (this.facing !== horizontal && this.facing !== vertical) this.facing = vertical
+  }
+  private anchorFeet() {
+    const frame = Number(this.player.frame.name)
+    this.player.setOrigin(0.5, (KIN_FOOT_EDGE[frame] ?? 122) / KIN_FRAME.height)
   }
   private walk(dx: number, dy: number) {
-    this.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up'
+    this.face(dx, dy)
     this.player.play(`kin-${this.facing}`, true)
     this.moving = true
   }
   private idle() {
-    if (this.moving) {
-      this.player.anims.stop()
-      this.player.setFrame(['down', 'left', 'right', 'up'].indexOf(this.facing) * 3)
+    if (this.moving || this.player.anims.currentAnim?.key !== `kin-idle-${this.facing}`) {
+      this.player.play(`kin-idle-${this.facing}`, true)
       this.moving = false
     }
+    this.anchorFeet()
   }
 }
 

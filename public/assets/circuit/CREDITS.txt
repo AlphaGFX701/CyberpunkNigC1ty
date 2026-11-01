@@ -1,0 +1,6 @@
+TechCare Circuit City — original geometry and material design, 1 November 2026.
+Editable source: src/circuit/model-geometry.ts
+Rebuild: node --experimental-strip-types tools/export-circuit.mjs
+This static GLB contains the PCB, eight original districts, traces, hardware and fans.
+Runtime light/data animation, Kin portrait, DOM markers and camera are implemented separately.
+Circuit City reference screenshots guided the concept; no Sketchfab model, texture or geometry was imported.

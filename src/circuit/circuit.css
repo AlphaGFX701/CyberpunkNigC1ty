@@ -1,0 +1,458 @@
+.game-layer .world-frame.circuit-map {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  max-height: none;
+  min-height: 0;
+  overflow: hidden;
+  background: #06181e;
+  isolation: isolate;
+  color: #e5f6f1;
+  font-family: 'Chakra Petch', Tahoma, sans-serif;
+}
+.circuit-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  touch-action: none;
+}
+.circuit-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.circuit-pin-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.circuit-pin-anchor {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+.circuit-heading {
+  position: absolute;
+  top: 28px;
+  left: 30px;
+  z-index: 3;
+  pointer-events: none;
+  max-width: 365px;
+  text-shadow: 0 2px 10px #000;
+}
+.circuit-heading > span,
+.circuit-detail > span {
+  font:
+    10px/1.6 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 2px;
+  color: #80c3ca;
+}
+.circuit-heading h1 {
+  font:
+    600 28px 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 4px;
+  margin: 9px 0;
+  color: #ddf3ed;
+}
+.circuit-heading p {
+  font-size: 14px;
+  color: #b3ccce;
+  margin: 0 0 14px;
+}
+.circuit-heading .pixel-button {
+  pointer-events: auto;
+  font-size: 14px;
+}
+.circuit-progress {
+  position: absolute;
+  right: 28px;
+  top: 28px;
+  z-index: 3;
+  max-width: 300px;
+  width: 27%;
+  padding: 15px 18px;
+  background: #071c25e8;
+  border-top: 2px solid #64e2eb;
+  border-left: 1px solid #386976;
+  box-shadow: 0 8px 25px #0003;
+}
+.circuit-progress > span {
+  float: right;
+  color: #f2c184;
+  font: 21px 'IBM Plex Mono';
+}
+.circuit-progress > span small {
+  font-size: 9px;
+  color: #7c9a9f;
+}
+.circuit-progress strong {
+  display: block;
+  clear: both;
+  font-size: 18px;
+  line-height: 1.6;
+  padding: 12px 0 9px;
+}
+.circuit-progress > div {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.circuit-progress i {
+  height: 4px;
+  flex: 1;
+  background: #314950;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.circuit-progress i[data-done='true'] {
+  background: #76dfb6;
+  box-shadow: 0 0 8px #4bdbac66;
+}
+.circuit-progress i[data-current='true'] {
+  background: #64e2eb;
+}
+.circuit-progress > small {
+  font-size: 12px;
+  color: #94b4ba;
+}
+.circuit-camera {
+  position: absolute;
+  right: 28px;
+  top: 45%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.circuit-camera button {
+  width: 40px;
+  height: 40px;
+  background: #0b2631de;
+  border: 1px solid #446d76;
+  color: #9ae6ea;
+  font: 24px monospace;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+.circuit-camera button:hover,
+.circuit-camera button:focus-visible {
+  background: #205363;
+  transform: translateX(-3px);
+  color: #fff;
+}
+.circuit-camera button:active {
+  transform: scale(0.94);
+}
+.circuit-pin {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  border: 1px solid #416b72;
+  background: #091f29ef;
+  padding: 5px 9px;
+  color: #c2e2e4;
+  cursor: pointer;
+  font:
+    12px 'IBM Plex Mono',
+    monospace;
+  box-shadow: 0 5px 16px #0005;
+  transition:
+    transform 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+}
+.circuit-pin b {
+  font-size: 15px;
+  color: #e3b87b;
+}
+.circuit-pin span {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.circuit-pin:hover,
+.circuit-pin:focus-visible,
+.circuit-pin[data-selected='true'] {
+  border-color: #91f2f1;
+  background: #185562;
+  transform: translateY(-3px);
+  outline: 2px solid #b5e4df;
+  outline-offset: 3px;
+}
+.circuit-pin:active {
+  transform: translateY(1px);
+}
+.circuit-pin[data-active='true'] {
+  box-shadow: 0 0 20px #55e5f54d;
+  animation: circuit-beacon 2.6s ease-in-out infinite;
+}
+.circuit-pin[data-done='true'] {
+  border-color: #64c89d;
+  color: #a9dfbe;
+}
+.circuit-pin:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.circuit-list {
+  position: absolute;
+  top: 185px;
+  left: 30px;
+  bottom: 85px;
+  z-index: 4;
+  width: 315px;
+  padding: 7px;
+  background: #071b26f2;
+  border: 1px solid #47717a;
+  overflow: auto;
+  box-shadow: 0 10px 40px #0008;
+}
+.circuit-list button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 12px;
+  padding: 12px 10px;
+  margin: 0 0 4px;
+  background: #112c36;
+  color: #d8e8e3;
+  border: 1px solid #31505a;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+.circuit-list button b {
+  font: 14px 'IBM Plex Mono';
+  color: #8fe8eb;
+}
+.circuit-list button span {
+  font-size: 16px;
+  flex: 1;
+}
+.circuit-list button small {
+  font-size: 10px;
+  color: #9fb6ba;
+}
+.circuit-list button:hover,
+.circuit-list button:focus-visible,
+.circuit-list button[data-selected='true'] {
+  background: #205160;
+  border-color: #81d0d6;
+  transform: translateX(2px);
+}
+.circuit-list button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.circuit-list button[data-done='true'] b {
+  color: #76dfb6;
+}
+.circuit-detail {
+  position: absolute;
+  z-index: 5;
+  left: 30px;
+  bottom: 95px;
+  width: 375px;
+  max-width: 42%;
+  background: #091f2af5;
+  border-left: 3px solid #5bdee8;
+  border-top: 1px solid #456a77;
+  padding: 21px 23px;
+  box-shadow: 0 10px 45px #0006;
+  animation: circuit-panel 0.2s ease-out;
+}
+.circuit-detail h2 {
+  font-size: 25px;
+  color: #e3f1ec;
+  margin: 7px 0 11px;
+}
+.circuit-detail p {
+  font-size: 17px;
+  line-height: 1.65;
+  color: #b3cdd0;
+  margin: 0 0 18px;
+}
+.circuit-detail .pixel-button {
+  font-size: 17px;
+}
+.circuit-map[data-renderer='list'] .circuit-detail {
+  left: 370px;
+}
+.circuit-close {
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  font-size: 23px;
+  line-height: 1;
+  border: 0;
+  padding: 0 5px;
+  color: #95d3d7;
+}
+.circuit-bottom {
+  position: absolute;
+  bottom: 21px;
+  left: 30px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  z-index: 3;
+}
+.circuit-bottom > .pixel-button {
+  font-size: 14px;
+}
+.circuit-bottom > span {
+  font-size: 12px;
+  color: #a2bfc4;
+  text-shadow: 0 2px 4px #000;
+}
+.circuit-kin {
+  position: absolute;
+  z-index: 5;
+  bottom: 92px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  max-width: 1000px;
+  width: 82%;
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+.circuit-kin img {
+  width: 92px;
+  height: 110px;
+  object-fit: cover;
+  object-position: top;
+  image-rendering: pixelated;
+}
+.circuit-kin .dialogue-surface {
+  width: 100%;
+}
+.circuit-map:has(.circuit-detail) .circuit-kin {
+  display: none;
+}
+.circuit-kin .dialogue-surface__text p {
+  font-size: 22px;
+  padding: 0;
+  line-height: 1.6;
+}
+.circuit-kin p {
+  font-size: 18px;
+  line-height: 1.6;
+  padding: 12px 18px;
+  margin: 0;
+  color: #d7e9e7;
+}
+.circuit-kin b {
+  display: block;
+  font: 10px 'IBM Plex Mono';
+  color: #f1c682;
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+}
+.circuit-loading {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: #06181eed;
+  color: #a1dfe4;
+  font-size: 21px;
+  gap: 20px;
+}
+.circuit-loading button {
+  font-size: 16px;
+  padding: 8px 20px;
+}
+[data-reduced-motion='true'] .circuit-pin,
+[data-reduced-motion='true'] .circuit-detail {
+  animation: none;
+  transition: none;
+}
+@keyframes circuit-beacon {
+  0%,
+  100% {
+    box-shadow: 0 0 12px #55e5f52e;
+  }
+  50% {
+    box-shadow: 0 0 28px #55e5f57a;
+  }
+}
+@keyframes circuit-panel {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-height: 760px) {
+  .circuit-heading {
+    top: 18px;
+    left: 23px;
+  }
+  .circuit-heading h1 {
+    font-size: 22px;
+    margin: 5px 0;
+  }
+  .circuit-heading p {
+    font-size: 12px;
+    margin-bottom: 9px;
+  }
+  .circuit-progress {
+    top: 18px;
+    right: 22px;
+    padding: 9px 14px;
+  }
+  .circuit-progress strong {
+    font-size: 16px;
+    padding: 8px 0;
+  }
+  .circuit-detail {
+    bottom: 75px;
+    padding: 15px 20px;
+    left: 23px;
+  }
+  .circuit-detail h2 {
+    font-size: 22px;
+  }
+  .circuit-detail p {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .circuit-list {
+    top: 153px;
+    left: 23px;
+  }
+  .circuit-bottom {
+    bottom: 16px;
+    left: 23px;
+  }
+  .circuit-camera {
+    right: 22px;
+    gap: 5px;
+  }
+  .circuit-camera button {
+    width: 34px;
+    height: 34px;
+  }
+  .circuit-kin {
+    bottom: 75px;
+  }
+  .circuit-kin p {
+    font-size: 16px;
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { PixelButton, PixelPanel, type PanelKind } from './PixelUI'
+import './dialogue-surface.css'
 
 /** Shared focus boundary for game terminals and entry menus. */
 export function Modal({
@@ -8,11 +9,13 @@ export function Modal({
   children,
   onClose,
   variant = 'window',
+  placement = 'center',
 }: {
   title: string
   children: ReactNode
   onClose: () => void
   variant?: PanelKind
+  placement?: 'center' | 'dialogue'
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const closeRef = useRef(onClose)
@@ -80,6 +83,7 @@ export function Modal({
   return createPortal(
     <div
       className="modal-backdrop"
+      data-placement={placement}
       onPointerDown={(event) => {
         if (event.target === event.currentTarget) event.preventDefault()
       }}

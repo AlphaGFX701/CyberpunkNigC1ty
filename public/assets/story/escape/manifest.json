@@ -1,0 +1,11 @@
+{
+  "frames": 6,
+  "frameWidth": 256,
+  "frameHeight": 512,
+  "baseline": 470,
+  "normalization": "shared source-scale, fixed horizontal slots, nearest-neighbor",
+  "sourceSize": [
+    2172,
+    724
+  ]
+}

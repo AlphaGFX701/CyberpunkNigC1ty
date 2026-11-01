@@ -1,0 +1,33 @@
+{
+ "scene": "Neon City Night",
+ "width": 320,
+ "height": 180,
+ "tiling": "horizontal",
+ "layers": [
+  {
+   "order": 0,
+   "file": "neon_city_night_L0_sky.png",
+   "scroll_factor": 0.0
+  },
+  {
+   "order": 1,
+   "file": "neon_city_night_L1_far_buildings.png",
+   "scroll_factor": 0.15
+  },
+  {
+   "order": 2,
+   "file": "neon_city_night_L2_mid_buildings.png",
+   "scroll_factor": 0.3
+  },
+  {
+   "order": 3,
+   "file": "neon_city_night_L3_near_rooftops.png",
+   "scroll_factor": 0.55
+  },
+  {
+   "order": 4,
+   "file": "neon_city_night_L4_foreground_wires.png",
+   "scroll_factor": 1.0
+  }
+ ]
+}

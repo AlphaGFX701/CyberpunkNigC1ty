@@ -1,14 +1,41 @@
-import { cityProgress } from './city/progression.ts'
+import { cityProgress, canAccessArea } from './city/progression.ts'
+import { chapter } from './chapter/model.ts'
+import { relay } from './relay/model.ts'
+import { relayEntry, relayPoints, relaySolids, relayClosedGate } from './relay/layout.ts'
+import {
+  streetSize,
+  deviceSize,
+  streetPoints,
+  streetSolids,
+  deviceSolids,
+  recoveryPoints,
+  deviceEntry,
+  deviceExit,
+} from './chapter/layout.ts'
 import { tutorial } from './tutorial/model.ts'
 import { recordTutorialWalk, tutorialAllows } from './tutorial/controls.ts'
 export type View = 'map' | 'street' | 'device' | 'boss'
 export type Point = { x: number; y: number }
 export type Rect = Point & { w: number; h: number }
-export type Overlay = 'brief' | 'witness' | 'terminal' | 'journal' | 'boss' | 'intel' | null
+export type Overlay =
+  | 'relay-departure'
+  | 'relay-arrival'
+  | 'relay-conclusion'
+  | 'brief'
+  | 'witness'
+  | 'terminal'
+  | 'journal'
+  | 'boss'
+  | 'intel'
+  | 'clue-receipt'
+  | 'clue-relay'
+  | 'hack'
+  | 'recovery'
+  | null
 export const stops = [
   { x: 165, y: 565, title: 'ฐาน TechCare', tag: 'จุดเริ่มต้น' },
   { x: 385, y: 330, title: 'ร้านช่างอรุณ', tag: 'ตอน 01 · ภาพสุดท้าย' },
-  { x: 740, y: 495, title: 'สถานีสื่อสาร', tag: 'ตอน 02 · เสียงจากเงา' },
+  { x: 740, y: 495, title: 'สถานีสื่อสาร', tag: 'ตอน 02 · สัญญาณที่ไม่มีในรายงาน' },
   { x: 1070, y: 230, title: 'ศูนย์ควบคุม', tag: 'ตอน 03 · เส้นทางที่ถูกลบ' },
 ]
 export const route: Point[] = [
@@ -24,34 +51,12 @@ export const route: Point[] = [
   { x: 950, y: 230 },
   { x: 1070, y: 230 },
 ]
-export const nodes = [
-  { x: 180, y: 565, title: 'ชนิดไฟล์ภาพ', tag: '01' },
-  { x: 330, y: 370, title: 'แท็กแสดงภาพ', tag: '02' },
-  { x: 520, y: 520, title: 'แหล่งที่อยู่ภาพ', tag: '03' },
-  { x: 680, y: 300, title: 'คำอธิบายภาพ', tag: '04' },
-  { x: 865, y: 480, title: 'ขนาดภาพ', tag: '05' },
-  { x: 1010, y: 290, title: 'ภาพที่เป็นลิงก์', tag: '06' },
-  { x: 1160, y: 500, title: 'คืนภาพหลักฐาน', tag: '07' },
-]
-export const circuitPath: Point[] = [{ x: 115, y: 500 }, ...nodes]
-export function onCircuit(p: Point) {
-  return circuitPath.slice(1).some((b, i) => {
-    const a = circuitPath[i],
-      dx = b.x - a.x,
-      dy = b.y - a.y
-    const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy)))
-    return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy) < 33
-  })
-}
+export const nodes = recoveryPoints
+export const circuitPath: Point[] = [deviceEntry, ...nodes]
 export const solids: Record<View, Rect[]> = {
   map: [],
-  street: [
-    { x: 55, y: 100, w: 265, h: 310 },
-    { x: 365, y: 100, w: 245, h: 310 },
-    { x: 770, y: 70, w: 355, h: 340 },
-    { x: 1040, y: 525, w: 100, h: 90 },
-  ],
-  device: [],
+  street: [...streetSolids],
+  device: [...deviceSolids],
   boss: [],
 }
 export function movePoint(
@@ -66,12 +71,25 @@ export function movePoint(
     speed = tiny ? 145 : 220,
     radius = tiny ? 8 : 13
   const amount = Math.min(dt, 0.05) * speed
+  if (state.view === 'street' && state.activeChapter === 'relay')
+    obstacles = [...relaySolids, ...(!relay.get().spoken ? [relayClosedGate] : [])]
+  const size = tiny
+    ? deviceSize
+    : state.view === 'street'
+      ? streetSize
+      : { width: 1280, height: 720 }
   const valid = (x: number, y: number) =>
-    x >= 45 &&
-    x <= 1235 &&
-    y >= 170 &&
-    y <= 665 &&
-    (!tiny || onCircuit({ x, y })) &&
+    x >= 60 &&
+    x <= size.width - 60 &&
+    y >=
+      (tiny
+        ? 190
+        : state.view === 'street'
+          ? state.activeChapter === 'relay'
+            ? 355
+            : 390
+          : 220) &&
+    y <= size.height - 55 &&
     !obstacles.some(
       (r) =>
         x + radius > r.x && x - radius < r.x + r.w && y + radius > r.y && y - radius < r.y + r.h
@@ -85,15 +103,19 @@ export function movePoint(
 }
 export const initialPositions: Record<View, Point> = {
   map: { ...stops[0] },
-  street: { x: 650, y: 565 },
-  device: { x: 115, y: 500 },
+  street: { x: 475, y: 782 },
+  device: { ...deviceEntry },
   boss: { x: 330, y: 565 },
 }
 type State = {
+  activeChapter: 'arun' | 'relay'
   view: View
   positions: Record<View, Point>
   overlay: Overlay
+  taskIndex: number
   paused: boolean
+  connectionRunning: boolean
+  hintOpen: boolean
   reduceMotion: boolean
   selectedStop: number
   destination: number | null
@@ -103,10 +125,14 @@ type State = {
   error: string
 }
 let state: State = {
+  activeChapter: 'arun',
   view: 'map',
   positions: structuredClone(initialPositions),
   overlay: null,
+  taskIndex: 0,
   paused: false,
+  connectionRunning: false,
+  hintOpen: false,
   reduceMotion: false,
   selectedStop: 0,
   destination: null,
@@ -126,6 +152,8 @@ export const store = {
   },
   set: (patch: Partial<State>) => {
     state = { ...state, ...patch }
+    if (('overlay' in patch && patch.overlay !== 'hack') || 'view' in patch)
+      state.connectionRunning = false
     listeners.forEach((l) => l())
   },
 }
@@ -133,23 +161,46 @@ export function changeView(view: View) {
   const step = tutorial.get().step
   if (
     step &&
-    ((view === 'street' && step !== 'travel') ||
+    ((view === 'street' && step !== 'travel' && step !== 'field-return') ||
       (view === 'device' && step !== 'camera-enter') ||
-      (view === 'map' && step !== 'return-map') ||
+      (view === 'map' && step !== 'return-map' && step !== 'field-map') ||
       view === 'boss')
   )
     return
-  if (view !== 'map' && !cityProgress.arrive('arun')) return
+  const current = state.activeChapter === 'relay' ? relay : chapter
+  if (view !== 'map' && !canAccessArea(cityProgress.get(), state.activeChapter)) return
+  if (view === 'device' && !current.canHack()) {
+    store.set({ toast: 'คุยกับพยานและค้นเบาะแสสองจุดก่อนเชื่อมต่อเครื่อง' })
+    return
+  }
+  if (view === 'device' && !current.startHack()) return
+  if (view !== 'map' && !cityProgress.arrive(state.activeChapter)) return
   store.set({
     view,
+    connectionRunning: false,
     overlay: null,
     destination: null,
     ready: state.view === view ? state.ready : false,
     toast: '',
   })
-  if (view === 'street') tutorial.notify('street-arrived')
-  if (view === 'device') tutorial.notify('device-arrived')
+  if (view === 'street' && state.activeChapter === 'arun') tutorial.notify('street-arrived')
+  if (view === 'device' && state.activeChapter === 'arun') tutorial.notify('device-arrived')
   if (view === 'map') tutorial.notify('map-returned')
+}
+export function enterField(chapterId: 'arun' | 'relay') {
+  if (tutorial.get().step && chapterId !== 'arun') return
+  if (!cityProgress.arrive(chapterId)) return
+  const changed = state.activeChapter !== chapterId
+  store.set({
+    activeChapter: chapterId,
+    positions: changed
+      ? {
+          ...state.positions,
+          street: chapterId === 'relay' ? { ...relayEntry } : { ...initialPositions.street },
+        }
+      : state.positions,
+  })
+  changeView('street')
 }
 export function setPosition(p: Point) {
   const before = state.positions[state.view]
@@ -169,26 +220,115 @@ export function interact() {
     return
   }
   if (s.view === 'street') {
+    if (s.activeChapter === 'relay') {
+      const p = s.positions.street
+      const near = (key: keyof typeof relayPoints, range = 100) =>
+        Math.hypot(p.x - relayPoints[key].x, p.y - relayPoints[key].y) < range
+      if (near('officer', 105)) {
+        store.set({ overlay: 'witness' })
+        return
+      }
+      if (near('workorder', 95) || near('module', 95)) {
+        if (!relay.get().spoken) {
+          store.set({ toast: 'ถามเจ้าหน้าที่เวรก่อน เขายังไม่ได้เปิดทางให้เรา' })
+          return
+        }
+        store.set({ overlay: near('workorder', 95) ? 'clue-receipt' : 'clue-relay' })
+        return
+      }
+      if (near('terminal', 110)) {
+        if (!relay.canHack()) {
+          store.set({ toast: 'ยังขาดใบงานหรือโมดูลบันทึก ตรวจสองจุดให้ครบก่อนเชื่อม RELAY-02' })
+          return
+        }
+        store.set({ overlay: 'hack' })
+        return
+      }
+      if (near('evidence', 90)) {
+        if (
+          !relay.get().finalRecovered &&
+          !cityProgress.get().completed.includes('recover-relay')
+        ) {
+          store.set({ toast: 'ต้นฉบับยังล็อก เข้า RELAY-02 เพื่อกู้หน้าบันทึกให้ครบก่อน' })
+          return
+        }
+        store.set({ overlay: 'relay-conclusion' })
+        return
+      }
+      if (near('exit')) {
+        changeView('map')
+        return
+      }
+      store.set({ toast: 'เดินตาม Marker ไปคุยพยาน ตรวจแผง หรือเข้าใกล้ RELAY-02 แล้วกด E' })
+      return
+    }
     const p = s.positions.street
-    if (Math.hypot(p.x - 575, p.y - 470) < 120) {
+    const near = (key: keyof typeof streetPoints, range = 100) =>
+      Math.hypot(p.x - streetPoints[key].x, p.y - streetPoints[key].y) < range
+    if (near('arun', 120)) {
       if (tutorial.get().step && tutorial.get().step !== 'witness-open') return
       store.set({ overlay: 'witness' })
       tutorial.notify('witness-opened')
       return
     }
-    if (Math.hypot(p.x - 850, p.y - 460) < 125) {
-      changeView('device')
+    if (near('receipt') || near('relay')) {
+      if (!chapter.get().spoken) {
+        store.set({ toast: 'ถามลุงอรุณก่อนค้นของในร้าน' })
+        return
+      }
+      store.set({ overlay: near('receipt') ? 'clue-receipt' : 'clue-relay' })
       return
     }
-    store.set({ toast: 'เดินไปหาช่างอรุณ หรือเครื่องบันทึกกล้องที่มีแสงสีอำพัน' })
+    if (near('terminal', 120)) {
+      if (!chapter.canHack()) {
+        store.set({ toast: 'ยังขาดร่องรอย ค้นใบรับของที่เคาน์เตอร์ซ้ายกับตัวส่งสัญญาณฝั่งขวาก่อน' })
+        return
+      }
+      store.set({ overlay: 'hack' })
+      return
+    }
+    if (near('camera', 120)) {
+      if (!chapter.get().imageRecovered) {
+        store.set({
+          toast: chapter.canRecoverImage()
+            ? 'หอกล้องเปิดแล้ว เข้า Circuit City จากเครื่องซ่อมกลางร้านเพื่อกู้ภาพด่านที่ 8'
+            : 'CAM-07 ยังล็อก: ซ่อม HTML ให้ครบ 7 จุดก่อน (' +
+              chapter.get().completed.length +
+              '/7)',
+        })
+        return
+      }
+      store.set({ overlay: 'recovery' })
+      return
+    }
+    if (near('exit', 100)) {
+      changeView('map')
+      return
+    }
+    store.set({
+      toast: 'เข้าใกล้คนหรือสิ่งของที่มีเครื่องหมาย แล้วกด E — อ้อมชั้นอะไหล่ตามทางเดิน',
+    })
     return
   }
   const p = s.positions.device
-  const near = nodes.find((n) => Math.hypot(p.x - n.x, p.y - n.y) < 90)
-  if (near) {
-    store.set({ overlay: 'terminal' })
+  if (
+    Math.hypot(p.x - deviceEntry.x, p.y - deviceEntry.y) < 85 ||
+    Math.hypot(p.x - deviceExit.x, p.y - deviceExit.y) < 85
+  ) {
+    changeView('street')
+    return
+  }
+  const index = nodes.findIndex((n) => Math.hypot(p.x - n.x, p.y - n.y) < 90)
+  if (index >= 0) {
+    if (!chapter.canOpenTask(index)) {
+      store.set({
+        toast: 'จุดนี้ยังล็อก ไปกู้จุด ' + (chapter.get().completed.length + 1) + ' ก่อน',
+      })
+      return
+    }
+    store.set({ overlay: 'terminal', taskIndex: index })
     tutorial.notify('terminal-opened')
     return
   }
-  store.set({ toast: 'เดินเข้าใกล้จุดกู้ระบบ แล้วกด E' })
+  store.set({ toast: 'เดินตามวงจรไปหาจุดสีฟ้าที่เปิดอยู่ แล้วกด E' })
 }

@@ -1,0 +1,347 @@
+.cinematic-space {
+  position: absolute;
+  width: 1280px;
+  height: 720px;
+  transform-origin: 0 0;
+}
+.cinematic-space .scene-plate {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.theft-escape {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  perspective: 1400px;
+}
+.escape-door-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: 1060px 300px;
+}
+.escape-door-leaf img {
+  width: 1280px;
+  height: 720px;
+  clip-path: polygon(88% 0, 100% 0, 100% 83%, 90% 78%, 85% 64%, 83% 42%, 84% 20%);
+  image-rendering: pixelated;
+}
+.escape-actor {
+  position: absolute;
+  left: 500px;
+  top: 145px;
+  width: 256px;
+  height: 512px;
+  transform-origin: 50% 92%;
+}
+.escape-sprite {
+  position: absolute;
+  inset: 0;
+  background: url('/assets/story/escape/walk.webp') 0 0 / 1536px 512px no-repeat;
+  image-rendering: pixelated;
+}
+.escape-shadow {
+  position: absolute;
+  left: 55px;
+  top: 460px;
+  width: 140px;
+  height: 18px;
+  border-radius: 50%;
+  background: #02070bd9;
+  filter: blur(3px);
+}
+.escape-foreground {
+  position: absolute;
+  inset: 0;
+  width: 1280px;
+  height: 720px;
+  clip-path: path(
+    'M760 425L820 405L890 413L1016 452L1028 720H760Z M1053 0H1092V390L1130 490L1160 540L1142 554L1102 503L1060 397Z'
+  );
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.escape-preflight {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.escape-status-light {
+  position: absolute;
+  left: 697px;
+  top: 57px;
+  width: 8px;
+  height: 8px;
+  background: #ff7566;
+  box-shadow: 0 0 14px #ed473d;
+  animation: escape-alarm 3.4s ease-in-out infinite;
+}
+.theft-escape[data-running='true'] .escape-door-leaf {
+  animation: escape-open-door 2.8s ease-in-out both;
+}
+.theft-escape[data-running='true'] .escape-actor {
+  animation: escape-leave 2.8s linear both;
+}
+.theft-escape[data-running='true'] .escape-sprite {
+  animation: escape-stride 0.6s steps(6) 0.85s infinite;
+}
+@keyframes escape-stride {
+  to {
+    background-position-x: -1536px;
+  }
+}
+@keyframes escape-open-door {
+  0%,
+  10% {
+    transform: rotateY(0deg);
+  }
+  38%,
+  100% {
+    transform: rotateY(-78deg);
+  }
+}
+@keyframes escape-leave {
+  0%,
+  30% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(275px, -40px) scale(0.95);
+    opacity: 1;
+  }
+  90% {
+    transform: translate(555px, -95px) scale(0.82);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(610px, -110px) scale(0.78);
+    opacity: 0;
+  }
+}
+@keyframes escape-alarm {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.story-screen[data-phase='escape'] .story-dialogue {
+  animation: none;
+  opacity: 0;
+  pointer-events: none;
+}
+.story-screen .story-dialogue {
+  transition: opacity 160ms ease;
+}
+.dark-dialogue .story-lines {
+  min-height: 100px;
+  max-height: none;
+  overflow: visible;
+}
+.dark-dialogue .story-lines p {
+  display: block;
+  margin: 0;
+  font-size: clamp(28px, 2.1875vw, 32px);
+  line-height: 1.65;
+}
+.dark-dialogue .story-lines strong {
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0 0 7px;
+  font-size: clamp(22px, 1.72vw, 24px);
+  line-height: 1.5;
+}
+.dark-dialogue .story-lines p > span {
+  display: block;
+}
+.dark-dialogue .story-controls {
+  margin-top: 18px;
+  padding-top: 14px;
+}
+.network-brief {
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+  grid-template-rows: 15px 28px 67px 26px;
+  gap: 4px;
+  height: 160px;
+}
+.network-brief > small {
+  font-size: 10px;
+  line-height: 15px;
+}
+.network-brief > strong {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+}
+.network-route {
+  margin: 9px 12px 0;
+}
+.network-route span {
+  gap: 7px;
+  font-size: 13px;
+}
+.network-brief > p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 24px;
+}
+.entry-sound-enable {
+  position: fixed;
+  z-index: 60;
+  right: 24px;
+  bottom: 18px;
+  border: 1px solid #74aeb577;
+  background: #071923dc;
+  padding: 8px 13px;
+  color: #b8e3df;
+  font:
+    16px 'Chakra Petch',
+    sans-serif;
+  cursor: pointer;
+  transition:
+    background 140ms,
+    border-color 140ms,
+    transform 100ms;
+}
+.entry-sound-enable:hover,
+.entry-sound-enable:focus-visible {
+  background: #17404b;
+  border-color: #9cf0e8;
+  outline: 2px solid #9cf0e8;
+  outline-offset: 3px;
+}
+.entry-sound-enable:active {
+  transform: translateY(2px);
+}
+[data-reduced-motion='true'] .theft-escape * {
+  animation: none !important;
+}
+[data-reduced-motion='true'] .theft-escape[data-running='true'] .escape-door-leaf,
+[data-reduced-motion='true'] .theft-escape[data-running='true'] .escape-actor {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theft-escape * {
+    animation: none !important;
+  }
+  .theft-escape[data-running='true'] .escape-door-leaf,
+  .theft-escape[data-running='true'] .escape-actor {
+    opacity: 0;
+  }
+  .story-screen .story-dialogue,
+  .entry-sound-enable {
+    transition: none;
+  }
+}
+
+/* Opening dialogue shares the field dock; narrative state/cues remain with StoryPlayer. */
+.story-dialogue-dock {
+  position: absolute;
+  bottom: 24px;
+  left: 4.5%;
+  right: 4.5%;
+  z-index: 5;
+}
+.story-screen .dialogue-surface.story-dialogue {
+  position: relative;
+  inset: auto;
+  padding: 14px 22px 16px 14px;
+  margin: 0;
+}
+.story-screen .dialogue-surface .story-lines {
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+.story-screen .dialogue-surface .story-lines p {
+  display: block;
+  margin: 0;
+  font:
+    400 clamp(24px, 1.65vw, 28px)/1.6 'Chakra Petch',
+    Tahoma,
+    sans-serif;
+}
+.story-screen .dialogue-surface .story-lines strong {
+  display: none;
+}
+.story-screen .dialogue-surface .story-lines p > span {
+  display: block;
+}
+/* Storyboard events stay sharp; only in-game blocking conversations blur the world. */
+.story-screen .scene-plate,
+.story-screen .theft-escape {
+  filter: none;
+}
+.story-screen .layer-network,
+.story-screen .layer-memory,
+.story-screen .layer-file {
+  filter: none;
+}
+.story-system-portrait {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  background: radial-gradient(circle, #244b5d, #0b2030 75%);
+}
+.story-system-portrait b {
+  color: #83e1e7;
+  border: 1px solid #4f8290;
+  padding: 12px;
+  font:
+    30px 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 3px;
+}
+.story-system-portrait small {
+  color: #9fcbd2;
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 1px;
+}
+.story-system-portrait i {
+  width: 6px;
+  height: 6px;
+  background: #69dce3;
+  box-shadow: 12px 0 #69dce3;
+  animation: field-link 2s ease-in-out infinite;
+}
+.story-screen .dialogue-surface .story-dots {
+  flex: none;
+  align-items: center;
+}
+.story-screen .dialogue-surface .dialogue-surface__actions > small {
+  margin-left: auto;
+  margin-right: 0;
+}
+@media (max-height: 780px) {
+  .story-dialogue-dock {
+    bottom: 16px;
+  }
+  .story-screen .dialogue-surface.story-dialogue {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+[data-reduced-motion='true'] .story-system-portrait i {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-system-portrait i {
+    animation: none;
+  }
+  .story-screen .scene-plate,
+  .story-screen .theft-escape {
+    transition: none;
+  }
+}

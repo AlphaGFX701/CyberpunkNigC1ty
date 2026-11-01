@@ -139,7 +139,7 @@ export function createAccount(options: {
     try {
       const v = JSON.parse(readStorage(storage, cacheKey(id)) ?? 'null')
       return v?.version === 1 && validPlayer(v.player)
-        ? { player: v.player, pending: v.pending === true }
+        ? { player: { ...v.player, case: cleanCase(v.player.case) }, pending: v.pending === true }
         : null
     } catch {
       return null
@@ -353,6 +353,8 @@ export function createAccount(options: {
   }
   const apiObject = {
     get: () => current,
+    // Local chapter detail uses the same owner/reset generation without expanding cloud data.
+    getSaveScope: () => ({ owner, generation: record.generation }),
     subscribe: (f: () => void) => {
       listeners.add(f)
       return () => {

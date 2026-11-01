@@ -1,5 +1,6 @@
 node_modules/
 dist/
+/api/index.mjs
 art-source/
 evidence/
 .vercel/
@@ -11,12 +12,14 @@ test-results/
 !.env.example
 
 # Third-party artwork is supplied locally for finished-game deployment only.
+/public/assets/music/*.mp3
 /public/assets/kin.png
 /public/assets/witness.png
 /public/assets/props.png
 /public/assets/city.png
 /public/assets/null.png
 /public/assets/vendor/**/*.png
+/public/assets/chapter-one/vendor/**/*.png
 
 .vercel
 .env*

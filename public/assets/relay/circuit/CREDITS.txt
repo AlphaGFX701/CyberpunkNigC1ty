@@ -1,0 +1,6 @@
+TechCare RELAY-02 — original low-poly circuit hardware, 2 November 2026.
+Editable source: src/circuit/relay-geometry.ts and src/circuit/primitives.ts
+Rebuild: node --experimental-strip-types tools/export-relay-circuit.mjs
+GLB includes original PCB, seven network districts, original-record tower, connectors and fans.
+Runtime animations, DOM markers, text and Kin portrait are separate in the game.
+No Sketchfab mesh, vendor texture or proprietary model was imported.

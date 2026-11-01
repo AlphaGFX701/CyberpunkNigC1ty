@@ -1,0 +1,123 @@
+.tc-code-editor {
+  --code-cyan: #6be6ff;
+  --code-edge: #315369;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--code-edge);
+  background: #07121e;
+  box-shadow: 0 0 24px #45d8f30b;
+}
+.tc-code-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #102331;
+  border-bottom: 1px solid #294657;
+  color: #9fc8d9;
+  font:
+    11px/1.5 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 0.5px;
+}
+.tc-code-file > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.tc-code-file i {
+  width: 6px;
+  height: 6px;
+  background: var(--code-cyan);
+  box-shadow: 0 0 9px #55e4ff85;
+}
+.tc-code-file kbd {
+  font: inherit;
+  color: #66899c;
+  margin-left: 11px;
+}
+.tc-code-host {
+  height: clamp(190px, 28vh, 320px);
+  min-height: 170px;
+  overflow: hidden;
+}
+.tc-code-editor:focus-within {
+  border-color: #6bdcee;
+  box-shadow:
+    0 0 0 1px #59deed44,
+    0 0 24px #45d8f312;
+}
+.tc-code-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-top: 1px solid #294657;
+  background: #0e2431;
+}
+.tc-code-tools-label {
+  color: #82a4b5;
+  font:
+    12px 'Chakra Petch',
+    Tahoma,
+    sans-serif;
+  margin-right: 5px;
+}
+.tc-code-tools button {
+  min-height: 34px;
+  padding: 5px 10px;
+  border: 1px solid #315568;
+  border-radius: 2px;
+  background: #133142;
+  color: #d9f5ff;
+  font:
+    13px/1.5 'IBM Plex Mono',
+    'Chakra Petch',
+    monospace;
+  transition:
+    transform 120ms ease,
+    color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease;
+}
+.tc-code-tools button:hover,
+.tc-code-tools button:focus-visible {
+  color: #fff;
+  background: #225669;
+  border-color: #80eaff;
+  box-shadow: 0 0 12px #5ae9ff28;
+  transform: translateY(-1px);
+}
+.tc-code-tools button:focus-visible {
+  outline: 2px solid #8aeaff;
+  outline-offset: 2px;
+}
+.tc-code-tools button:active {
+  transform: translateY(1px);
+  background: #307387;
+}
+.tc-code-tools button:disabled {
+  transform: none;
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.4;
+}
+.tc-code-error-line {
+  background: #9a344328 !important;
+  box-shadow: inset 3px 0 #ffacbd;
+}
+.tc-code-editor[data-disabled='true'] .tc-code-host {
+  opacity: 0.7;
+}
+[data-reduced-motion='true'] .tc-code-tools button {
+  transition: none;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tc-code-tools button {
+    transition: none;
+    transform: none;
+  }
+}

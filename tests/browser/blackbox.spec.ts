@@ -11,22 +11,24 @@ test('BLACKBOX opener keeps the thief anonymous until the final challenge and le
   await enterTitle(page)
   await page.getByRole('button', { name: 'เริ่มภารกิจ', exact: true }).click()
   const story = page.locator('.story-screen')
+  const turnChecks = [
+    ['กุญแจยืนยันคำสั่ง'],
+    ['ทีมกู้ภัย', 'แล้วทำไมต้องเป็นผม', 'หมายเลขหน่วยเก่า'],
+    ['เปิดต้นฉบับดู', 'ตั้งแต่เขาหายตัว'],
+    ['เขาลบเฉพาะช่วง', 'เก็บเครื่องไว้'],
+    ['NULL', 'นายรู้เรื่องหน่วยเก่า', 'อาราซาก้าตัดอะไรออก'],
+  ]
   for (let index = 0; index < titles.length; index++) {
     await expect(story).toHaveAttribute('data-shot', String(index))
     await expect(story.getByRole('heading', { level: 2 })).toHaveText(titles[index])
-    if (index < 4) await expect(story).not.toContainText('NULL')
-    if (index === 0) await expect(story).toContainText('กุญแจยืนยันคำสั่ง')
-    if (index === 1) {
-      await expect(story).toContainText('ทีมกู้ภัย')
-      await expect(story).toContainText('หมายเลขหน่วยเก่า')
-    }
-    if (index === 2) await expect(story).toContainText('ตั้งแต่เขาหายตัว')
     if (index === 3) await expect(story).toContainText('CAM-07')
-    if (index === 4) {
-      await expect(story).toContainText('NULL')
-      await expect(story).toContainText('อาราซาก้าตัดอะไรออก')
-    } else {
-      await page.getByRole('button', { name: 'ถัดไป', exact: true }).click()
+    for (const [line, fragment] of turnChecks[index].entries()) {
+      await expect(story).toHaveAttribute('data-line', String(line))
+      await expect(page.locator('.story-lines > p')).toHaveCount(1)
+      await expect(page.locator('.story-lines')).toContainText(fragment)
+      if (index < 4) await expect(story).not.toContainText('NULL')
+      if (index !== 4 || line !== turnChecks[index].length - 1)
+        await page.getByRole('button', { name: 'ถัดไป', exact: true }).click()
     }
   }
   await page.getByRole('button', { name: 'เริ่มตามรอย', exact: true }).click()

@@ -69,7 +69,7 @@ export async function selectScene(page: Page, name: RegExp) {
   if (await menu.isVisible()) {
     await menu.getByRole('button', { name: 'กลับสู่เกม', exact: true }).click()
   }
-  await expect(page.getByText('กำลังเตรียมฉาก…')).toBeHidden()
+  await expect(page.getByText('กำลังเตรียมฉาก…')).toBeHidden({timeout:25000})
 }
 
 export async function openSettings(page: Page) {

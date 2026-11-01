@@ -113,6 +113,7 @@ test('fresh players, name/save persistence, and cookie arrays are returned throu
   assert.equal(saved.name, 'นายช่าง')
   assert.equal(saved.isNew, false)
   assert.equal(saved.revision, 1)
+  assert.equal(saved.case.version, 2, 'legacy clients are normalized before persistence')
 })
 test('cross-origin requests and owner injection are rejected before saving', async () => {
   const f = fixture()
@@ -183,6 +184,15 @@ test('invalid prerequisites, illegal areas, malformed payloads and large bodies 
   for (const bad of [
     { ...write, case: { version: 1, completed: ['read-relay'], currentArea: 'base' } },
     { ...write, case: { version: 1, completed: [], currentArea: 'control' } },
+    {
+      ...write,
+      case: { version: 1, completed: ['recover-cam07', 'recover-relay'], currentArea: 'control' },
+    },
+    { ...write, case: { version: 2, completed: ['recover-relay'], currentArea: 'base' } },
+    {
+      ...write,
+      case: { version: 2, completed: ['recover-cam07', 'read-relay'], currentArea: 'control' },
+    },
     { ...write, revision: -1 },
     { ...write, name: '\u0000bad' },
   ])
@@ -193,6 +203,62 @@ test('invalid prerequisites, illegal areas, malformed payloads and large bodies 
   )
   assert.equal(parseWrite({ ...write, name: '' }), null)
   assert.equal(f.rows.size, 0)
+})
+
+test('v1 history migrates and v2 relay evidence survives API save, load and atomic Reset', async () => {
+  const f = fixture()
+  const legacy = {
+    name: 'คิน',
+    revision: 0,
+    generation: 0,
+    case: {
+      version: 1,
+      completed: ['recover-cam07', 'read-relay', 'read-control'],
+      currentArea: 'control',
+    },
+  }
+  const migrated = (await f
+    .handler(request('/api/player', 'PUT', legacy))
+    .then((r) => r.json())) as PlayerRecord
+  assert.equal(migrated.case.version, 2)
+  assert.equal(migrated.case.currentArea, 'relay')
+  assert.deepEqual(migrated.case.completed, legacy.case.completed)
+  const next = {
+    ...migrated,
+    case: {
+      version: 2,
+      completed: [...migrated.case.completed, 'recover-relay'],
+      currentArea: 'control',
+    },
+  }
+  const saved = (await f
+    .handler(
+      request('/api/player', 'PUT', {
+        name: next.name,
+        revision: next.revision,
+        generation: next.generation,
+        case: next.case,
+      })
+    )
+    .then((r) => r.json())) as PlayerRecord
+  assert.equal(saved.case.currentArea, 'control')
+  assert.ok(saved.case.completed.includes('recover-relay'))
+  assert.deepEqual((await f.handler(request('/api/player')).then((r) => r.json())).case, saved.case)
+  const reset = (await f
+    .handler(request('/api/player/reset', 'POST', { revision: saved.revision, generation: 0 }))
+    .then((r) => r.json())) as PlayerRecord
+  assert.equal(reset.case.version, 2)
+  assert.equal(reset.generation, 1)
+  const stale = await f.handler(
+    request('/api/player', 'PUT', {
+      name: saved.name,
+      case: saved.case,
+      revision: reset.revision,
+      generation: 0,
+    })
+  )
+  assert.equal(stale.status, 409)
+  assert.equal((await stale.json()).code, 'RESET_CONFLICT')
 })
 test('configuration failure is honest, guest config remains readable, auth proxy is bounded', async () => {
   const f = fixture()

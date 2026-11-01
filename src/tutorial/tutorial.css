@@ -292,6 +292,31 @@
 .kin-name:focus {
   outline: none;
 }
+.kin-coach.kin-surface {
+  display: block;
+  min-height: 0;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.kin-coach.kin-surface:before { display: none; }
+.kin-coach.kin-surface:focus { outline: none; }
+.kin-coach.kin-modal { position: static; transform: none; width: 100%; margin: 0; }
+.kin-surface .kin-response-actions { width: 100%; }
+.kin-surface .kin-skip { margin-left: auto; }
+.kin-surface .kin-line { margin: 0; min-height: 0; }
+.kin-surface.kin-inline { margin: 0 15px 12px; width: calc(100% - 30px); flex: none; }
+.kin-surface.kin-inline .dialogue-surface { height: 210px; max-height: none; }
+.kin-surface.kin-compact { left: auto; right: 24px; }
+.kin-surface.kin-compact .dialogue-surface { height: 250px; max-height: none; }
+.kin-surface.kin-dock .dialogue-surface--compact { height: 240px; max-height: none; }
+.kin-surface.kin-inline .dialogue-surface__text p { font-size: 20px; }
+.kin-surface.kin-inline .dialogue-surface__actions { justify-content: stretch; }
+.kin-surface.kin-compact .dialogue-surface__text p { font-size: 20px; }
+.app:has(.kin-coach[data-coach-mode='task']) { --coach-space: 275px; }
+.repair-instructions .kin-surface.kin-inline { margin: 0 0 12px; width: 100%; }
 @media (max-width: 760px) {
   .kin-dock .kin-portrait img {
     top: 24px;

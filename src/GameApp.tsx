@@ -11,22 +11,35 @@ import {
 import { Modal } from './ui/Modal'
 import { caseNarrative } from './narrative/case'
 import { CityMap } from './city/CityMap'
+import { CircuitCityMap } from './circuit/CircuitCityMap'
 import { MissionCanvas } from './MissionCanvas'
 import { cityProgress } from './city/progression'
-import { store, changeView, nodes, interact } from './model'
+import { store, changeView, enterField, nodes, interact } from './model'
 import { tutorial } from './tutorial/model'
+import { chapter, chapterObjective } from './chapter/model'
+import { account } from './account/account'
+import { relay, relayObjective } from './relay/model'
+import {
+  RelayDialogue,
+  RelayClue,
+  RelayHack,
+  RelayHUD,
+  RecordComparison,
+} from './relay/RelayOverlay'
+import {
+  ChapterHUD,
+  ArunDialogue,
+  ClueDialogue,
+  HackConnection,
+  ChapterTerminal,
+} from './chapter/ChapterOverlay'
 import { tutorialAllows } from './tutorial/controls'
 import { TutorialCoach, useTutorialState } from './tutorial/Tutorial'
+import { closeGameOverlay, commandFromKeyboard, executeGameCommand } from './game-commands'
 
 const meta = caseNarrative.field
 
-const closeOverlay = () => {
-  const old = store.get().overlay
-  store.set({ overlay: null })
-  if (old === 'journal') tutorial.notify('journal-closed')
-  if (old === 'witness') tutorial.notify('witness-closed')
-  if (old === 'terminal') tutorial.notify('terminal-closed')
-}
+const closeOverlay = closeGameOverlay
 const solution = '<img src="suspect.png" alt="ผู้ต้องสงสัยสวมเสื้อคลุมสีดำอยู่หน้าร้านซ่อม">'
 function Terminal({ boss = false }: { boss?: boolean }) {
   const [code, setCode] = useState('<img src="" alt="รูปภาพ">'),
@@ -42,11 +55,6 @@ function Terminal({ boss = false }: { boss?: boolean }) {
     const ok = img?.getAttribute('src') === 'suspect.png' && alt.length >= 10 && alt !== 'รูปภาพ'
     setSuccess(ok)
     if (ok) {
-      if (!boss) {
-        store.set({ repaired: true })
-        cityProgress.recordCamRecovery()
-        tutorial.notify('cam-repaired')
-      }
       setFeedback('กู้ภาพสำเร็จ — src ชี้ไฟล์ได้ และ alt อธิบายสาระของภาพแล้ว')
     } else {
       if (boss) setShields((s) => (s <= 1 ? 3 : s - 1))
@@ -97,7 +105,7 @@ function Terminal({ boss = false }: { boss?: boolean }) {
           )}
           {answer && <pre className="solution">{solution}</pre>}
           <p className="prototype-note">
-            โจทย์สาธิตเพื่อดูรูปแบบหน้าต่าง ยังไม่ใช่ระบบ 7 จุดและบอสเต็มตอน
+            ฉากบอสนี้ยังเป็นโจทย์สาธิตแยก ไม่มอบหลักฐานแทนภารกิจทั้งเจ็ดที่ร้านอรุณ
           </p>
         </section>
         <section className="code-area">
@@ -138,6 +146,14 @@ function Terminal({ boss = false }: { boss?: boolean }) {
 
 export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolean }) {
   const state = useSyncExternalStore(store.subscribe, store.get)
+  const learning = useSyncExternalStore(chapter.subscribe, chapter.get)
+  const relayLearning = useSyncExternalStore(relay.subscribe, relay.get)
+  const identity = useSyncExternalStore(account.subscribe, account.get)
+  useEffect(() => {
+    const { owner, generation } = account.getSaveScope()
+    chapter.activateOwner(owner, generation)
+    relay.activateOwner(owner, generation)
+  }, [identity.resetCounter, identity.user?.id])
   const progress = useSyncExternalStore(cityProgress.subscribe, cityProgress.get)
   const training = useTutorialState()
   const guided = Boolean(active && training.step)
@@ -146,11 +162,56 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
       tutorial.activateFirstMap(progress.completed.length > 0)
   }, [active, state.view, state.ready, progress.completed.length])
   const openJournal = () => {
-    if (!tutorialAllows('journal')) return
-    store.set({ overlay: 'journal' })
-    tutorial.notify('journal-opened')
+    executeGameCommand('journal', { active })
   }
-  const info = meta[state.view]
+  useEffect(() => {
+    if (training.step === 'traces' && learning.spoken && learning.clues.length === 2)
+      tutorial.notify('clues-collected')
+  }, [training.step, learning.spoken, learning.clues.length])
+  const info =
+    state.activeChapter === 'relay' && state.view !== 'map'
+      ? {
+          name: state.view === 'device' ? 'Circuit City / RELAY-02' : 'สถานีสื่อสารฝั่งตะวันออก',
+          sub: 'ตอน 02 / สัญญาณที่ไม่มีในรายงาน',
+          objective: relayObjective(relayLearning),
+          detail: 'ตรวจต้นฉบับเพื่อตามเส้นทาง BLACKBOX',
+        }
+      : meta[state.view]
+  useEffect(() => {
+    if (!active || state.paused || state.overlay || !state.ready || training.step) return
+    if (
+      state.activeChapter === 'arun' &&
+      progress.completed.includes('recover-cam07') &&
+      !relayLearning.departureSeen &&
+      (state.view === 'street' || state.view === 'map')
+    )
+      store.set({ overlay: 'relay-departure' })
+    else if (
+      state.activeChapter === 'relay' &&
+      state.view === 'street' &&
+      !relayLearning.arrivalSeen
+    )
+      store.set({ overlay: 'relay-arrival' })
+    else if (
+      state.activeChapter === 'relay' &&
+      relayLearning.finalRecovered &&
+      !relayLearning.conclusionSeen
+    )
+      store.set({ overlay: 'relay-conclusion' })
+  }, [
+    active,
+    state.paused,
+    state.overlay,
+    state.ready,
+    state.activeChapter,
+    state.view,
+    training.step,
+    progress.completed,
+    relayLearning.departureSeen,
+    relayLearning.arrivalSeen,
+    relayLearning.finalRecovered,
+    relayLearning.conclusionSeen,
+  ])
   useEffect(() => {
     store.set({ repaired: progress.completed.includes('recover-cam07') })
   }, [progress.completed])
@@ -159,24 +220,24 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
   }, [info.name])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      const command = commandFromKeyboard(e)
+      if (!command || !active) return
       if (
-        e.isComposing ||
-        e.repeat ||
-        store.get().paused ||
-        store.get().overlay ||
-        ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)
+        command === 'journal' &&
+        store.get().ready &&
+        !store.get().connectionRunning &&
+        !store.get().overlay &&
+        !store.get().paused &&
+        tutorialAllows('journal')
       )
-        return
-      if (e.key.toLowerCase() === 'j') {
-        e.preventDefault()
-        if (!tutorialAllows('journal')) return
-        store.set({ overlay: 'journal' })
-        tutorial.notify('journal-opened')
-      }
+        document
+          .querySelector<HTMLElement>('[data-tutorial-target="journal"]')
+          ?.focus({ preventScroll: true })
+      if (executeGameCommand(command, { active })) e.preventDefault()
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [])
+  }, [active])
   useEffect(() => {
     if (!state.toast) return
     const timer = window.setTimeout(() => store.set({ toast: '' }), 4500)
@@ -195,11 +256,16 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
         {state.view !== 'map' && (
           <PixelButton
             icon="icon-back"
-            onClick={() => changeView('map')}
+            onClick={() => executeGameCommand('map', { active })}
             disabled={!tutorialAllows('return-map')}
             data-tutorial-target="return-map"
+            aria-label="แผนที่เมือง"
+            aria-keyshortcuts="M"
           >
-            แผนที่เมือง
+            แผนที่เมือง{' '}
+            <span aria-hidden="true">
+              <PixelKey>M</PixelKey>
+            </span>
           </PixelButton>
         )}
         <PixelButton
@@ -207,8 +273,13 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
           onClick={openJournal}
           disabled={!tutorialAllows('journal')}
           data-tutorial-target="journal"
+          aria-label="สมุดคดี"
+          aria-keyshortcuts="J"
         >
-          สมุดคดี
+          สมุดคดี{' '}
+          <span aria-hidden="true">
+            <PixelKey>J</PixelKey>
+          </span>
         </PixelButton>
         <PixelButton
           icon="icon-settings"
@@ -222,6 +293,14 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
       <main>
         {state.view === 'map' ? (
           <CityMap
+            paused={state.paused}
+            reducedMotion={state.reduceMotion}
+            overlay={state.overlay}
+          />
+        ) : state.view === 'device' ? (
+          <CircuitCityMap
+            key={state.activeChapter}
+            chapterId={state.activeChapter}
             paused={state.paused}
             reducedMotion={state.reduceMotion}
             overlay={state.overlay}
@@ -253,25 +332,6 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
                   <h1>{info.name}</h1>
                 </div>
               </div>
-              {state.view === 'device' && (
-                <div className="node-labels">
-                  {nodes.map((n) => (
-                    <span key={n.tag} style={{ left: `${n.x / 12.8}%`, top: `${n.y / 7.2 + 5}%` }}>
-                      {n.title}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {state.view === 'street' && (
-                <>
-                  <span className="npc-label">ช่างอรุณ · พยาน</span>
-                  <span className="device-label">
-                    เครื่องบันทึกกล้อง
-                    <br />
-                    <small>{caseNarrative.camera.id} / เชื่อมต่ออุปกรณ์</small>
-                  </span>
-                </>
-              )}
               {state.view === 'boss' && (
                 <div className="boss-hud">
                   <div>
@@ -281,14 +341,20 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
                   <PixelBar kind="boss" value={100} label="เกราะข้อมูล WATCHER" segments={3} />
                 </div>
               )}
-              <PixelPanel variant="objective" className="objective">
-                <PixelIcon name="quest-active" />
-                <div>
-                  <small>ภารกิจปัจจุบัน</small>
-                  <strong>{info.objective}</strong>
-                  <p>{info.detail}</p>
-                </div>
-              </PixelPanel>
+              {state.view === 'boss' ? (
+                <PixelPanel variant="objective" className="objective">
+                  <PixelIcon name="quest-active" />
+                  <div>
+                    <small>ภารกิจปัจจุบัน</small>
+                    <strong>{info.objective}</strong>
+                    <p>{info.detail}</p>
+                  </div>
+                </PixelPanel>
+              ) : state.activeChapter === 'relay' ? (
+                <RelayHUD />
+              ) : (
+                <ChapterHUD />
+              )}
               <div className="interaction">
                 <PixelButton
                   onClick={() => {
@@ -346,10 +412,21 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
         !state.paused &&
         !state.overlay && (
           <aside className="kin-offer">
-            <p>คินพร้อมพาดูระบบและภารกิจแรก</p>
+            <p>
+              {training.status === 'completed' || training.status === 'skipped'
+                ? 'มีวิธีเลือกด่านและหน้าซ่อมใหม่ คินพร้อมพาลอง โดยไม่ล้างคดีเดิม'
+                : 'คินพร้อมพาดูระบบและภารกิจแรก'}
+            </p>
             <PixelButton onClick={() => tutorial.start()}>
-              {training.status === 'active' ? 'ฝึกกับคินต่อ' : 'เริ่มฝึกกับคิน'}
+              {training.status === 'active'
+                ? 'ฝึกกับคินต่อ'
+                : training.status === 'completed' || training.status === 'skipped'
+                  ? 'ลองระบบใหม่กับคิน'
+                  : 'เริ่มฝึกกับคิน'}
             </PixelButton>
+            <button type="button" className="kin-skip" onClick={() => tutorial.dismissOffer()}>
+              ไว้ทีหลัง
+            </button>
           </aside>
         )}
       {state.overlay === 'brief' && (
@@ -361,7 +438,7 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
               <p key={text}>{text}</p>
             ))}
             <div className="case-path">
-              TECHCARE <span>→</span> ร้านช่าง <span>→</span> ภายในกล้อง <span>→</span> WATCHER
+              TECHCARE <span>→</span> ร้านช่าง <span>→</span> Circuit City <span>→</span> CAM-07
             </div>
             <PixelButton
               variant="primary"
@@ -369,7 +446,7 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
               disabled={Boolean(training.step)}
               onClick={() => {
                 closeOverlay()
-                changeView('street')
+                enterField('arun')
               }}
             >
               ไปพบช่างอรุณ →
@@ -380,42 +457,83 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
           </div>
         </Modal>
       )}
-      {state.overlay === 'witness' && (
-        <Modal variant="dialogue" title="ช่างอรุณ / พยานคนแรก" onClose={closeOverlay}>
-          <div className="prose dialogue">
-            <div className="portrait">
-              <img src="/assets/witness.png" alt="ช่างอรุณ" />
-            </div>
-            <div>
-              <span className="chapter-label">ร้านซ่อม · เวลา 03:12 น.</span>
-              <h3>{caseNarrative.witness.title}</h3>
-              <p>{caseNarrative.witness.account}</p>
-              <p className="kin-reply">{caseNarrative.witness.reply}</p>
-              <PixelButton
-                variant="primary"
-                className="primary"
-                onClick={() => {
-                  if (tutorial.get().step) {
-                    closeOverlay()
-                    return
-                  }
-                  closeOverlay()
-                  changeView('device')
-                }}
-              >
-                {training.step ? 'กลับไปตรวจเครื่องกล้อง →' : 'เชื่อมต่อ CAM-07 →'}
-              </PixelButton>
-              <small>ตัวอย่างบทสนทนาและทางเข้าฉากอุปกรณ์</small>
-            </div>
-          </div>
-          <TutorialCoach context="witness" inline />
-        </Modal>
+      {state.overlay === 'relay-departure' && (
+        <RelayDialogue id="departure" onClose={closeOverlay} />
+      )}
+      {state.overlay === 'relay-arrival' && <RelayDialogue id="arrival" onClose={closeOverlay} />}
+      {state.overlay === 'relay-conclusion' && (
+        <RelayDialogue id="conclusion" onClose={closeOverlay} />
+      )}
+      {state.overlay === 'witness' &&
+        (state.activeChapter === 'relay' ? (
+          <RelayDialogue id="witness" onClose={closeOverlay} />
+        ) : (
+          <ArunDialogue onClose={closeOverlay} />
+        ))}
+      {state.overlay === 'clue-receipt' &&
+        (state.activeChapter === 'relay' ? (
+          <RelayClue id="workorder" onClose={closeOverlay} />
+        ) : (
+          <ClueDialogue id="receipt" onClose={closeOverlay} />
+        ))}
+      {state.overlay === 'clue-relay' &&
+        (state.activeChapter === 'relay' ? (
+          <RelayClue id="module" onClose={closeOverlay} />
+        ) : (
+          <ClueDialogue id="relay" onClose={closeOverlay} />
+        ))}
+      {state.overlay === 'hack' &&
+        (state.activeChapter === 'relay' ? (
+          <RelayHack onClose={closeOverlay} />
+        ) : (
+          <HackConnection onClose={closeOverlay} />
+        ))}
+      {state.overlay === 'terminal' && (
+        <ChapterTerminal
+          key={`${identity.user?.id ?? 'guest'}:${identity.resetCounter}:${state.activeChapter}:${state.taskIndex}`}
+          chapterId={state.activeChapter}
+          onClose={closeOverlay}
+        />
+      )}
+      {state.overlay === 'recovery' && (
+        <ChapterTerminal
+          key={`${identity.user?.id ?? 'guest'}:${identity.resetCounter}:${state.activeChapter}`}
+          chapterId={state.activeChapter}
+          final
+          onClose={closeOverlay}
+        />
       )}
       {state.overlay === 'journal' && (
         <Modal variant="inventory" title="สมุดคดี — รอยต่อสัญญาณ" onClose={closeOverlay}>
           <div className="prose journal">
             <span className="chapter-label">ความคืบหน้าเควสต์และพื้นที่บันทึกในเครื่องนี้</span>
             <h3>เริ่มจากสิ่งที่คนร้ายพยายามซ่อน</h3>
+            <h4>ตอน 2 — สัญญาณที่ไม่มีในรายงาน</h4>
+            <p>{relayObjective(relayLearning)}</p>
+            <p>
+              ร่องรอยสถานีในเครื่องนี้ {relayLearning.clues.length}/2 · HTML{' '}
+              {relayLearning.completed.length}/7 · ต้นฉบับ{' '}
+              {progress.completed.includes('recover-relay') ? 'กู้แล้ว' : 'ยังไม่กู้'}
+            </p>
+            {progress.completed.includes('recover-relay') && <RecordComparison />}
+            <p>{chapterObjective(learning)}</p>
+            <p>
+              บันทึกการฝึก HTML: {learning.completed.length}/7 · ร่องรอย {learning.clues.length}/2
+            </p>
+            <ol>
+              {learning.observations.slice(0, 7).map((item, i) => (
+                <li key={i}>
+                  จุด {i + 1}: {learning.completed.includes(i) ? 'ผ่านแล้ว' : 'รอซ่อม'} ·{' '}
+                  {item.revealed
+                    ? 'ดูเฉลย'
+                    : item.usedHint
+                      ? 'ใช้คำใบ้'
+                      : item.attempts
+                        ? 'ลองด้วยตนเอง'
+                        : 'ยังไม่เริ่ม'}
+                </li>
+              ))}
+            </ol>
             <div className="evidence-slots">
               <div>
                 <PixelSlot
@@ -430,8 +548,15 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
                 <small>บันทึกพยาน</small>
               </div>
               <div>
-                <PixelSlot state="locked" label="หลักฐานยังล็อก" />
-                <small>ยังไม่พบ</small>
+                <PixelSlot
+                  state={progress.completed.includes('recover-relay') ? 'selected' : 'locked'}
+                  label="บันทึกต้นฉบับ RELAY-02"
+                />
+                <small>
+                  {progress.completed.includes('recover-relay')
+                    ? 'บันทึกต้นฉบับ RELAY-02'
+                    : 'ต้นฉบับยังล็อก'}
+                </small>
               </div>
             </div>
             <ol>
@@ -443,32 +568,33 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
               ))}
               <li className={state.repaired ? 'found' : ''}>
                 <strong>
-                  {state.repaired ? 'คืนหน้าหลักฐานตัวอย่างสำเร็จ' : 'หน้าหลักฐานที่ยังอ่านไม่ได้'}
+                  {state.repaired ? 'กู้หน้าหลักฐาน CAM-07 สำเร็จ' : 'หน้าหลักฐานที่ยังอ่านไม่ได้'}
                 </strong>
                 <p>ใช้ src และ alt เพื่ออ่านร่องรอยการขนย้าย BLACKBOX</p>
               </li>
               {progress.completed.includes('recover-cam07') && (
                 <li>
                   <strong>เปิดเส้นทางสถานีสื่อสาร</strong>
-                  <p>กลับแผนที่เมืองเพื่ออ่านข่าวกรองจากจุดส่งสัญญาณ</p>
+                  <p>เดินทางไปสถานีสื่อสาร คุยเจ้าหน้าที่และกู้บันทึก RELAY-02</p>
                 </li>
               )}
             </ol>
             <PixelButton
               variant="primary"
               className="primary"
-              disabled={Boolean(training.step)}
+              disabled={
+                Boolean(training.step) ||
+                !(state.activeChapter === 'relay' ? relay.canHack() : chapter.canHack())
+              }
               onClick={() => changeView('device')}
             >
-              ไปดูโลกภายในกล้อง →
+              เปิด Circuit City →
             </PixelButton>
           </div>
           <TutorialCoach context="journal" inline />
         </Modal>
       )}
-      {(state.overlay === 'terminal' || state.overlay === 'boss') && (
-        <Terminal boss={state.overlay === 'boss'} />
-      )}
+      {state.overlay === 'boss' && <Terminal boss />}
     </div>
   )
 }

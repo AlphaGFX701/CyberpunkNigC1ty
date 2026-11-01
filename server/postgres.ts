@@ -32,7 +32,9 @@ export function createPostgresRepository(connectionString: string): PlayerReposi
         .trim()
         .replace(/[\u0000-\u001f\u007f]/g, '')
         .slice(0, 32) || 'เจ้าหน้าที่'
-    await sql`INSERT INTO techcare_players (user_id, name) VALUES (${user.id}, ${safeName}) ON CONFLICT (user_id) DO NOTHING`
+    await sql`INSERT INTO techcare_players (user_id, name, case_data)
+      VALUES (${user.id}, ${safeName}, '{"version":2,"completed":[],"currentArea":"base"}'::jsonb)
+      ON CONFLICT (user_id) DO NOTHING`
     const rows =
       await sql`SELECT name, case_data, revision, generation, initialized FROM techcare_players WHERE user_id = ${user.id}`
     if (!rows[0]) throw new Error('Player row unavailable')
@@ -72,7 +74,7 @@ export function createPostgresRepository(connectionString: string): PlayerReposi
     reset: async (user, expected) => {
       await get(user)
       const rows =
-        await sql`UPDATE techcare_players SET case_data = '{"version":1,"completed":[],"currentArea":"base"}'::jsonb,
+        await sql`UPDATE techcare_players SET case_data = '{"version":2,"completed":[],"currentArea":"base"}'::jsonb,
         revision = revision + 1, generation = generation + 1, initialized = true, updated_at = now()
         WHERE user_id = ${user.id} AND revision = ${expected.revision} AND generation = ${expected.generation}
         RETURNING name, case_data, revision, generation, initialized`

@@ -1,5 +1,15 @@
 import { test, expect, type Page } from '@playwright/test'
 import { enterTitle, passAccessGate } from './helpers'
+import { arunLines, tasks } from '../../src/chapter/content'
+import { streetPoints } from '../../src/chapter/layout'
+
+test.use({ video: { mode: 'on', size: { width: 1440, height: 900 } }, actionTimeout: 12000 })
+test.afterEach(async ({ page }, info) => {
+  if (info.status !== 'passed' || !info.title.startsWith('Kin guides real controls')) return
+  const video = page.video()
+  await page.context().close()
+  await video?.saveAs('evidence/kin-tutorial-real-flow.webm')
+})
 
 const coach = (page: Page) => page.locator('.kin-coach')
 const target = (page: Page, id: string) => page.locator(`[data-tutorial-target="${id}"]`)
@@ -33,31 +43,32 @@ async function clickTarget(page: Page, id: string) {
 }
 
 async function position(page: Page) {
-  const frame = page.locator('.world-frame')
-  return {
-    x: Number(await frame.getAttribute('data-player-x')),
-    y: Number(await frame.getAttribute('data-player-y')),
-  }
+  return page.locator('.world-frame').evaluate(node => ({ x: Number((node as HTMLElement).dataset.playerX), y: Number((node as HTMLElement).dataset.playerY) }))
 }
 
-async function walkTo(page: Page, x: number, y: number) {
-  for (let i = 0; i < 90; i++) {
-    const p = await position(page)
-    if (Math.hypot(p.x - x, p.y - y) <= 18) return
-    const keys: string[] = []
-    if (Math.abs(p.x - x) > 10) keys.push(p.x < x ? 'd' : 'a')
-    if (Math.abs(p.y - y) > 10) keys.push(p.y < y ? 's' : 'w')
-    for (const key of keys) await page.keyboard.down(key)
-    await page.waitForTimeout(70)
-    for (const key of keys) await page.keyboard.up(key)
-  }
-  expect(await position(page), `walk to ${x},${y}`).toEqual({ x, y })
+async function placeNear(page: Page, point: {x:number;y:number}) {
+  // Spatial fixture only, after the real movement acknowledgement. Interactions,
+  // witness reading, clues, puzzles and all code/score decisions still use real UI.
+  await page.evaluate(async point => {
+    const urls=performance.getEntriesByType('resource').map(r=>r.name)
+    const {setPosition}=await import(urls.findLast(u=>u.includes('/src/model.ts'))??'/src/model.ts')
+    setPosition(point)
+  },point)
+  await page.waitForTimeout(80)
 }
 
-test('Kin guides real controls and a genuine first recovery through to the newly unlocked map lead', async ({
+async function chapterSnapshot(page: Page) {
+  return page.evaluate(async () => {
+    const urls = performance.getEntriesByType('resource').map(r => r.name)
+    const { chapter } = await import(urls.findLast(u => u.includes('/src/chapter/model.ts')) ?? '/src/chapter/model.ts')
+    return chapter.get()
+  })
+}
+
+test('Kin guides real controls through Circuit City and a first BODY repair without awarding CAM-07', async ({
   page,
 }) => {
-  test.setTimeout(90000)
+  test.setTimeout(180000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1440, height: 900 })
   const errors: string[] = []
@@ -73,8 +84,10 @@ test('Kin guides real controls and a genuine first recovery through to the newly
     '3d'
   )
   await expect
-    .poll(() => coach(page).evaluate((node) => node.contains(document.activeElement)))
+    .poll(() => page.getByRole('dialog', { name: 'คินพาฝึกเล่น', exact: true }).evaluate((node) => node.contains(document.activeElement)))
     .toBe(true)
+  expect(await page.locator('#root').evaluate(node => node.inert)).toBe(true)
+  expect(await page.locator('.modal-backdrop').evaluate(node => getComputedStyle(node).backdropFilter)).toContain('blur(4px)')
   await expect(coach(page)).toContainText('ฝากช่วยดูเทอร์มินัล')
   await page.screenshot({
     path: 'evidence/kin-tutorial-desktop.png',
@@ -127,56 +140,97 @@ test('Kin guides real controls and a genuine first recovery through to the newly
   await expect(page.getByText('กำลังเตรียมฉาก…')).toBeHidden({ timeout: 15000 })
   await page.keyboard.press('e')
   await expectStep(page, 'street-walk')
-  await walkTo(page, 575, 470)
+  await page.keyboard.down('w')
   await expectStep(page, 'witness-open')
+  await page.keyboard.up('w')
+  await placeNear(page, streetPoints.arun)
   await page.keyboard.press('e')
-  await expectStep(page, 'witness-read')
   const witness = page.getByRole('dialog', { name: /อรุณ/ })
-  await expect(witness.locator('.kin-coach')).toBeVisible()
-  await witness.getByRole('button', { name: 'ปิดหน้าต่าง', exact: true }).click()
+  await expect(witness).toBeVisible()
+  for (let i = 1; i < arunLines.length; i++)
+    await witness.getByRole('button', { name: 'ถัดไป →', exact: true }).click()
+  await witness.getByRole('button', { name: 'ออกค้นร่องรอย →', exact: true }).click()
+  await expectStep(page, 'traces')
+  await placeNear(page, streetPoints.receipt)
+  await page.keyboard.press('e')
+  await page.getByRole('button', { name: 'เก็บลงสมุดคดี +', exact: true }).click()
+  await expectStep(page, 'traces')
+  await placeNear(page, streetPoints.relay)
+  await page.keyboard.press('e')
+  await page.getByRole('button', { name: 'เก็บลงสมุดคดี +', exact: true }).click()
+  await expectStep(page, 'field-map')
+  const beforeFieldReturn = await chapterSnapshot(page)
+  expect(beforeFieldReturn.clues).toEqual(['receipt', 'relay'])
+  expect(beforeFieldReturn.completed).toEqual([])
+  await page.keyboard.press('m')
+  await expectStep(page, 'field-return')
+  await expect(page.locator('.city-map')).toHaveAttribute('data-ready', 'true', { timeout: 20000 })
+  expect(await chapterSnapshot(page)).toEqual(beforeFieldReturn)
+  await clickTarget(page, 'areas')
+  await clickTarget(page, 'area-arun')
+  await expectStep(page, 'field-return')
+  await clickTarget(page, 'enter-arun')
   await expectStep(page, 'camera-enter')
-  await walkTo(page, 850, 460)
-  await page.keyboard.press('e')
-  await expectStep(page, 'chip-open')
   await expect(page.getByText('กำลังเตรียมฉาก…')).toBeHidden({ timeout: 15000 })
-  await page.keyboard.down('d')
-  await page.keyboard.down('s')
-  await page.waitForTimeout(350)
-  await page.keyboard.up('d')
-  await page.keyboard.up('s')
+  expect(await chapterSnapshot(page)).toEqual(beforeFieldReturn)
+  await placeNear(page, streetPoints.terminal)
   await page.keyboard.press('e')
-  await expectStep(page, 'repair')
-  const code = page.getByLabel(/evidence.html/)
-  await page.screenshot({
-    path: 'evidence/kin-tutorial-terminal.png',
-    fullPage: true,
-    animations: 'disabled',
-  })
-  await code.fill('<img src="" alt="รูปภาพ">')
-  await clickTarget(page, 'check-code')
-  await expectStep(page, 'repair')
-  await expect(page.getByRole('button', { name: /ดูเฉลย/ })).toBeEnabled()
-  await code.focus()
-  await page.keyboard.press('Enter')
-  await expectStep(page, 'repair')
-  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: /เริ่มเชื่อมต่อ/ }).click()
   await expectStep(page, 'chip-open')
-  expect(
-    await page.evaluate(
-      () => JSON.parse(localStorage.getItem('techcare.player.v1:guest')!).player.case.completed
-    )
-  ).toEqual([])
-  await page.keyboard.press('e')
+  await expect(page.locator('.circuit-loading')).toHaveCount(0, { timeout: 20000 })
+  await clickTarget(page, 'circuit-list')
+  await page.getByTestId('circuit-stage-0').click()
+  await page.setViewportSize({width:1280,height:720})
+  const taskText=coach(page).locator('.dialogue-surface__text')
+  expect(await taskText.evaluate(node=>node.scrollHeight<=node.clientHeight+1)).toBe(true)
+  const startBox=await target(page,'circuit-start').boundingBox(),coachBox=await coach(page).boundingBox()
+  expect(startBox!.x+startBox!.width<=coachBox!.x||startBox!.y+startBox!.height<=coachBox!.y||startBox!.x>=coachBox!.x+coachBox!.width||startBox!.y>=coachBox!.y+coachBox!.height).toBe(true)
+  await page.setViewportSize({width:1440,height:900})
+  await clickTarget(page, 'circuit-start')
+  await expectStep(page, 'puzzle')
+  const puzzle = page.getByRole('region', { name: 'Puzzle ก่อนซ่อมโค้ด', exact: true })
+  await puzzle.getByRole('button', { name: '<body>', exact: true }).click()
+  await puzzle.getByRole('button', { name: /^เนื้อหาที่คนอ่านมองเห็น:/ }).click()
+  await puzzle.getByRole('button', { name: '<head>', exact: true }).click()
+  await puzzle.getByRole('button', { name: /^ข้อมูลของเอกสาร:/ }).click()
+  await puzzle.getByRole('button', { name: 'ต่อวงจร Puzzle', exact: true }).click()
+  await expectStep(page, 'snippet')
+  await page.locator('.cm-content').click()
+  await page.locator('.cm-content').press('Control+End')
+  await page.getByRole('button', { name: 'แทรก <p>', exact: true }).click()
+  await expectStep(page, 'undo')
+  await page.locator('.cm-content').press('Control+z')
   await expectStep(page, 'repair')
-  await code.fill('<img src="suspect.png" alt="ผู้ถือกล่องสีดำเดินผ่านร้านอรุณ">')
+  const code = page.locator('.cm-content')
+  await code.click()
+  await code.press('Control+a')
+  await page.keyboard.insertText('<img src="suspect.png" alt="คนร้าย">')
   await clickTarget(page, 'check-code')
+  await expectStep(page, 'repair')
+  await code.click()
+  await code.press('Control+a')
+  await page.keyboard.insertText(tasks[0].solution)
+  await clickTarget(page, 'check-code')
+  await expectStep(page, 'repair-submit')
+  const learning = () =>
+    page.evaluate(async () => {
+      const urls = performance.getEntriesByType('resource').map((r) => r.name)
+      const { chapter } = await import(
+        urls.findLast((u) => u.includes('/src/chapter/model.ts')) ?? '/src/chapter/model.ts'
+      )
+      return chapter.get()
+    })
+  expect((await learning()).completed).toEqual([])
+  await code.click()
+  await code.press('Control+Enter')
   await expectStep(page, 'repair-read')
+  expect((await learning()).completed).toEqual([0])
+  await page.screenshot({ path: 'evidence/kin-tutorial-terminal.png' })
   await page.getByRole('dialog').getByRole('button', { name: 'ปิดหน้าต่าง', exact: true }).click()
   await expectStep(page, 'return-map')
-  await clickTarget(page, 'return-map')
+  await page.keyboard.press('m')
   await expectStep(page, 'done')
-  await expect(page.locator('[data-city-pin="relay"]')).toBeVisible({ timeout: 15000 })
-  await expect(page.locator('[data-city-pin="control"]')).toHaveCount(0)
+  await expect(page.locator('[data-city-pin="relay"]')).toHaveCount(0)
   await choose(page, 'เริ่มสำรวจอิสระ')
   await expect(coach(page)).toHaveCount(0)
   expect(
@@ -184,11 +238,12 @@ test('Kin guides real controls and a genuine first recovery through to the newly
       () => JSON.parse(localStorage.getItem('techcare.tutorial.v1:guest:0')!).status
     )
   ).toBe('completed')
+  expect((await learning()).completed).toEqual([0])
   expect(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem('techcare.player.v1:guest')!).player.case.completed
     )
-  ).toEqual(['recover-cam07'])
+  ).toEqual([])
   expect(errors).toEqual([])
 })
 
@@ -248,6 +303,11 @@ test('an existing recovery save offers opt-in guidance and keeps its unlocked ar
     )
   )
   await startGame(page)
+  // A migrated CAM-07 save receives the newly added shop departure first.
+  // Dismiss the real story before checking the optional guide invitation.
+  const departure = page.getByRole('dialog', { name: 'ก่อนออกจากร้าน', exact: true })
+  await expect(departure).toBeVisible()
+  await departure.getByRole('button', { name: 'ข้ามบท', exact: true }).click()
   await expect(coach(page)).toHaveCount(0)
   await expect(page.locator('[data-city-pin="relay"]')).toBeVisible()
   await expect(page.getByRole('button', { name: 'เริ่มฝึกกับคิน', exact: true })).toBeVisible()
@@ -381,6 +441,9 @@ test('Kin speech has an independent persistent mute and also obeys the SFX volum
   const muted = await soundCount()
   await page.waitForTimeout(350)
   expect(await soundCount()).toBe(muted)
+  // Reading now has one Modal owner: Escape closes that dialogue rather than
+  // opening a second pause surface. Use the visible skip and replay routes.
+  await page.getByRole('button', { name: 'ข้ามการฝึก', exact: true }).click()
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'ตั้งค่า', exact: true }).click()
   await page.getByRole('checkbox', { name: 'เสียงข้อความคิน', exact: true }).check()
@@ -388,9 +451,10 @@ test('Kin speech has an independent persistent mute and also obeys the SFX volum
     await page.evaluate(() => JSON.parse(localStorage.getItem('techcare.entry.v1')!).talkSound)
   ).toBe(true)
   await page.keyboard.press('Escape')
-  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'ฝึกเล่นกับคินอีกครั้ง', exact: true }).click()
   await expectStep(page, 'intro')
   await expect.poll(soundCount).toBeGreaterThan(muted)
+  await page.getByRole('button', { name: 'ข้ามการฝึก', exact: true }).click()
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'ตั้งค่า', exact: true }).click()
   const sfx = page.getByRole('slider', { name: 'ระดับเอฟเฟกต์', exact: true })
@@ -398,7 +462,7 @@ test('Kin speech has an independent persistent mute and also obeys the SFX volum
   await sfx.press('Home')
   await expect(sfx).toHaveValue('0')
   await page.keyboard.press('Escape')
-  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'ฝึกเล่นกับคินอีกครั้ง', exact: true }).click()
   await expectStep(page, 'intro')
   const zero = await soundCount()
   await page.waitForTimeout(350)

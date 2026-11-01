@@ -59,12 +59,24 @@ test('music loads and advances after user interaction', async ({ page }) => {
   await music.press('End')
   await expect(music).toHaveValue('100')
   await expect
-    .poll(() => page.locator('audio').evaluate((a: HTMLAudioElement) => a.currentTime), {
-      timeout: 8000,
-    })
+    .poll(
+      () =>
+        page
+          .locator('audio[data-music-role="active"]')
+          .evaluate((a: HTMLAudioElement) => a.currentTime),
+      {
+        timeout: 8000,
+      }
+    )
     .toBeGreaterThan(0)
   await music.press('Home')
-  await expect.poll(() => page.locator('audio').evaluate((a: HTMLAudioElement) => a.volume)).toBe(0)
+  await expect
+    .poll(() =>
+      page
+        .locator('audio')
+        .evaluateAll((elements) => elements.every((a) => (a as HTMLAudioElement).volume === 0))
+    )
+    .toBe(true)
 })
 test('narrow review layout has reachable controls and no page overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })

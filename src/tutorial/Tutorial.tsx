@@ -10,6 +10,8 @@ import {
 } from 'react'
 import type { EntryAudio } from '../entry/audio'
 import { PixelButton } from '../ui/PixelUI'
+import { DialogueSurface } from '../ui/DialogueSurface'
+import { Modal } from '../ui/Modal'
 import { tutorial } from './model'
 import { getTutorialPrompt, type TutorialContext } from './content'
 import { segmentDialogue } from './text'
@@ -38,6 +40,11 @@ export function TutorialProvider({
 export function useTutorialState() {
   return useSyncExternalStore(tutorial.subscribe, tutorial.get)
 }
+/** Dialogue surfaces share the one entry-owned sound bus and the player's speech toggle. */
+export function useDialogueAudio() {
+  const { audio, talkSound, reducedMotion, active, dialog } = useContext(Environment)
+  return { audio, talkSound, reducedMotion, active, dialog }
+}
 
 export function TutorialCoach({
   context,
@@ -60,7 +67,7 @@ export function TutorialCoach({
     [blink, setBlink] = useState(false),
     [failed, setFailed] = useState(false)
   const cancelSound = useRef<() => void>(() => {})
-  const speaker = useRef<HTMLSpanElement>(null)
+  const speaker = useRef<HTMLElement>(null)
   const forced = useRef(false)
   const audioRef = useRef(environment.audio)
   audioRef.current = environment.audio
@@ -75,24 +82,18 @@ export function TutorialCoach({
       speaker.current?.focus({ preventScroll: true })
       return
     }
-    if (context === 'terminal' && state.step === 'repair') {
-      document.getElementById('code')?.focus({ preventScroll: true })
-      return
-    }
-    const target = prompt.targets
-      .flatMap((id) =>
-        Array.from(document.querySelectorAll<HTMLElement>(`[data-tutorial-target="${id}"]`))
-      )
-      .find((node) => !node.matches(':disabled') && node.getClientRects().length)
-    if (target) target.focus({ preventScroll: true })
-    else if (context === 'street' || context === 'device')
-      document.querySelector<HTMLElement>('.world')?.focus({ preventScroll: true })
+    // Task coaching is visual guidance only. It must not steal editor or modal focus.
   }, [visible, state.step, context, prompt])
   useEffect(() => {
     setCount(environment.reducedMotion ? clusters.length : 0)
     forced.current = false
     cancelSound.current()
-    if (!visible || environment.reducedMotion) return
+    if (!visible) return
+    if (environment.reducedMotion) {
+      if (soundEnabled.current)
+        cancelSound.current = audioRef.current?.playTalkLine(text, 'kin') ?? (() => {})
+      return () => cancelSound.current()
+    }
     let cursor = 0
     const interval = setInterval(() => {
       if (forced.current) {
@@ -140,8 +141,8 @@ export function TutorialCoach({
   }
   // Stop the typing interval after a manual reveal, without restarting its clock.
   useEffect(() => {
-    if (complete) cancelSound.current()
-  }, [complete])
+    if (complete && !environment.reducedMotion) cancelSound.current()
+  }, [complete, environment.reducedMotion])
   if (!visible || !prompt || !state.step) return null
   const face = blink ? 'blink' : !complete && count % 4 < 2 ? 'talk' : 'idle'
   const next = () => {
@@ -152,85 +153,103 @@ export function TutorialCoach({
     }
     tutorial.next()
   }
-  return (
+  const reading = prompt.mode === 'dialogue' && !inline
+  const surface = (
     <section
-      className={`kin-coach ${inline ? 'kin-inline' : compact ? 'kin-compact' : 'kin-dock'}`}
+      ref={speaker}
+      tabIndex={prompt.mode === 'dialogue' ? -1 : undefined}
+      className={`kin-coach kin-surface ${reading ? 'kin-modal' : inline ? 'kin-inline' : compact ? 'kin-compact' : 'kin-dock'}`}
       data-tutorial-step={state.step}
       data-mood={prompt.mood}
+      data-coach-mode={prompt.mode}
+      data-coach-context={context}
       aria-label="คินพาฝึกเล่น"
     >
-      <div className="kin-portrait" aria-hidden="true">
-        <img
-          src={failed ? '/assets/entry/kin.png' : `/assets/tutorial/kin/${prompt.mood}-${face}.png`}
-          onError={() => setFailed(true)}
-          alt=""
-          draggable={false}
-        />
-        <span>TC / 04</span>
-      </div>
-      <div className="kin-dialogue-body">
-        <header>
-          <span ref={speaker} tabIndex={-1} className="kin-name">
-            คิน
-          </span>
-          <span className="kin-channel">TECHCARE / FIELD LINK</span>
-          <button className="kin-skip" onClick={() => tutorial.skip()}>
-            ข้ามการฝึก
-          </button>
-        </header>
+      <DialogueSurface
+        speaker="คิน"
+        compact={compact || inline || prompt.mode === 'task'}
+        reducedMotion={environment.reducedMotion}
+        portrait={
+          <img
+            src={
+              failed ? '/assets/entry/kin.png' : `/assets/tutorial/kin/${prompt.mood}-${face}.png`
+            }
+            onError={() => setFailed(true)}
+            alt=""
+            draggable={false}
+          />
+        }
+        actions={
+          <div className="kin-response-actions">
+            {!complete && (
+              <button
+                className="kin-reveal"
+                onClick={() => {
+                  forced.current = true
+                  reveal()
+                }}
+              >
+                แสดงข้อความทั้งหมด
+              </button>
+            )}
+            {prompt.choices?.map((choice) => (
+              <PixelButton
+                key={choice.id}
+                onClick={() => {
+                  if (!complete) {
+                    forced.current = true
+                    reveal()
+                    return
+                  }
+                  tutorial.choose(choice.id)
+                }}
+              >
+                {choice.label}
+              </PixelButton>
+            ))}
+            {prompt.nextLabel && (
+              <PixelButton variant="primary" onClick={next}>
+                {prompt.nextLabel}
+                <span> →</span>
+              </PixelButton>
+            )}
+            {prompt.mode === 'task' && (
+              <span className="kin-task-hint">
+                <i />
+                ลองใช้ส่วนที่มีกรอบสีอำพัน
+              </span>
+            )}
+            <button className="kin-skip" onClick={() => tutorial.skip()}>
+              ข้ามการฝึก
+            </button>
+          </div>
+        }
+      >
         <p className="kin-line">
           <span aria-hidden="true">{complete ? text : clusters.slice(0, count).join('')}</span>
           <span className="sr-only" aria-live="polite" aria-atomic="true">
             {text}
           </span>
         </p>
-        <div className="kin-response-actions">
-          {!complete && (
-            <button
-              className="kin-reveal"
-              onClick={() => {
-                forced.current = true
-                reveal()
-              }}
-            >
-              แสดงข้อความทั้งหมด
-            </button>
-          )}
-          {prompt.choices?.map((choice) => (
-            <PixelButton
-              key={choice.id}
-              onClick={() => {
-                if (!complete) {
-                  forced.current = true
-                  reveal()
-                  return
-                }
-                tutorial.choose(choice.id)
-              }}
-            >
-              {choice.label}
-            </PixelButton>
-          ))}
-          {prompt.nextLabel && (
-            <PixelButton variant="primary" onClick={next}>
-              {prompt.nextLabel}
-              <span> →</span>
-            </PixelButton>
-          )}
-          {prompt.mode === 'task' && (
-            <span className="kin-task-hint">
-              <i />
-              ลองใช้ปุ่มที่มีกรอบสีอำพัน
-            </span>
-          )}
-        </div>
         {state.storageWarning && (
           <small className="kin-storage-warning">
             จำการฝึกในเครื่องไม่ได้ ยังฝึกต่อในรอบนี้ได้
           </small>
         )}
-      </div>
+      </DialogueSurface>
     </section>
+  )
+  return reading ? (
+    <Modal
+      title="คินพาฝึกเล่น"
+      variant="dialogue"
+      placement="dialogue"
+      onClose={() => tutorial.skip()}
+    >
+      {surface}
+    </Modal>
+  ) : (
+    surface
   )
 }
 

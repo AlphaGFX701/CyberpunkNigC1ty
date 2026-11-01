@@ -1,5 +1,19 @@
 # Asset credits — TechCare BLACKBOX
 
+## Circuit City and repair console
+
+- Original code-authored PCB/city geometry: `src/circuit/model-geometry.ts`. Editable static export: `public/assets/circuit/circuit-city.glb`; runtime lights, fans and signals: `src/circuit/CircuitScene.tsx`. Reproducer: `tools/export-circuit.mjs`. The user's Circuit City screenshots/links supplied visual direction; no Sketchfab geometry or textures were imported.
+- Original dark navy/white/cyan HTML console, Puzzle cards and editor adapter were written for TechCare. RuneCode's public editor was inspected only for line numbers, caret insertion, Undo and diagnostic presentation; no RuneCode source/art was copied. Existing Chakra Petch and IBM Plex fonts retain their previous credits.
+- CodeMirror 6 supplies the HTML editing engine under MIT. Bundled license text is retained at `public/assets/vendor/codemirror-LICENSE.txt`. No Python runtime, combat or progression system was imported from RuneCode.
+
+## Arun chapter remake (local iteration)
+
+- Actual local vendor selection, source URLs and licenses: `CHAPTER_ONE_ASSETS.md`. The revised shop uses a small SakPix free-demo machine as the repair terminal and one LuKaRaii Neon City layer as a faint moving reflection in the window. The JustCreate3D sample building was removed from this scene because its camera angle made it appear to float. Purchased-pack artwork is not claimed when only a public reference page was available. NULLSIGNAL OBS templates remain private references; the hacking interface is original TechCare React/CSS.
+- New original room plates: `public/assets/chapter-one/scenes/arun-workshop.webp` (1600×900) and `recorder-interior.webp` (1600×1000). Generated with built-in image_gen from written layout briefs; no vendor pixels were supplied as image inputs. Editable full-resolution PNGs and prompts are in ignored `art-source/chapter-one/`.
+- New original Kin walk sheet and Arun portrait/standing artwork were generated with the built-in image_gen tool using only the game's original character references. Runtime files: `public/assets/chapter-one/characters/`. Editable source PNGs and exact prompts: `art-source/chapter-one/`. No external pack artwork was supplied to image generation.
+- Kin: 384×512 runtime PNG, four rows down/left/right/up, four 96×128 frames per row, exclusive foot edge y122. A later built-in image-generation correction adds a neutral idle and actual bent-knee passing poses; horizontal directions share a coherent right-facing strip, mirrored for left. Front/back retain face asymmetry. Whole-strip shared scales and head/foot anchors are documented with exact prompts, raw sources, normalization code and animated comparison in `art-source/chapter-one/KIN_WALK_CANDIDATE.md`. Both extended contacts remain anatomically lead-similar; the accepted practical improvement is a visible narrow/extended/passing/extended cycle, not a claim of a perfect hand-drawn gait.
+- Arun: three expression portraits (`arun-neutral/smile/serious.webp`) and a matching standing sprite. Source/prompt files include `arun-portraits-source.png`, `arun-portrait-prompt.txt`, `arun-standing-source.png`, `arun-standing-prompt.txt`.
+
 ## Imported free-demo artwork
 
 ### Finnmercury — Ultimate Pixel Sci-Fi UI set
@@ -28,7 +42,13 @@ The former NULLSIGNAL corner/standby images were replaced for public-source rele
 
 City observation details and limitations are recorded in evidence/CITY_RESEARCH.md. No Sketchfab model or textures are included. React Three Fiber, Drei and Three.js provide rendering; they do not supply the city artwork.
 
-## Original terminal entrance artwork
+## Local storyboard remake and music
+
+- `public/assets/story/escape/`: clean open/closed vault plates and six-frame anonymous intruder walk, generated with built-in imagegen from the project's original vault artwork. The walk strip was generated as a whole from one costume seed, then cropped into six equal slots and resized with nearest-neighbor at a shared scale; no individual frame resizing. Editable source images and exact prompts remain in `art-source/escape/`. No third-party pack images were supplied for this generation.
+- `public/assets/music/`: six user-supplied Desktop MP3s, copied without transcoding or changing originals. Concrete_Tears starts at cue3s; all others start at0. The later scene-music update adds Midnight_at_the_Terminal (Arun), Terminal_Watch (relay station), and The_Glass_Key (running connections/Circuit City). Song author/license was not supplied; these files are local runtime inputs and excluded from public Git. No audio was uploaded or published. `theme.wav` was removed, with no fallback to it. See SCENE_MUSIC.md for the complete mapping.
+- Procedural door, footstep, relay and text effects are original WebAudio code owned by EntryAudio; no voice recording is included.
+
+## Original terminal entrance files
 
 - `public/assets/entry/access-gate.webp`: original cyberpunk maintenance-bay scene generated with the built-in image_gen tool on 1 November 2026. No third-party demo artwork was supplied as generation input. Text, access ring, lighting changes and controls are authored in React/CSS rather than baked into the image.
 - Original PNG and exact prompt retained at `art-source/access-gate.png` and `art-source/access-gate-prompt.txt`. Runtime WebP uses format optimization only; source dimensions are 1672x941.
@@ -42,3 +62,8 @@ City observation details and limitations are recorded in evidence/CITY_RESEARCH.
 - BoldPixels by YukiPixels, supplied in the user's Desktop/Asset/font; unmodified webfont, CC BY-SA4.0. Credit/source: https://yukipixels.itch.io/boldpixels · license: https://creativecommons.org/licenses/by-sa/4.0/ . Original font license retained at public/assets/fonts/LICENSE-BoldPixels.txt.
 
 The dialogue frame, menu motion, original TechCare Pixel UI family, and custom cursor remain project-authored. The remaining Finnmercury demo file has not been supplied to image generation or used for model training. Source archives and editable demo SVGs remain locally under the gitignored `art-source/vendor/` directory. Runtime file dimensions, checksums, and sprite-frame coordinates are recorded in `public/assets/vendor/manifest.json`.
+# Relay episode originals — 2 November 2026
+
+- `public/assets/relay/scenes/*`, `characters/*`: original station plate/duty technician/dish generated with built-in imagegen using the project's original Arun workshop as a style reference. Sources and prompt record retained locally in `art-source/relay`; normalization script: `tools/prepare-relay-art.mjs`.
+- `public/assets/relay/circuit/relay-city.glb`: original code-authored low-poly geometry, no downloaded Sketchfab model. Source/export details in RELAY_CIRCUIT.md.
+- Existing Kin, UI, fonts and Midnight Protocol are reused under their existing credit entries; this iteration adds no new third-party pack or music.

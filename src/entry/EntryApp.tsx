@@ -4,11 +4,14 @@ import { AccountPanel } from './AccountPanel'
 import { EntryClock } from './EntryClock'
 import { AccessGate } from './AccessGate'
 import { GameApp } from '../GameApp'
-import { changeView, store, initialPositions, type View } from '../model'
+import { chapter } from '../chapter/model'
+import { changeView, enterField, store, initialPositions, type View } from '../model'
+import { relay } from '../relay/model'
 import { cityProgress } from '../city/progression'
 import { Modal } from '../ui/Modal'
 import { PixelButton, PixelIcon } from '../ui/PixelUI'
 import { EntryAudio, type EntryAudioStatus } from './audio'
+import { resolveMusicScene } from './scene-tracks'
 import { CinematicArt } from './CinematicArt'
 import { StoryPlayer } from './StoryPlayer'
 import {
@@ -32,23 +35,32 @@ import './entry.css'
 import './blackbox.css'
 import './account.css'
 import './access.css'
+import './story-remake.css'
 
 type Screen = 'access' | 'title' | 'story' | 'game' | 'account'
 type Dialog = 'settings' | 'pause' | 'exit' | 'newcase' | null
 const scenes: { id: View; label: string }[] = [
   { id: 'map', label: 'แผนที่คดี' },
   { id: 'street', label: 'ร้านช่างอรุณ' },
-  { id: 'device', label: 'ภายในกล้อง' },
+  { id: 'device', label: 'Circuit City / เครื่องซ่อม' },
   { id: 'boss', label: 'ห้องบอส' },
 ]
 
 export function EntryApp() {
+  const activeChapter = useSyncExternalStore(store.subscribe, () => store.get().activeChapter)
+  const gameMusicScene = useSyncExternalStore(store.subscribe, () =>
+    resolveMusicScene({ ...store.get(), screen: 'game' })
+  )
   const identity = useSyncExternalStore(account.subscribe, account.get)
   const progress = useSyncExternalStore(cityProgress.subscribe, cityProgress.get)
   const caseRepaired = progress.completed.includes('recover-cam07')
   const [prefs, setPrefs] = useState(() => loadPreferences(localPreferencesStorage()))
   const [accountInitialized, setAccountInitialized] = useState(false)
   const [screen, setScreen] = useState<Screen>('access')
+  const musicScene =
+    screen === 'game'
+      ? gameMusicScene
+      : resolveMusicScene({ screen, view: 'map', activeChapter, connectionRunning: false })
   const [dialog, setDialog] = useState<Dialog>(null)
   const [started, setStarted] = useState(false)
   const [launching, setLaunching] = useState(false)
@@ -103,6 +115,8 @@ export function EntryApp() {
     setLaunching(false)
     store.set({
       view: 'map',
+      activeChapter: 'arun',
+      connectionRunning: false,
       overlay: null,
       paused: true,
       repaired: cityProgress.get().completed.includes('recover-cam07'),
@@ -147,10 +161,9 @@ export function EntryApp() {
   }, [dialog, screen, audio])
   useEffect(() => {
     audio?.setLevels(prefs.music / 100, prefs.sfx / 100)
-    audio?.setMusicActive(
-      activated && (screen !== 'title' || dialog === 'settings') && dialog !== 'exit'
-    )
-  }, [audio, prefs.music, prefs.sfx, activated, screen, dialog])
+    audio?.setMusicScene(musicScene)
+    audio?.setMusicActive(activated && dialog !== 'exit')
+  }, [audio, prefs.music, prefs.sfx, activated, musicScene, dialog])
   useEffect(() => {
     const update = () => setFullscreen(Boolean(document.fullscreenElement))
     document.addEventListener('fullscreenchange', update)
@@ -191,10 +204,22 @@ export function EntryApp() {
     setActivated(true)
     if (!audio) return
     audio.setLevels(prefs.music / 100, prefs.sfx / 100)
+    audio.setMusicScene(musicScene)
     audio.setMusicActive(true)
     const ready = audio.unlock()
     setAudioReady(() => ready)
   }
+  useEffect(() => {
+    if (!audio || activated) return
+    // Listen outside the shell too: the first key may arrive while body has focus.
+    const start = () => wakeAudio()
+    window.addEventListener('pointerdown', start, { capture: true, once: true })
+    window.addEventListener('keydown', start, { capture: true, once: true })
+    return () => {
+      window.removeEventListener('pointerdown', start, true)
+      window.removeEventListener('keydown', start, true)
+    }
+  }, [audio, activated, prefs.music, prefs.sfx, musicScene])
   const persist = (patch: Partial<Preferences>) => {
     const next = { ...prefs, ...patch }
     setPrefs(next)
@@ -272,6 +297,8 @@ export function EntryApp() {
     if (!ok) return
     store.set({
       view: 'map',
+      activeChapter: 'arun',
+      connectionRunning: false,
       overlay: null,
       repaired: false,
       positions: structuredClone(initialPositions),
@@ -352,6 +379,13 @@ export function EntryApp() {
       dialog={dialog}
     >
       <div className="entry-shell" data-screen={screen} data-reduced-motion={reduce}>
+        {prefs.music > 0 && audioStatus.music !== 'playing' && (
+          <button type="button" className="entry-sound-enable" onClick={wakeAudio}>
+            {audioStatus.music === 'blocked' || audioStatus.music === 'error'
+              ? '♫ ลองเปิดเสียงอีกครั้ง'
+              : '♫ เปิดเสียง'}
+          </button>
+        )}
         <TutorialSpotlight active={screen === 'game'} />
         {screen === 'access' && (
           <AccessGate
@@ -639,6 +673,8 @@ export function EntryApp() {
             audio={audio}
             audioReady={audioReady}
             active={!dialog}
+            reduceMotion={reduce}
+            talkSound={prefs.talkSound}
             onFinish={finishStory}
           />
         )}
@@ -653,27 +689,6 @@ export function EntryApp() {
               }}
             />
           </div>
-        )}
-        {screen === 'game' && identity.status !== 'guest' && (
-          <button
-            type="button"
-            className="account-live-status"
-            data-status={identity.status}
-            data-sync={identity.sync}
-            aria-label="เปิดแฟ้มบัญชีและสถานะเซฟ"
-            onClick={openProfile}
-          >
-            <span aria-hidden="true">⇅</span>{' '}
-            {identity.status === 'error'
-              ? 'ตรวจบัญชีเพื่อเล่นต่อ'
-              : identity.status !== 'ready'
-                ? 'กำลังตรวจบัญชี…'
-                : identity.sync === 'saved'
-                  ? 'เซฟคลาวด์พร้อม'
-                  : identity.sync === 'saving'
-                    ? 'กำลังซิงก์…'
-                    : 'รอซิงก์ · ตรวจแฟ้ม'}
-          </button>
         )}
         {notice && screen === 'title' && (
           <p className="entry-notice" role="status">
@@ -818,6 +833,7 @@ export function EntryApp() {
                     ตั้งค่า
                   </PixelButton>
                   <PixelButton onClick={exitToTitle}>ออกสู่หน้าเมนู</PixelButton>
+                  <PixelButton onClick={openProfile}>แฟ้มบัญชีและสถานะเซฟ</PixelButton>
                   <PixelButton onClick={() => setDialog('newcase')}>เริ่มคดีใหม่</PixelButton>
                   <PixelButton
                     onClick={() => {
@@ -845,9 +861,14 @@ export function EntryApp() {
                     {scenes.map((s) => (
                       <PixelButton
                         key={s.id}
-                        disabled={Boolean(training.step)}
+                        disabled={
+                          Boolean(training.step) ||
+                          (s.id === 'device' &&
+                            !(activeChapter === 'relay' ? relay.canHack() : chapter.canHack()))
+                        }
                         onClick={() => {
-                          changeView(s.id)
+                          if (s.id === 'street') enterField('arun')
+                          else changeView(s.id)
                           setDialog(null)
                         }}
                       >
@@ -855,11 +876,12 @@ export function EntryApp() {
                       </PixelButton>
                     ))}
                   </nav>
-                  <p>ต้นแบบฉาก 4 พื้นที่ จุดซ่อมและห้องบอสยังเป็นโจทย์สาธิต</p>
+                  <p>ร้านอรุณมี 2 ร่องรอยและ 7 ภารกิจ HTML ก่อนกู้ภาพ ส่วนห้องบอสยังเป็นฉากสาธิต</p>
+                  {!chapter.canHack() && <small>เก็บร่องรอยทั้งสองจุดก่อนเข้าสู่โลกอุปกรณ์</small>}
                   <a href="?ui=1">ดูชุด Pixel UI ทั้ง 55 ชิ้น ↗</a>
                   <p className="asset-credit-link">
                     <a href="/assets/vendor/credits.txt" target="_blank" rel="noreferrer">
-                      เครดิตภาพ UI: Finnmercury · NULLSIGNAL / Nkyo-P ↗
+                      เครดิตภาพ ฟอนต์ และฉาก ↗
                     </a>
                   </p>
                   <small>

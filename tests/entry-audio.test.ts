@@ -2,13 +2,280 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { EntryAudio } from '../src/entry/audio.ts'
 
-test('music waits for player gesture and shares one player across menu transitions', async () => {
+function musicEnvironment(
+  play: (audio: { src: string }) => Promise<void> = () => Promise.resolve()
+) {
+  const players: MusicStub[] = []
+  class MusicStub {
+    src: string
+    paused = true
+    volume = 1
+    loop = false
+    preload = ''
+    currentTime = 0
+    readyState = 4
+    constructor(src = '') {
+      this.src = src
+      players.push(this)
+    }
+    play() {
+      this.paused = false
+      return play(this)
+    }
+    pause() {
+      this.paused = true
+    }
+    load() {}
+    removeAttribute() {}
+    setAttribute() {}
+    addEventListener() {}
+    removeEventListener() {}
+  }
+  return { players, MusicStub }
+}
+
+async function waitForMusic(check: () => boolean) {
+  const deadline = performance.now() + 2200
+  while (!check() && performance.now() < deadline)
+    await new Promise((resolve) => setTimeout(resolve, 15))
+  assert.ok(check(), 'music reached its bounded settled state')
+}
+
+test('new area tracks preload without playing; prepare cannot steal a fading slot', async () => {
+  const music = musicEnvironment()
+  const original = globalThis.Audio
+  Object.assign(globalThis, { Audio: music.MusicStub })
+  const engine = new EntryAudio()
+  try {
+    engine.setMusicActive(true)
+    await engine.unlock()
+    await Promise.resolve()
+    engine.prepareMusicScene('relay')
+    const standby = music.players.find((p) => p.src.endsWith('/terminal-watch.mp3'))!
+    assert.ok(standby)
+    assert.equal(standby.paused, true)
+    assert.equal(standby.currentTime, 0)
+    engine.setMusicScene('relay')
+    await Promise.resolve()
+    engine.prepareMusicScene('hack')
+    assert.ok(
+      music.players.some((p) => p.src.endsWith('/concrete-tears.mp3')),
+      'outgoing stays intact through fade'
+    )
+    await waitForMusic(
+      () =>
+        music.players.filter((p) => !p.paused).length === 1 &&
+        music.players.some((p) => p.src.endsWith('/the-glass-key.mp3'))
+    )
+    assert.equal(music.players.find((p) => !p.paused)!.src, '/assets/music/terminal-watch.mp3')
+    assert.equal(music.players.find((p) => p.src.endsWith('/the-glass-key.mp3'))!.paused, true)
+    engine.setMusicScene('hack')
+    await waitForMusic(
+      () =>
+        music.players.filter((p) => !p.paused).length === 1 &&
+        music.players.find((p) => !p.paused)?.src.endsWith('/the-glass-key.mp3') === true
+    )
+    assert.equal(music.players.length, 2)
+  } finally {
+    engine.dispose()
+    Object.assign(globalThis, { Audio: original })
+  }
+})
+
+test('reversing a fade keeps the surviving track audible and same-area updates do not seek', async () => {
+  const music = musicEnvironment()
+  const original = globalThis.Audio
+  Object.assign(globalThis, { Audio: music.MusicStub })
+  const engine = new EntryAudio()
+  try {
+    engine.setMusicScene('arun')
+    engine.setMusicActive(true)
+    await engine.unlock()
+    await Promise.resolve()
+    const arun = music.players.find((p) => p.src.endsWith('/midnight-at-the-terminal.mp3'))!
+    arun.currentTime = 17
+    engine.setMusicScene('relay')
+    await Promise.resolve()
+    engine.setMusicScene('arun')
+    await waitForMusic(() => music.players.filter((p) => !p.paused).length === 1 && arun.volume > 0)
+    assert.equal(arun.currentTime, 17, 'reversing to the existing playing source must not reset it')
+    engine.setMusicScene('arun')
+    engine.setMusicActive(true)
+    engine.setLevels(0, 0)
+    assert.equal(arun.currentTime, 17)
+    assert.ok(music.players.every((p) => p.volume === 0))
+    engine.setMusicActive(false)
+    engine.setMusicActive(true)
+    await Promise.resolve()
+    assert.equal(arun.currentTime, 17, 'settings and active toggles resume rather than seek')
+    assert.equal(music.players.length, 2)
+  } finally {
+    engine.dispose()
+    Object.assign(globalThis, { Audio: original })
+  }
+})
+
+test('a failed area song stops the previous area instead of using it as a wrong-scene fallback', async () => {
+  const music = musicEnvironment((audio) =>
+    audio.src.endsWith('/terminal-watch.mp3')
+      ? Promise.reject(new Error('missing file'))
+      : Promise.resolve()
+  )
+  const original = globalThis.Audio
+  Object.assign(globalThis, { Audio: music.MusicStub })
+  const statuses: string[] = []
+  const engine = new EntryAudio((s) => statuses.push(s.music))
+  try {
+    engine.setMusicActive(true)
+    await engine.unlock()
+    await Promise.resolve()
+    engine.setMusicScene('relay')
+    await waitForMusic(() => statuses.at(-1) === 'error')
+    assert.ok(music.players.every((p) => p.paused))
+    engine.setMusicScene('hack')
+    await waitForMusic(() => statuses.at(-1) === 'playing')
+    assert.equal(music.players.find((p) => !p.paused)?.src, '/assets/music/the-glass-key.mp3')
+    assert.equal(music.players.length, 2)
+  } finally {
+    engine.dispose()
+    Object.assign(globalThis, { Audio: original })
+  }
+})
+
+test('a pending music request never delays effects readiness or dialogue blips', async () => {
+  const pending: (() => void)[] = []
+  const music = musicEnvironment(() => new Promise<void>((resolve) => pending.push(resolve)))
+  const effects = talkEnvironment()
+  const originalAudio = globalThis.Audio,
+    originalContext = globalThis.AudioContext
+  Object.assign(globalThis, { Audio: music.MusicStub, AudioContext: effects.FakeContext })
+  const engine = new EntryAudio()
+  try {
+    engine.setMusicScene('entry')
+    engine.setMusicActive(true)
+    let ready = false
+    void engine.unlock().then(() => {
+      ready = true
+    })
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    assert.equal(ready, true, 'unlock resolves for SFX even while music.play is pending')
+    engine.playTalkBlip()
+    assert.equal(effects.sources.length, 1)
+    engine.setMusicActive(false)
+    pending.forEach((resolve) => resolve())
+    await Promise.resolve()
+    assert.ok(
+      music.players.every((player) => player.paused),
+      'late music completion cannot resume a paused scene'
+    )
+  } finally {
+    engine.dispose()
+    pending.forEach((resolve) => resolve())
+    Object.assign(globalThis, { Audio: originalAudio, AudioContext: originalContext })
+  }
+})
+
+test('an obsolete music play result cannot replace the newest scene track', async () => {
+  let completeOld: (() => void) | undefined
+  const music = musicEnvironment((audio) =>
+    audio.src.includes('concrete-tears')
+      ? new Promise<void>((resolve) => {
+          completeOld = resolve
+        })
+      : Promise.resolve()
+  )
+  const original = globalThis.Audio
+  Object.assign(globalThis, { Audio: music.MusicStub })
+  const statuses: string[] = []
+  const engine = new EntryAudio((status) => statuses.push(status.music))
+  try {
+    engine.setMusicScene('entry')
+    engine.setMusicActive(true)
+    await engine.unlock()
+    engine.setMusicScene('story')
+    engine.setMusicScene('game')
+    completeOld?.()
+    // Wait for the observable fade result rather than assuming its interval gets
+    // a CPU slice within 50ms while browser/WebGL checks run in parallel.
+    const deadline = performance.now() + 2000
+    do {
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    } while (
+      music.players.filter((player) => !player.paused).length !== 1 &&
+      performance.now() < deadline
+    )
+    const active = music.players.filter((player) => !player.paused)
+    assert.equal(active.length, 1)
+    assert.equal(active[0].src, '/assets/music/midnight-protocol.mp3')
+    assert.equal(statuses.at(-1), 'playing')
+    assert.equal(music.players.length, 2)
+  } finally {
+    engine.dispose()
+    completeOld?.()
+    Object.assign(globalThis, { Audio: original })
+  }
+})
+
+test('a fresh gesture retries a rejected scene track and muting during its next transition stays silent', async () => {
+  let entryAttempts = 0
+  const music = musicEnvironment((audio) => {
+    if (audio.src.endsWith('/concrete-tears.mp3') && ++entryAttempts === 1)
+      return Promise.reject(new Error('temporary media failure'))
+    return Promise.resolve()
+  })
+  const original = globalThis.Audio
+  Object.assign(globalThis, { Audio: music.MusicStub })
+  const statuses: string[] = []
+  const engine = new EntryAudio((status) => statuses.push(status.music))
+  try {
+    engine.setLevels(0.4, 0.6)
+    engine.setMusicScene('entry')
+    engine.setMusicActive(true)
+    await engine.unlock()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    assert.equal(statuses.at(-1), 'error')
+    await engine.unlock()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    assert.equal(entryAttempts, 2, 'a new player gesture retries the failed current source')
+    assert.equal(statuses.at(-1), 'playing')
+    const entry = music.players.find((player) => player.src.endsWith('/concrete-tears.mp3'))!
+    assert.equal(entry.currentTime, 3)
+    assert.equal(entry.paused, false)
+    assert.equal(entry.volume, 0.4)
+
+    engine.setMusicScene('story')
+    await new Promise((resolve) => setTimeout(resolve, 40))
+    assert.equal(
+      music.players.filter((player) => !player.paused).length,
+      2,
+      'transition overlaps only the two bounded slots'
+    )
+    engine.setLevels(0, 0)
+    assert.ok(music.players.every((player) => player.volume === 0))
+    await new Promise((resolve) => setTimeout(resolve, 450))
+    assert.ok(
+      music.players.every((player) => player.volume === 0),
+      'fade ticks cannot restore volume after mute'
+    )
+    const active = music.players.filter((player) => !player.paused)
+    assert.equal(active.length, 1)
+    assert.equal(active[0].src, '/assets/music/rain-over-glass-monoliths.mp3')
+    assert.equal(music.players.length, 2)
+  } finally {
+    engine.dispose()
+    Object.assign(globalThis, { Audio: original })
+  }
+})
+
+test('scene music waits for a gesture, uses the three approved tracks and never creates more than two transports', async () => {
   const players: FakeAudio[] = []
   class FakeAudio {
     volume = 1
     loop = false
     preload = ''
     paused = true
+    currentTime = 0
+    readyState = 4
     playCount = 0
     src: string
     constructor(src: string) {
@@ -32,28 +299,44 @@ test('music waits for player gesture and shares one player across menu transitio
     const statuses: string[] = []
     const engine = new EntryAudio((status) => statuses.push(status.music))
     engine.setLevels(0.3, 0.5)
+    engine.setMusicScene('entry')
     engine.setMusicActive(true)
     assert.equal(
       players.reduce((n, p) => n + p.playCount, 0),
       0
     )
     await engine.unlock()
-    assert.equal(players.length, 1)
-    assert.equal(players[0].src, '/assets/theme.wav')
-    assert.equal(players[0].volume, 0.3)
-    assert.equal(players[0].paused, false)
+    await new Promise((resolve) => setTimeout(resolve, 450))
+    assert.equal(players.length, 2)
+    let active = players.filter((player) => !player.paused)
+    assert.equal(active.length, 1)
+    assert.equal(active[0].src, '/assets/music/concrete-tears.mp3')
+    assert.equal(active[0].currentTime, 3)
+    assert.equal(active[0].volume, 0.3)
     assert.ok(statuses.includes('playing'))
+    for (const [scene, path] of [
+      ['story', '/assets/music/rain-over-glass-monoliths.mp3'],
+      ['game', '/assets/music/midnight-protocol.mp3'],
+      ['entry', '/assets/music/concrete-tears.mp3'],
+    ] as const) {
+      engine.setMusicScene(scene)
+      await new Promise((resolve) => setTimeout(resolve, 450))
+      active = players.filter((player) => !player.paused)
+      assert.equal(active.length, 1, `one settled track for ${scene}`)
+      assert.equal(active[0].src, path)
+      assert.equal(players.length, 2, 'screen changes reuse bounded transport slots')
+    }
     engine.setMusicActive(false)
-    assert.equal(players[0].paused, true)
+    assert.ok(players.every((player) => player.paused))
     engine.setMusicActive(true)
     await Promise.resolve()
-    assert.equal(players.length, 1)
+    assert.equal(players.length, 2)
     engine.setLevels(0, 0)
-    assert.equal(players[0].volume, 0)
+    assert.ok(players.every((player) => player.volume === 0))
     engine.dispose()
-    assert.equal(players[0].paused, true)
+    assert.ok(players.every((player) => player.paused))
     engine.setMusicActive(true)
-    assert.equal(players[0].paused, true)
+    assert.ok(players.every((player) => player.paused))
   } finally {
     Object.assign(globalThis, { Audio: original })
   }
@@ -295,7 +578,7 @@ test('talk blips use one effects bus, remain short and emit at most eight times 
     assert.equal(new Set(sources.map((source) => source.frequency.value)).size, 3)
     assert.ok(sources.every((source) => source.type === 'triangle'))
     assert.ok(
-      sources.every((source) => Math.abs(source.stops[0]! - source.starts[0] - 0.022) < 0.00001)
+      sources.every((source) => Math.abs(source.stops[0]! - source.starts[0] - 0.052) < 0.00001)
     )
     assert.ok(gains.slice(1).every((gain) => gain.destination === gains[0]))
     assert.ok(
@@ -362,6 +645,41 @@ test('blocked and unsupported WebAudio never prevent advancing dialogue', async 
     await unsupported.unlock()
     assert.doesNotThrow(() => unsupported.playTalkBlip()())
     unsupported.dispose()
+  } finally {
+    engine.dispose()
+    Object.assign(globalThis, { Audio: originalAudio, AudioContext: originalContext })
+  }
+})
+
+test('full-line dialogue emits an audible bounded Kin or Arun burst and cancels on departure', async () => {
+  const environment = talkEnvironment()
+  const originalAudio = globalThis.Audio,
+    originalContext = globalThis.AudioContext
+  Object.assign(globalThis, { Audio: undefined, AudioContext: environment.FakeContext })
+  const engine = new EntryAudio()
+  try {
+    await engine.unlock()
+    const cancel = engine.playTalkLine('คินตรวจเครื่องกล้องก่อน เดี๋ยวหลักฐานหนีไปอีก', 'kin')
+    assert.equal(
+      environment.sources.length,
+      1,
+      'a full visible line starts its voice effect immediately'
+    )
+    const peak = environment.gains[1].gain.calls.find((call) => call.kind === 'linear')!.value
+    assert.ok(peak >= 0.1, 'the short voice is not buried by normal music')
+    cancel()
+    environment.contexts[0].currentTime = 1
+    await new Promise((resolve) => setTimeout(resolve, 180))
+    assert.equal(environment.sources.length, 1, 'leaving the dialogue cancels pending syllables')
+    engine.playTalkLine('เครื่องอยู่หลังร้าน เดินดูเองเลย', 'arun')()
+    assert.ok(
+      environment.sources[1].frequency.value < environment.sources[0].frequency.value,
+      'Arun has a distinct lower tone'
+    )
+    engine.setLevels(0.35, 0)
+    environment.contexts[0].currentTime = 2
+    engine.playTalkLine('ต้องเงียบเมื่อปิดเอฟเฟกต์', 'kin')
+    assert.equal(environment.sources.length, 2)
   } finally {
     engine.dispose()
     Object.assign(globalThis, { Audio: originalAudio, AudioContext: originalContext })

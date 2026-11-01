@@ -1,0 +1,12 @@
+LuKaRaii Asset License - v1.1
+
+You MAY:
+- use these assets in personal and commercial projects (games, prototypes, game jams, trailers, streams);
+- modify, recolor, crop and combine them with other assets.
+
+You may NOT:
+- resell or redistribute the files, modified or not, as assets (asset packs, templates, marketplaces);
+- claim the assets as your own original work;
+- use them to train AI or generative models.
+
+Credit is appreciated but not required: "Assets by LuKaRaii - lukaraii.itch.io".

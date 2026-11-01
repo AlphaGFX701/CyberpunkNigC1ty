@@ -186,6 +186,7 @@ test('remote Reset generation drops pending pre-reset evidence and tutorial', as
   f.guide.skip()
   f.offline(true)
   f.progress.recordCamRecovery()
+  f.progress.recordRelayRecovery()
   await f.account.retrySync()
   f.setCloud({ ...player(), revision: 2, generation: 1 })
   f.offline(false)
@@ -193,6 +194,67 @@ test('remote Reset generation drops pending pre-reset evidence and tutorial', as
   assert.deepEqual(f.progress.get().completed, [])
   assert.equal(f.guide.get().status, 'unseen')
   assert.deepEqual(f.cloud().case.completed, [])
+})
+
+test('relay evidence merges across a revision conflict but historical relay intel cannot bypass it', async () => {
+  const f = setup()
+  await f.account.initialize()
+  await f.account.signIn('alice@example.test', 'x')
+  f.offline(true)
+  f.progress.recordCamRecovery()
+  f.progress.recordRelayRecovery()
+  await f.account.retrySync()
+  f.setCloud({
+    ...f.cloud(),
+    revision: 4,
+    case: {
+      version: 2,
+      completed: ['recover-cam07', 'read-relay', 'read-control'],
+      currentArea: 'relay',
+    },
+  })
+  f.offline(false)
+  await f.account.retrySync()
+  assert.deepEqual(f.cloud().case.completed, [
+    'recover-cam07',
+    'read-relay',
+    'recover-relay',
+    'read-control',
+  ])
+  assert.equal(f.cloud().case.version, 2)
+  assert.equal(f.progress.get().currentArea, 'relay')
+  assert.equal(f.account.get().sync, 'saved')
+  await f.account.useGuest()
+  assert.deepEqual(f.progress.get().completed, [])
+  await f.account.signIn('alice@example.test', 'x')
+  assert.ok(f.progress.get().completed.includes('recover-relay'))
+})
+
+test('a legacy cloud owner at control is normalized before cache and cannot gain relay completion', async () => {
+  const f = setup()
+  f.setCloud({
+    ...player(),
+    case: {
+      version: 1,
+      completed: ['recover-cam07', 'read-relay', 'read-control'],
+      currentArea: 'control',
+    },
+  } as unknown as PlayerRecord)
+  await f.account.initialize()
+  await f.account.signIn('alice@example.test', 'x')
+  assert.equal(f.progress.get().version, 2)
+  assert.equal(f.progress.get().currentArea, 'relay')
+  assert.deepEqual(f.progress.get().completed, ['recover-cam07', 'read-relay', 'read-control'])
+  assert.equal(f.progress.arrive('control'), false)
+  const cache = [...f.values.values()].map(v => { try { return JSON.parse(v) } catch { return null } })
+    .find(v => v?.player?.name === 'alice')
+  assert.equal(cache.player.case.version, 2)
+  assert.equal(cache.player.case.currentArea, 'relay')
+  await f.account.resetCase()
+  await f.account.useGuest()
+  await f.account.signIn('alice@example.test', 'x')
+  assert.deepEqual(f.progress.get().completed, [])
+  assert.equal(f.progress.get().currentArea, 'base')
 })
 test('Reset preserves identity/name and requires network for an account', async () => {
   const f = setup()

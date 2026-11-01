@@ -1,7 +1,15 @@
-export type AreaId = 'base' | 'arun' | 'relay' | 'control'
-export type CityMilestone = 'recover-cam07' | 'read-relay' | 'read-control'
+import {
+  cleanCase,
+  validCase,
+  milestoneOrder,
+  type CaseInput,
+  type AreaId,
+  type Milestone,
+} from '../account/contracts.ts'
+export type { AreaId } from '../account/contracts.ts'
+export type CityMilestone = Milestone
 export type CityProgressSnapshot = Readonly<{
-  version: 1
+  version: 2
   completed: readonly CityMilestone[]
   currentArea: AreaId
   storageWarning: boolean
@@ -13,8 +21,7 @@ export type StorageLike = {
 }
 export const cityProgressKey = 'techcare.case.v1'
 
-const milestones: readonly CityMilestone[] = ['recover-cam07', 'read-relay', 'read-control']
-const areas: readonly AreaId[] = ['base', 'arun', 'relay', 'control']
+const milestones = milestoneOrder
 
 /** Visibility, pin selection and travel all consume this same dependency rule. */
 export function canAccessArea(
@@ -29,7 +36,7 @@ export function canAccessArea(
       return snapshot.completed.includes('recover-cam07')
     case 'control':
       return (
-        snapshot.completed.includes('recover-cam07') && snapshot.completed.includes('read-relay')
+        snapshot.completed.includes('recover-cam07') && snapshot.completed.includes('recover-relay')
       )
     default:
       return false
@@ -42,7 +49,7 @@ function snapshot(
   storageWarning = false
 ): CityProgressSnapshot {
   return Object.freeze({
-    version: 1 as const,
+    version: 2 as const,
     completed: Object.freeze([...completed]),
     currentArea,
     storageWarning,
@@ -70,28 +77,10 @@ function load(
     const value = storage.getItem(key)
     if (value === null) return snapshot()
     const raw = JSON.parse(value)
-    if (
-      !raw ||
-      Array.isArray(raw) ||
-      raw.version !== 1 ||
-      !Array.isArray(raw.completed) ||
-      raw.completed.length > milestones.length ||
-      !raw.completed.every((item: unknown) => milestones.includes(item as CityMilestone)) ||
-      new Set(raw.completed).size !== raw.completed.length ||
-      !areas.includes(raw.currentArea)
-    )
-      return snapshot([], 'base', true)
-
-    const completed = milestones.filter((item) => raw.completed.includes(item))
-    if (
-      (completed.includes('read-relay') && !completed.includes('recover-cam07')) ||
-      (completed.includes('read-control') && !completed.includes('read-relay')) ||
-      !canAccessArea({ completed }, raw.currentArea)
-    )
-      return snapshot([], 'base', true)
-
+    if (!validCase(raw)) return snapshot([], 'base', true)
+    const migrated = cleanCase(raw)
     // Extra stored fields (including claimed unlocks) are never authoritative.
-    return snapshot(completed, raw.currentArea)
+    return snapshot(migrated.completed, migrated.currentArea)
   } catch {
     return snapshot([], 'base', true)
   }
@@ -122,7 +111,7 @@ export function createCityProgress(providedStorage?: StorageLike | null) {
   const save = (completed: readonly CityMilestone[], currentArea: AreaId) => {
     if (!storage) return unavailable
     try {
-      storage.setItem(storageKey, JSON.stringify({ version: 1, completed, currentArea }))
+      storage.setItem(storageKey, JSON.stringify({ version: 2, completed, currentArea }))
       return false
     } catch {
       return true
@@ -138,10 +127,7 @@ export function createCityProgress(providedStorage?: StorageLike | null) {
   }
 
   return {
-    activateOwner: (
-      key: string,
-      value?: { version: 1; completed: readonly CityMilestone[]; currentArea: AreaId }
-    ): void => {
+    activateOwner: (key: string, value?: CaseInput): void => {
       storageKey = key
       const source = value
         ? { getItem: () => JSON.stringify(value), setItem: () => {}, removeItem: () => {} }
@@ -149,11 +135,7 @@ export function createCityProgress(providedStorage?: StorageLike | null) {
       const next = load(source, unavailable, key)
       publish(next.completed, next.currentArea, next.storageWarning)
     },
-    hydrate: (value: {
-      version: 1
-      completed: readonly CityMilestone[]
-      currentArea: AreaId
-    }): void => {
+    hydrate: (value: CaseInput): void => {
       const next = load(
         { getItem: () => JSON.stringify(value), setItem: () => {}, removeItem: () => {} },
         false
@@ -170,9 +152,14 @@ export function createCityProgress(providedStorage?: StorageLike | null) {
     recordCamRecovery: (): void => {
       complete('recover-cam07')
     },
+    recordRelayRecovery: (): void => {
+      if (!current.completed.includes('recover-cam07')) return
+      complete('recover-relay')
+    },
     readIntel: (area: 'relay' | 'control'): boolean => {
-      if ((area !== 'relay' && area !== 'control') || !canAccessArea(current, area)) return false
-      complete(area === 'relay' ? 'read-relay' : 'read-control')
+      // The old relay intel button cannot bypass the playable investigation.
+      if (area !== 'control' || !canAccessArea(current, area)) return false
+      complete('read-control')
       return true
     },
     arrive: (area: AreaId): boolean => {

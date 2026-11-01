@@ -3,10 +3,12 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
+// Ship a pre-generated Function as well: Vercel discovers api entries before its build.
+await import('./build-api.mjs')
 // New staging directory each time: never mix an older build with current source.
 const stage = resolve(root, 'output', `deploy-${Date.now()}`)
 await mkdir(stage, { recursive: true })
-const entries = ['src', 'server', 'api', 'public', 'tools/check-runtime-assets.mjs',
+const entries = ['src', 'server', 'api', 'public', 'tools/check-runtime-assets.mjs', 'tools/build-api.mjs',
   'external-assets.json', 'package.json', 'package-lock.json', 'index.html',
   'tsconfig.json', 'tsconfig.server.json', 'vite.config.ts', 'vercel.json', '.vercelignore']
 for (const entry of entries) await cp(resolve(root, entry), resolve(stage, entry), { recursive: true })

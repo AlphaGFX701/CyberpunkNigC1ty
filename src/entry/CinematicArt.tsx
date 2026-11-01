@@ -1,4 +1,5 @@
-import { useState, type CSSProperties, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { TheftEscape } from './TheftEscape'
 import {
   caseNarrative,
   titleComposition,
@@ -49,14 +50,6 @@ const layerContent: Record<CinematicLayer['kind'], () => ReactNode> = {
   monitor: () => <div className="monitor-light" />,
   beacon: () => <span className="status-beacon" />,
   tamper: () => <span className="vault-tamper" />,
-  door: () => (
-    <div className="vault-door">
-      <i />
-      <i />
-      <i />
-      <span />
-    </div>
-  ),
   network: () => (
     <div className="network-brief">
       <small>{caseNarrative.artifact.name} / EMERGENCY AUTH</small>
@@ -109,12 +102,31 @@ export function CinematicArt({
   description,
   composition = titleComposition,
   title = false,
+  escaping = false,
+  onEscapeUnavailable,
 }: {
   art: string
   description: string
   composition?: StoryShot['composition']
   title?: boolean
+  escaping?: boolean
+  onEscapeUnavailable?: () => void
 }) {
+  const surface = useRef<HTMLDivElement>(null)
+  const [space, setSpace] = useState({ left: 0, top: 0, scale: 1 })
+  useLayoutEffect(() => {
+    const element = surface.current
+    if (!element) return
+    const update = () => {
+      const { width, height } = element.getBoundingClientRect()
+      const scale = Math.max(width / 1280, height / 720)
+      setSpace({ left: (width - 1280 * scale) / 2, top: (height - 720 * scale) / 2, scale })
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const retry = () => {
@@ -123,32 +135,47 @@ export function CinematicArt({
   }
   return (
     <div
+      ref={surface}
       className={`story-art art-${composition.name}${title ? ' title-art' : ''}`}
       data-art-error={failed}
       style={{ '--shot-art': `url("${art}")` } as CSSProperties}
     >
-      <img
-        className="scene-plate"
-        key={attempt}
-        src={`${art}${attempt ? `?retry=${attempt}` : ''}`}
-        alt={description}
-        onError={() => setFailed(true)}
-        draggable={false}
-      />
-      {!failed &&
-        composition.layers.map((layer) => (
-          <div
-            key={layer.id}
-            className={`shot-layer layer-${layer.kind}`}
-            data-layer={layer.id}
-            style={
-              { ...layer.placement, '--layer-delay': `${layer.delayMs ?? 0}ms` } as CSSProperties
-            }
-            aria-hidden="true"
-          >
-            {layerContent[layer.kind]()}
-          </div>
-        ))}
+      <div
+        className="cinematic-space"
+        style={{ left: space.left, top: space.top, transform: `scale(${space.scale})` }}
+      >
+        {composition.name === 'vault' ? (
+          <TheftEscape running={escaping} onUnavailable={onEscapeUnavailable} />
+        ) : (
+          <>
+            <img
+              className="scene-plate"
+              key={attempt}
+              src={`${art}${attempt ? `?retry=${attempt}` : ''}`}
+              alt={description}
+              onError={() => setFailed(true)}
+              draggable={false}
+            />
+            {!failed &&
+              composition.layers.map((layer) => (
+                <div
+                  key={layer.id}
+                  className={`shot-layer layer-${layer.kind}`}
+                  data-layer={layer.id}
+                  style={
+                    {
+                      ...layer.placement,
+                      '--layer-delay': `${layer.delayMs ?? 0}ms`,
+                    } as CSSProperties
+                  }
+                  aria-hidden="true"
+                >
+                  {layerContent[layer.kind]()}
+                </div>
+              ))}
+          </>
+        )}
+      </div>
       <div className="art-vignette" aria-hidden="true" />
       {failed && (
         <div className="art-fallback">

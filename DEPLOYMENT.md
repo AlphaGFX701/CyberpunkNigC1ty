@@ -8,6 +8,12 @@ Target Vercel team: `God_like` / `god-like1`; project: `techcare-signal-trace`. 
 
 ## Prepare and verify
 
+### Account Function repair — 2 November 2026
+
+The first release's real runtime log reported `ERR_MODULE_NOT_FOUND` for `/var/task/server/node.ts`; nested `/api/auth/get-session` also returned404. Backend typechecking alone did not produce runtime JavaScript. The build now runs `tools/build-api.mjs` to bundle the application server into the single Node24 Function `api/index.mjs`. Staging generates it before Vercel discovers Function entries. This generated artifact is excluded from Git and included in the deployment; its source and bundler remain in Git.
+
+An explicit `/api/:path*` rewrite routes nested Auth and player URLs to that Function. The adapter restores the original application pathname, removes only its internal routing query, and preserves request body/query/Origin and separate Set-Cookie headers. `tests/vercel-routing.test.ts` imports the actual bundle and exercises the bridge. Do not restore the former unbundled TypeScript catch-all entry.
+
 Use Node 24.x, `npm ci`, then prepare the artwork as described in `ASSETS_SETUP.md`. Configure the server locally using `.env.example`, without committing actual credentials. Run `npm test`, `npx playwright test --workers=1` and `npm run build`.
 
 Run `npm run deploy:prepare`. It verifies checksums and creates a fresh allowlisted `output/deploy-<timestamp>` containing code, build inputs and runtime artwork. It omits `.env.local`, original art packs, `.git`, evidence, caches and unused NULLSIGNAL PNGs. `output/latest-stage.json` records its path. Keep this staging folder local.

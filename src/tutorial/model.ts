@@ -22,9 +22,16 @@ export type TutorialStepId =
   | 'street-walk'
   | 'witness-open'
   | 'witness-read'
+  | 'traces'
+  | 'field-map'
+  | 'field-return'
   | 'camera-enter'
   | 'chip-open'
+  | 'puzzle'
+  | 'snippet'
+  | 'undo'
   | 'repair'
+  | 'repair-submit'
   | 'repair-read'
   | 'return-map'
   | 'done'
@@ -48,8 +55,15 @@ export type TutorialEvent =
   | 'walked'
   | 'witness-opened'
   | 'witness-closed'
+  | 'witness-dismissed'
   | 'device-arrived'
+  | 'clues-collected'
   | 'terminal-opened'
+  | 'puzzle-solved'
+  | 'editor-snippet'
+  | 'editor-undo'
+  | 'code-checked'
+  | 'first-repair-submitted'
   | 'cam-repaired'
   | 'terminal-closed'
   | 'map-returned'
@@ -89,10 +103,17 @@ const events: Partial<Record<TutorialStepId, readonly [TutorialEvent, TutorialSt
   travel: ['street-arrived', 'street-walk'],
   'street-walk': ['walked', 'witness-open'],
   'witness-open': ['witness-opened', 'witness-read'],
-  'witness-read': ['witness-closed', 'camera-enter'],
+  'witness-read': ['witness-closed', 'traces'],
+  traces: ['clues-collected', 'field-map'],
+  'field-map': ['map-returned', 'field-return'],
+  'field-return': ['street-arrived', 'camera-enter'],
   'camera-enter': ['device-arrived', 'chip-open'],
-  'chip-open': ['terminal-opened', 'repair'],
-  repair: ['cam-repaired', 'repair-read'],
+  'chip-open': ['terminal-opened', 'puzzle'],
+  puzzle: ['puzzle-solved', 'snippet'],
+  snippet: ['editor-snippet', 'undo'],
+  undo: ['editor-undo', 'repair'],
+  repair: ['code-checked', 'repair-submit'],
+  'repair-submit': ['first-repair-submitted', 'repair-read'],
   'repair-read': ['terminal-closed', 'return-map'],
   'return-map': ['map-returned', 'done'],
 }
@@ -119,6 +140,7 @@ function load(
   key = tutorialKey
 ): TutorialSnapshot {
   let status: TutorialStatus = 'unseen'
+  let updateAvailable = false
   if (storage) {
     try {
       const text = storage.getItem(key)
@@ -126,7 +148,10 @@ function load(
         const raw = JSON.parse(text)
         if (!raw || Array.isArray(raw) || raw.version !== 1 || !statuses.includes(raw.status))
           warning = true
-        else status = raw.status
+        else {
+          status = raw.status
+          updateAvailable = ['completed', 'skipped'].includes(status) && raw.guideVersion !== 2
+        }
       }
     } catch {
       warning = true
@@ -136,7 +161,7 @@ function load(
   return Object.freeze({
     status,
     step: null,
-    offered: status === 'active',
+    offered: status === 'active' || updateAvailable,
     storageWarning: warning,
     revision: 0,
   })
@@ -177,7 +202,7 @@ export function createTutorial(providedStorage?: TutorialStorage | null) {
     if (!storage) return warning
     try {
       // Steps, camera commands and code drafts deliberately never enter storage.
-      storage.setItem(storageKey, JSON.stringify({ version: 1, status }))
+      storage.setItem(storageKey, JSON.stringify({ version: 1, status, guideVersion: 2 }))
       return false
     } catch {
       return true
@@ -213,6 +238,7 @@ export function createTutorial(providedStorage?: TutorialStorage | null) {
     },
     start: begin,
     replay: begin,
+    dismissOffer: (): boolean => publish(current.status, null, false, save(current.status)),
     skip: (): boolean => {
       if (current.status === 'skipped' && current.step === null && !current.offered) return false
       return publish('skipped', null, false, save('skipped'))
@@ -240,8 +266,13 @@ export function createTutorial(providedStorage?: TutorialStorage | null) {
     notify: (event: TutorialEvent): boolean => {
       const step = current.step
       if (!step) return false
+      if (event === 'witness-dismissed' && step === 'witness-read') return move('witness-open')
       // Closing an unfinished editor must release the player to reopen it.
-      if (event === 'terminal-closed' && step === 'repair') return move('chip-open')
+      if (
+        event === 'terminal-closed' &&
+        ['puzzle', 'snippet', 'undo', 'repair', 'repair-submit'].includes(step)
+      )
+        return move('chip-open')
       if (event === 'renderer-list' && cameraSteps.includes(step)) return move('camera-fallback')
       const expected = events[step]
       return expected?.[0] === event ? move(expected[1]) : false

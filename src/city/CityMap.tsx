@@ -12,13 +12,13 @@ import {
 } from 'react'
 import { PixelButton, PixelIcon } from '../ui/PixelUI'
 import { Modal } from '../ui/Modal'
-import { store, changeView, type Overlay } from '../model'
+import { store, enterField, type Overlay } from '../model'
 import { cityProgress, canAccessArea, type AreaId } from './progression'
 import { areaById, cityAreas, currentObjective } from './areas'
 import './city-map.css'
 import { tutorial } from '../tutorial/model'
 import { tutorialAllows } from '../tutorial/controls'
-import { useTutorialState } from '../tutorial/Tutorial'
+import { useTutorialState, useDialogueAudio } from '../tutorial/Tutorial'
 
 const CityScene = lazy(() => import('./CityScene'))
 class SceneRecovery extends Component<
@@ -47,6 +47,7 @@ export function CityMap({
   overlay: Overlay
 }) {
   const progress = useSyncExternalStore(cityProgress.subscribe, cityProgress.get)
+  const { audio } = useDialogueAudio()
   const training = useTutorialState()
   const tutorialCamera = useMemo(
     () =>
@@ -131,11 +132,11 @@ export function CityMap({
         setTravelling(null)
         // A replay cannot commit an arrival queued by the previous walkthrough.
         const step = tutorial.get().step
-        if (step && step !== 'travel') return
+        if (step && step !== 'travel' && step !== 'field-return') return
         if (!cityProgress.arrive(target)) return
         setAnnouncement(`เดินทางถึง${areaById(target).name}`)
-        if (target === 'arun') {
-          changeView('street')
+        if (target === 'arun' || target === 'relay') {
+          enterField(target)
           return
         }
         if (target === 'base') {
@@ -158,11 +159,12 @@ export function CityMap({
     (id: AreaId) => {
       if (blocked || !canAccessArea(cityProgress.get(), id)) return
       if (!tutorialAllows(id === 'arun' ? 'area-arun' : `area-${id}`)) return
+      if (id === 'arun' || id === 'relay') audio?.prepareMusicScene(id)
       setSelected(id)
       setListOpen(false)
       if (id === 'arun') tutorial.notify('area-arun-selected')
     },
-    [blocked]
+    [blocked, audio]
   )
   const enter = () => {
     if (!detail || blocked || !canAccessArea(cityProgress.get(), detail.id)) return
@@ -207,7 +209,8 @@ export function CityMap({
               onSelect={choose}
               onReady={sceneReady}
               onFailure={fail}
-              paused={blocked}
+              paused={paused}
+              inputBlocked={blocked}
               controlsLocked={Boolean(training.step && !['rotate', 'zoom'].includes(training.step))}
               tutorialCamera={tutorialCamera}
               onTutorialCameraDone={(id) => {

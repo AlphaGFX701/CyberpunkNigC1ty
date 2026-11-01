@@ -39,10 +39,17 @@ const path: readonly (readonly [TutorialStepId, TutorialEvent, TutorialStepId])[
   ['travel', 'street-arrived', 'street-walk'],
   ['street-walk', 'walked', 'witness-open'],
   ['witness-open', 'witness-opened', 'witness-read'],
-  ['witness-read', 'witness-closed', 'camera-enter'],
+  ['witness-read', 'witness-closed', 'traces'],
+  ['traces', 'clues-collected', 'field-map'],
+  ['field-map', 'map-returned', 'field-return'],
+  ['field-return', 'street-arrived', 'camera-enter'],
   ['camera-enter', 'device-arrived', 'chip-open'],
-  ['chip-open', 'terminal-opened', 'repair'],
-  ['repair', 'cam-repaired', 'repair-read'],
+  ['chip-open', 'terminal-opened', 'puzzle'],
+  ['puzzle', 'puzzle-solved', 'snippet'],
+  ['snippet', 'editor-snippet', 'undo'],
+  ['undo', 'editor-undo', 'repair'],
+  ['repair', 'code-checked', 'repair-submit'],
+  ['repair-submit', 'first-repair-submitted', 'repair-read'],
   ['repair-read', 'terminal-closed', 'return-map'],
   ['return-map', 'map-returned', 'done'],
 ]
@@ -60,6 +67,23 @@ function startCamera(guide: Tutorial) {
   assert.equal(guide.next(), true)
   assert.equal(guide.get().step, 'camera-demo')
 }
+
+test('closing an unfinished witness returns to interaction; reading an NPC never completes the guide', () => {
+  const guide = createTutorial(memoryStorage().storage)
+  startCamera(guide)
+  for (const [before, event] of path) {
+    if (before === 'witness-read') break
+    guide.notify(event)
+  }
+  assert.equal(guide.get().step, 'witness-read')
+  assert.equal(guide.notify('witness-dismissed'), true)
+  assert.equal(guide.get().step, 'witness-open')
+  guide.notify('witness-opened')
+  assert.equal(guide.notify('witness-closed'), true)
+  assert.equal(guide.get().status, 'active')
+  assert.equal(guide.get().step, 'traces')
+  assert.equal(guide.notify('first-repair-submitted'), false)
+})
 
 test('fresh map starts once; authored choices change Kin response and rejoin the same case', () => {
   const guide = createTutorial(memoryStorage().storage)
@@ -81,6 +105,27 @@ test('fresh map starts once; authored choices change Kin response and rejoin the
   assert.equal(guide.get().step, 'camera-intro')
   guide.next()
   assert.equal(guide.get().step, 'camera-demo')
+})
+
+test('field M roundtrip requires actual map return and arrival before connecting the terminal', () => {
+  const guide = createTutorial(memoryStorage().storage)
+  startCamera(guide)
+  for (const [before, event] of path) {
+    if (before === 'field-map') break
+    guide.notify(event)
+  }
+  assert.equal(guide.get().step, 'field-map')
+  assert.deepEqual(getTutorialPrompt('field-map').targets, ['return-map'])
+  assert.equal(guide.notify('device-arrived'), false)
+  assert.equal(guide.notify('street-arrived'), false)
+  assert.equal(guide.notify('map-returned'), true)
+  assert.equal(guide.get().step, 'field-return')
+  assert.deepEqual(getTutorialPrompt('field-return').targets, ['areas', 'area-arun', 'enter-arun'])
+  assert.equal(guide.notify('areas-opened'), false, 'opening a list is not arriving at the shop')
+  assert.equal(guide.notify('area-arun-selected'), false, 'selecting a destination is not travel')
+  assert.equal(guide.notify('device-arrived'), false)
+  assert.equal(guide.notify('street-arrived'), true)
+  assert.equal(guide.get().step, 'camera-enter')
 })
 
 test('real acknowledgements complete the ordered map and first-recovery loop, not next clicks', () => {
@@ -106,7 +151,11 @@ test('real acknowledgements complete the ordered map and first-recovery loop, no
     { status: guide.get().status, step: guide.get().step, offered: guide.get().offered },
     { status: 'completed', step: null, offered: false }
   )
-  assert.deepEqual(JSON.parse(values.get(tutorialKey)!), { version: 1, status: 'completed' })
+  assert.deepEqual(JSON.parse(values.get(tutorialKey)!), {
+    version: 1,
+    status: 'completed',
+    guideVersion: 2,
+  })
   assert.equal(values.get('techcare.case.v1'), '{"unchanged":true}')
   assert.equal(values.get('techcare.entry.v1'), '{"name":"อรุณ"}')
   assert.ok(
@@ -146,7 +195,11 @@ test('reload offers interrupted training without locking input or storing a runt
   startCamera(first)
   first.notify('camera-demo-done')
   assert.equal(first.get().step, 'rotate')
-  assert.deepEqual(JSON.parse(values.get(tutorialKey)!), { version: 1, status: 'active' })
+  assert.deepEqual(JSON.parse(values.get(tutorialKey)!), {
+    version: 1,
+    status: 'active',
+    guideVersion: 2,
+  })
   const restored = createTutorial(storage)
   assert.equal(restored.get().status, 'active')
   assert.equal(restored.get().step, null)
@@ -194,11 +247,29 @@ test('skip and completion survive reload; replay and New Case remain independent
   assert.equal(values.get('techcare.case.v1'), '{"completed":["recover-cam07"]}')
   assert.equal(values.get('techcare.entry.v1'), '{"music":0}')
   const completed = createTutorial(
-    memoryStorage({ [tutorialKey]: '{"version":1,"status":"completed"}' }).storage
+    memoryStorage({ [tutorialKey]: '{"version":1,"status":"completed","guideVersion":2}' }).storage
   )
   completed.activateFirstMap(false)
   assert.equal(completed.get().step, null)
   assert.equal(completed.get().offered, false)
+})
+
+test('legacy completed or skipped training gets an optional version-two offer without resetting case history', () => {
+  for (const status of ['completed', 'skipped'] as const) {
+    const { storage, values } = memoryStorage({
+      [tutorialKey]: JSON.stringify({ version: 1, status }),
+      'techcare.case.v1': '{"completed":["recover-cam07"]}',
+    })
+    const guide = createTutorial(storage)
+    guide.activateFirstMap(true)
+    assert.equal(guide.get().step, null)
+    assert.equal(guide.get().offered, true)
+    assert.equal(guide.get().status, status)
+    guide.dismissOffer()
+    assert.equal(createTutorial(storage).get().offered, false)
+    assert.equal(JSON.parse(values.get(tutorialKey)!).guideVersion, 2)
+    assert.equal(values.get('techcare.case.v1'), '{"completed":["recover-cam07"]}')
+  }
 })
 
 test('WebGL list fallback bypasses only camera practice and rejoins the real journal instruction', () => {
@@ -242,8 +313,13 @@ test('closing an unfinished code editor allows reopening without granting recove
   assert.equal(values.get('techcare.case.v1'), '{"completed":[]}')
   assert.equal(guide.get().status, 'active')
   assert.equal(guide.notify('terminal-opened'), true)
-  assert.equal(guide.get().step, 'repair')
-  assert.equal(guide.notify('cam-repaired'), true)
+  assert.equal(guide.get().step, 'puzzle')
+  guide.notify('puzzle-solved')
+  guide.notify('editor-snippet')
+  guide.notify('editor-undo')
+  assert.equal(guide.notify('code-checked'), true)
+  assert.equal(guide.get().step, 'repair-submit')
+  assert.equal(guide.notify('first-repair-submitted'), true)
   assert.equal(guide.get().step, 'repair-read')
 })
 
@@ -306,5 +382,9 @@ test('every authored prompt has a usable context and truthful first-case languag
   assert.match(getTutorialPrompt('case').text, /ทีมกู้ภัย/)
   assert.match(getTutorialPrompt('journal-read').text, /CAM-07.*หลักฐานแรก/)
   assert.match(getTutorialPrompt('case-more').text, /ยังบอกไม่ได้/)
-  assert.deepEqual(getTutorialPrompt('repair').targets, ['check-code'])
+  assert.deepEqual(getTutorialPrompt('repair').targets, ['edit-code', 'check-code'])
+  assert.match(getTutorialPrompt('chip-open').text, /เลือก.*01/)
+  assert.match(getTutorialPrompt('repair').text, /body/)
+  assert.doesNotMatch(getTutorialPrompt('repair').text, /suspect\.png/)
+  assert.match(getTutorialPrompt('done').text, /อีกหกเขต|อีก.*หกเขต/)
 })
