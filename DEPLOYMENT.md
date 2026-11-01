@@ -16,7 +16,11 @@ Verified:120 unit/API tests, production build and8 critical desktop browser case
 
 Removed all question answer reveal/autofill actions and canonical code answers from runtime. Conceptual hints, checking, scoring, legacy assistance history and earned progress remain. The latest future-chapter prompt follows the same policy. The private20-page PDF covers31 actual exercises and is not part of Git or deploy inputs. Its17 code samples survive PDF text extraction; all16 chapter answers copied from the PDF pass the actual validators and the demo's stricter src/alt test passes too. All20 pages were rendered and visually checked.
 
-Checks:122 unit/API tests,9 unique desktop browser scenarios and production build passed. Both full chapter routes verify answer-control absence across31 logical question instances. A private-file staging guard rejects accidental PDFs/answer artifacts before upload. Deployment URL, source commit and stable-alias verification are recorded after publication.
+Checks:122 unit/API tests,9 unique desktop browser scenarios and production build passed. Both full chapter routes verify answer-control absence across31 logical question instances. A private-file staging guard rejects accidental PDFs/answer artifacts before upload.
+
+Published source: `c1f3a59`. Deployment: `dpl_4Vab6uRLUK55dRgyEp3uhGzdLXZj`, https://techcare-signal-trace-7cw7enucz-god-like1.vercel.app . Promotion succeeded and the stable https://techcare-signal-trace.vercel.app/ alias now serves the new client bundle. Stable config200/configuredtrue, session200/null, unsigned player401 and bounded invalid-account sign-in401/INVALID_EMAIL_OR_PASSWORD were verified after promotion. No500/404 remains on these tested paths. The user confirmed real account access on the preceding fixed deployment; this update retains that account implementation and database.
+
+Online desktop guest smoke on this exact deployment passed entry/account form, guest/title/story, map/J, real keyboard exploration and clues at Arun, connection, Circuit City, first Puzzle and correct code submission without reveal/autofill controls, then M back to map. Zero page exceptions or bad asset responses; relay scene/portrait/GLB returned200, scene MP3 streams206 and one settled music source. This was guest verification, not a second real-account/OTP test. Private PDF/source files were verified absent from both staged Git files and deploy inputs.
 
 ## Prepare and verify
 
