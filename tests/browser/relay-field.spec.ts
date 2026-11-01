@@ -1,8 +1,12 @@
 import { test, expect, type Page } from '@playwright/test'
 import { enterGame } from './helpers'
 import { relayPoints } from '../../src/relay/layout'
-import { tasks, finalTask } from '../../src/relay/content'
+import { tasks as taskDefinitions, finalTask as finalDefinition } from '../../src/relay/content'
 import { solveRelayPuzzle } from './relay-helpers'
+import { expectNoAnswers } from './no-answers'
+import { privateAnswers, withPrivateAnswers } from '../private-answers'
+const tasks = withPrivateAnswers('relay', taskDefinitions)
+const finalTask = { ...finalDefinition, solution: privateAnswers.relay[7] }
 
 test.use({
   viewport: { width: 1440, height: 900 },
@@ -227,6 +231,7 @@ test('relay field: real departure, travel, arrival, locked gate, witness, two tr
       await page.getByRole('button', { name: 'รายชื่อด่าน Circuit City', exact: true }).click()
     await page.getByTestId('circuit-stage-' + index).click()
     await page.getByTestId('circuit-start').click()
+    await expectNoAnswers(page)
   }
   async function fillCode(code: string) {
     const editor = page.locator('.cm-content')

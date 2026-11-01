@@ -18,7 +18,7 @@ export const puzzles: readonly RelayPuzzleDefinition[] = [
     scaffold: '<a>แฟ้มสถานี</a>',
     snippets: [
       { label: '<a>', text: '<a href="">แฟ้มสถานี</a>' },
-      { label: 'href', text: 'href="station.html"' },
+      { label: 'href', text: 'href=""' },
     ],
   },
   {
@@ -43,8 +43,8 @@ export const puzzles: readonly RelayPuzzleDefinition[] = [
       '<a href="#">หลังเหตุโจรกรรม</a>\n<section id="after-theft"><h2>หลังเหตุโจรกรรม</h2><p>ตรวจช่องรับอุปกรณ์หลัง 03:12</p></section>',
     snippets: [
       { label: '#after-theft', text: '#after-theft' },
-      { label: 'href', text: 'href="#after-theft"' },
-      { label: 'id', text: 'id="after-theft"' },
+      { label: 'href', text: 'href=""' },
+      { label: 'id', text: 'id=""' },
     ],
   },
   {

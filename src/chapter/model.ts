@@ -1,4 +1,4 @@
-import { tasks, chapterClues, type ClueId } from './content.ts'
+import { tasks, finalTask, chapterClues, type ClueId } from './content.ts'
 import { validateTask, validateImage, type AnswerResult } from './validate.ts'
 import { validatePuzzle, type PuzzleAnswer } from './puzzles.ts'
 
@@ -208,16 +208,7 @@ export function createChapter(storage: ChapterStorage | null = resolveStorage())
       if (index === 7 ? !canRecoverImage() : !canOpenTask(index))
         return 'เปิดจุดก่อนหน้านี้ให้ครบก่อน'
       observation(index, { usedHint: true })
-      return index === 7
-        ? 'ใช้ src ระบุ suspect.png แล้วเขียน alt อธิบายผู้ต้องสงสัย'
-        : tasks[index].hint
-    },
-    reveal: (index: number): string => {
-      if (index === 7 ? !canRecoverImage() : !canOpenTask(index)) return ''
-      observation(index, { revealed: true })
-      return index === 7
-        ? '<img src="suspect.png" alt="ผู้ต้องสงสัยเสื้อดำหน้าร้าน">'
-        : tasks[index].solution
+      return index === 7 ? finalTask.hint : tasks[index].hint
     },
     canRecoverImage,
     submitImage: (input: string): AnswerResult => {

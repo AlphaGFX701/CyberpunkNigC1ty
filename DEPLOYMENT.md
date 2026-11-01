@@ -10,9 +10,17 @@ Target Vercel team: `God_like` / `god-like1`; project: `techcare-signal-trace`. 
 
 Source commit: `99ed5e1` (pushed to main). Candidate deployment: `dpl_2QhN84z7F6t5e72LyFqT5F8sSyT1`, https://techcare-signal-trace-gb0s3sywm-god-like1.vercel.app . Contains both playable chapters, final-chapter prompt documentation, new gait/dialogue/music/tutorial and the bundled account Function. The final chapter itself is not implemented.
 
-Verified:120 unit/API tests, production build and8 critical desktop browser cases. Candidate online config200/configuredtrue, session200/null, player401 when unsigned; bounded invalid-account probe401/INVALID_EMAIL_OR_PASSWORD and cross-origin403/ORIGIN_REJECTED. Its exact origin is added to Neon. Candidate has no Vercel authentication wall. The user has been asked to perform real Login/OTP, refresh and logout/login; those results and promotion are pending. Never treat the invalid-account probe as proof of email delivery or authenticated save persistence.
+Verified:120 unit/API tests, production build and8 critical desktop browser cases. Candidate online config200/configuredtrue, session200/null, player401 when unsigned; bounded invalid-account probe401/INVALID_EMAIL_OR_PASSWORD and cross-origin403/ORIGIN_REJECTED. Its exact origin is added to Neon. Candidate has no Vercel authentication wall. The user subsequently confirmed the real account flow works. That report is user-performed verification, not automated OTP evidence. The old stable alias was still serving the first release at the next check; the no-answers update below supersedes that promotion.
+
+## No-answer update — 2 November 2026
+
+Removed all question answer reveal/autofill actions and canonical code answers from runtime. Conceptual hints, checking, scoring, legacy assistance history and earned progress remain. The latest future-chapter prompt follows the same policy. The private20-page PDF covers31 actual exercises and is not part of Git or deploy inputs. Its17 code samples survive PDF text extraction; all16 chapter answers copied from the PDF pass the actual validators and the demo's stricter src/alt test passes too. All20 pages were rendered and visually checked.
+
+Checks:122 unit/API tests,9 unique desktop browser scenarios and production build passed. Both full chapter routes verify answer-control absence across31 logical question instances. A private-file staging guard rejects accidental PDFs/answer artifacts before upload. Deployment URL, source commit and stable-alias verification are recorded after publication.
 
 ## Prepare and verify
+
+Full learning regression tests also require the owner's private `output/private-cheatsheet/source.json` fixture. The Node-only test helper reads it; the browser app never imports it. It is intentionally absent from public Git and deploy staging. Do not restore runtime answer fields to make public-clone tests pass. The game build itself does not need this fixture. The private PDF and its generation files stay under ignored output and are delivered separately.
 
 ### Account Function repair — 2 November 2026
 

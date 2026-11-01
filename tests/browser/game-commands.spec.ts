@@ -1,3 +1,4 @@
+import { privateAnswers } from '../private-answers'
 import { test, expect, type Page } from '@playwright/test'
 import { enterGame, selectScene } from './helpers'
 
@@ -80,12 +81,11 @@ test('J/M/H typed in the real CodeMirror stay code, and M after closing preserve
   test.setTimeout(90000)
   await enterGame(page)
   // Focused editor fixture: earn the first task through its real validators; no case milestone is injected.
-  await page.evaluate(async () => {
+  await page.evaluate(async (answer) => {
     const urls = performance.getEntriesByType('resource').map((r) => r.name)
     const { chapter } = await import(
       urls.findLast((u) => /\/src\/chapter\/model\.ts(?:\?|$)/.test(u)) ?? '/src/chapter/model.ts'
     )
-    const { tasks } = await import('/src/chapter/content.ts')
     const { puzzles } = await import('/src/chapter/puzzles.ts')
     const { changeView, store } = await import(
       urls.findLast((u) => /\/src\/model\.ts(?:\?|$)/.test(u)) ?? '/src/model.ts'
@@ -96,12 +96,12 @@ test('J/M/H typed in the real CodeMirror stay code, and M after closing preserve
     chapter.startHack()
     if (
       !chapter.submitPuzzle(0, puzzles[0].solution).ok ||
-      !chapter.submitTask(0, tasks[0].solution).ok
+      !chapter.submitTask(0, answer).ok
     )
       throw Error('fixture repair invalid')
     store.set({ activeChapter: 'arun' })
     changeView('device')
-  })
+  }, privateAnswers.arun[0])
   await expect(page.locator('.circuit-map')).toBeVisible({ timeout: 20000 })
   await expect(page.locator('.circuit-loading')).toHaveCount(0, { timeout: 20000 })
   await page.getByRole('button', { name: 'รายชื่อด่าน Circuit City', exact: true }).click()

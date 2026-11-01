@@ -4,11 +4,15 @@ import {
   createChapter,
   chapterScore,
   chapterObjective,
-  tasks,
+  tasks as taskDefinitions,
   validateTask,
   validateImage,
 } from '../src/chapter/model.ts'
 import { puzzles, validatePuzzle } from '../src/chapter/puzzles.ts'
+import { finalTask as publicFinalTask } from '../src/chapter/content.ts'
+
+import { privateAnswers, withPrivateAnswers } from './private-answers.ts'
+const tasks = withPrivateAnswers('arun', taskDefinitions)
 
 const memory = () => {
   const values = new Map<string, string>()
@@ -26,6 +30,19 @@ const enter = (chapter: ReturnType<typeof createChapter>) => {
   chapter.collectClue('relay')
   assert.equal(chapter.startHack(), true)
 }
+
+test('public Arun tasks have no canonical answers and legacy revealed history survives without a reveal API', () => {
+  assert.ok(taskDefinitions.every((task) => !Object.hasOwn(task, 'solution')))
+  assert.equal(Object.hasOwn(publicFinalTask, 'solution'), false)
+  const storage = memory(), original = createChapter(storage)
+  enter(original)
+  const old = { ...original.get(), observations: original.get().observations.map((item, index) => ({ ...item, revealed: index === 0 })) }
+  storage.values.set('techcare.chapter-one.v1:guest:0', JSON.stringify(old))
+  const restored = createChapter(storage)
+  assert.equal(restored.get().observations[0].revealed, true)
+  assert.equal('reveal' in restored, false)
+  assert.equal(chapterScore(restored.get()), 0)
+})
 
 test('all seven missions reject the broken starter and accept their own distinct solutions', () => {
   assert.equal(new Set(tasks.map((task) => task.id)).size, 7)
@@ -114,18 +131,16 @@ test('two clues require witness information and all seven genuine completions ga
   assert.equal(chapterScore(chapter.get()), 100)
 })
 
-test('hint, reveal and failed attempts record help without awarding progress or reducing eventual score', () => {
+test('hint and failed attempts record help without awarding progress or reducing eventual score', () => {
   const chapter = createChapter(memory())
   enter(chapter)
   chapter.submitPuzzle(0, puzzles[0].solution)
-  assert.equal(chapter.reveal(6), '')
   assert.equal(chapter.useHint(0), tasks[0].hint)
-  assert.equal(chapter.reveal(0), tasks[0].solution)
   assert.equal(chapterScore(chapter.get()), 0)
   assert.equal(chapter.submitTask(0, tasks[0].starter).ok, false)
   assert.equal(chapter.get().completed.length, 0)
   assert.equal(chapter.submitTask(0, tasks[0].solution).ok, true)
-  assert.deepEqual(chapter.get().observations[0], { attempts: 2, usedHint: true, revealed: true })
+  assert.deepEqual(chapter.get().observations[0], { attempts: 2, usedHint: true, revealed: false })
   assert.equal(chapterScore(chapter.get()), 10)
   assert.equal(chapter.submitTask(0, tasks[0].solution).ok, true)
   assert.equal(chapterScore(chapter.get()), 10)

@@ -118,16 +118,6 @@ function PuzzleBoard({ index, onSolved }: { index: number; onSolved: () => void 
         >
           ต่อวงจร Puzzle
         </PixelButton>
-        <PixelButton
-          variant="solution"
-          onClick={() => {
-            chapter.reveal(index)
-            setAnswer({ ...puzzle.solution })
-            setFeedback('จัดชิ้นส่วนตามเฉลยแล้ว ลองอ่านความสัมพันธ์ ก่อนกดต่อวงจร')
-          }}
-        >
-          เฉลย Puzzle
-        </PixelButton>
       </div>
     </section>
   )
@@ -171,7 +161,6 @@ export function RepairWorkbench({
     savedDraft?.code ?? (!final && puzzleReady ? stagePuzzles[index].scaffold : task.starter)
   )
   const [hint, setHint] = useState('')
-  const [solution, setSolution] = useState('')
   const [result, setResult] = useState<AnswerResult | undefined>()
   const [success, setSuccess] = useState(final && recovered)
   const editor = useRef<EditorHandle>(null)
@@ -212,13 +201,13 @@ export function RepairWorkbench({
   const snippets = final
     ? isRelay
       ? [
-          { label: 'href', text: 'href="logs/original.html"' },
+          { label: 'href', text: 'href=""' },
           { label: '<a>', text: '<a href="">บันทึกต้นฉบับ</a>' },
           { label: '<main>', text: '<main>\n\n</main>' },
         ]
       : [
           { label: '<img>', text: '<img src="" alt="">' },
-          { label: 'src', text: 'src="suspect.png"' },
+          { label: 'src', text: 'src=""' },
           { label: 'alt', text: 'alt=""' },
         ]
     : stagePuzzles[index].snippets
@@ -296,15 +285,8 @@ export function RepairWorkbench({
                   <PixelButton onClick={() => setHint(activeChapter.useHint(index))}>
                     คำใบ้
                   </PixelButton>
-                  <PixelButton
-                    variant="solution"
-                    onClick={() => setSolution(activeChapter.reveal(index))}
-                  >
-                    ดูเฉลย
-                  </PixelButton>
                 </div>
                 {hint && <p className="repair-hint">{hint}</p>}
-                {solution && <pre className="repair-solution">{solution}</pre>}
                 {!final && puzzleReady && (
                   <PixelButton onClick={() => setShowPuzzle(!showPuzzle)}>
                     {showPuzzle ? 'กลับไปเขียนโค้ด' : 'ดู Puzzle อีกครั้ง'}

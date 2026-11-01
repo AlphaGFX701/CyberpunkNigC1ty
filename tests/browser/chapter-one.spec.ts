@@ -1,8 +1,12 @@
 import { test, expect, type Page } from '@playwright/test'
 import { enterGame, selectScene, openSettings } from './helpers'
-import { tasks, finalTask, arunLines } from '../../src/chapter/content'
+import { tasks as taskDefinitions, finalTask as finalDefinition, arunLines } from '../../src/chapter/content'
 import { puzzles } from '../../src/chapter/puzzles'
 import { streetPoints } from '../../src/chapter/layout'
+import { expectNoAnswers } from './no-answers'
+import { privateAnswers, withPrivateAnswers } from '../private-answers'
+const tasks = withPrivateAnswers('arun', taskDefinitions)
+const finalTask = { ...finalDefinition, solution: privateAnswers.arun[7] }
 
 test.use({
   viewport: { width: 1440, height: 900 },
@@ -68,6 +72,7 @@ async function openStage(page: Page, index: number) {
   await page.getByTestId(`circuit-stage-${index}`).click()
   await page.getByTestId('circuit-start').click()
   await expect(page.getByRole('dialog')).toBeVisible()
+  await expectNoAnswers(page)
 }
 async function setCode(page: Page, code: string) {
   const editor = page.locator('.cm-content')
@@ -76,6 +81,7 @@ async function setCode(page: Page, code: string) {
   await page.keyboard.insertText(code)
 }
 async function solvePuzzle(page: Page, index: number) {
+  await expectNoAnswers(page)
   const board = page.getByRole('region', { name: 'Puzzle ก่อนซ่อมโค้ด' })
   // section with aria-label is an accessible region.
   for (const slot of puzzles[index].slots) {
@@ -89,6 +95,7 @@ async function solvePuzzle(page: Page, index: number) {
   }
   await board.getByRole('button', { name: 'ต่อวงจร Puzzle', exact: true }).click()
   await expect(page.locator('.cm-content')).toBeVisible()
+  await expectNoAnswers(page)
 }
 async function fits(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(

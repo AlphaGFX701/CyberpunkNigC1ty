@@ -83,9 +83,9 @@ export function AssetGallery() {
               </PixelButton>
               <PixelButton
                 variant="solution"
-                onClick={() => setMessage('ปุ่มเฉลยสีชมพู — ในเกมใช้เปิดคำตอบตัวอย่าง')}
+                onClick={() => setMessage('ตัวอย่างสถานะปุ่มเน้นสีชมพู')}
               >
-                ดูเฉลย
+                ปุ่มเน้นสีชมพู
               </PixelButton>
               <PixelButton
                 variant="icon"
@@ -148,7 +148,7 @@ export function AssetGallery() {
               <div className="state-row" key={kind}>
                 <strong>
                   {
-                    { primary: 'ปุ่มหลัก', secondary: 'ปุ่มรอง', solution: 'เฉลย', icon: 'ไอคอน' }[
+                    { primary: 'ปุ่มหลัก', secondary: 'ปุ่มรอง', solution: 'ปุ่มเน้นสีชมพู', icon: 'ไอคอน' }[
                       kind
                     ]
                   }
@@ -163,7 +163,7 @@ export function AssetGallery() {
                     aria-label={kind === 'icon' ? `ไอคอนตั้งค่า สถานะ ${state}` : undefined}
                     onClick={() => setMessage(`ทดสอบปุ่ม ${kind} / ${state} สำเร็จ`)}
                   >
-                    {kind === 'icon' ? null : kind === 'solution' ? 'ดูเฉลย' : 'ตรวจระบบ'}
+                    {kind === 'icon' ? null : 'ตรวจระบบ'}
                   </PixelButton>
                 ))}
               </div>

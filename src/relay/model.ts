@@ -220,11 +220,6 @@ export function createRelay(storage: RelayStorage | null = resolveStorage()) {
       observe(index, { usedHint: true })
       return index === 7 ? finalTask.hint : tasks[index].hint
     },
-    reveal: (index: number) => {
-      if (!available(index)) return ''
-      observe(index, { revealed: true })
-      return index === 7 ? finalTask.solution : tasks[index].solution
-    },
     canRecoverImage,
     submitImage: (input: string): AnswerResult => {
       if (!canRecoverImage())

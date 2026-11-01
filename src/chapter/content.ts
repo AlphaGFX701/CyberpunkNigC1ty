@@ -7,7 +7,6 @@ export type ChapterTask = Readonly<{
   lesson: string
   instruction: string
   starter: string
-  solution: string
   hint: string
   success: string
   source: string
@@ -26,8 +25,7 @@ export const tasks: readonly ChapterTask[] = [
     instruction:
       'ย้ายย่อหน้า “ร้านอรุณเปิดแล้ว” เข้าไปไว้ระหว่าง <body> กับ </body> โดยคง <html> ไว้',
     starter: '<html>\n<head><p>ร้านอรุณเปิดแล้ว</p></head>\n<body></body>\n</html>',
-    solution: '<html>\n<head></head>\n<body><p>ร้านอรุณเปิดแล้ว</p></body>\n</html>',
-    hint: 'เก็บ <head></head> ว่างไว้ก่อน แล้วย้าย <p> ทั้งชุดเข้า <body> ได้เลย',
+    hint: 'ลองแยกหน้าที่ของส่วนข้อมูลเอกสารกับส่วนที่แสดงให้คนอ่านเห็น แล้วตรวจตำแหน่งย่อหน้าเดิม',
     success: 'หน้าเว็บมีส่วนแสดงเนื้อหาแล้ว HTML จัดโครงสร้าง ส่วนเบราว์เซอร์เป็นผู้แสดงผล',
     source: 'https://www.w3schools.com/html/html_intro.asp',
   },
@@ -42,8 +40,7 @@ export const tasks: readonly ChapterTask[] = [
     instruction:
       'แฟ้มหน้าหลักถูกเปลี่ยนเป็น index.html.txt แก้ชื่อให้เหลือชื่อหน้าหลักที่ใช้สกุล HTML',
     starter: 'index.html.txt',
-    solution: 'index.html',
-    hint: 'ลบ .txt ด้านท้ายออก ชื่อ index.htm ก็เป็น HTML เช่นกัน',
+    hint: 'เบราว์เซอร์ใช้สกุลสุดท้ายระบุชนิดแฟ้ม ตรวจว่าชื่อนี้ยังลงท้ายเป็นไฟล์ข้อความอยู่หรือไม่',
     success:
       'ชื่อแฟ้มถูกต้องแล้ว ในงานจริงต้องเลือกชนิดไฟล์ขณะบันทึกด้วย การเปลี่ยนชื่ออย่างเดียวไม่ได้สร้างเนื้อหา HTML ให้',
     source: 'https://www.w3schools.com/html/html_editors.asp',
@@ -59,8 +56,7 @@ export const tasks: readonly ChapterTask[] = [
     instruction:
       'เติมการประกาศชนิดเอกสาร HTML5 ไว้บรรทัดแรก คงข้อความ “CAM-07 พร้อมตรวจ” ไว้ใน body',
     starter: '<html>\n<body><p>CAM-07 พร้อมตรวจ</p></body>\n</html>',
-    solution: '<!DOCTYPE html>\n<html>\n<body><p>CAM-07 พร้อมตรวจ</p></body>\n</html>',
-    hint: 'บรรทัดที่ต้องเพิ่มคือ <!DOCTYPE html> วางก่อน <html> ไม่ต้องมีแท็กปิด',
+    hint: 'การประกาศชนิดเอกสารอยู่ก่อนองค์ประกอบรากของหน้า และไม่มีแท็กปิดเป็นคู่',
     success: 'เอกสารระบุ HTML5 และยังเก็บเนื้อหาไว้ใน body ได้ครบ',
     source: 'https://www.w3schools.com/html/html_basic.asp',
   },
@@ -75,8 +71,7 @@ export const tasks: readonly ChapterTask[] = [
     instruction:
       'แก้ลำดับแท็กปิดให้ “ลายเซ็นหน่วยเก่า” อยู่ใน strong และ strong อยู่ใน p โดยปิดครบทั้งคู่',
     starter: '<p><strong>ลายเซ็นหน่วยเก่า</p></strong>',
-    solution: '<p><strong>ลายเซ็นหน่วยเก่า</strong></p>',
-    hint: 'เปิด p ก่อน แล้วเปิด strong ดังนั้นต้องปิด strong ก่อนปิด p',
+    hint: 'แท็กที่เปิดทีหลังและอยู่ข้างในต้องปิดก่อน จึงค่อยปิดแท็กที่ครอบมัน',
     success: 'แท็กซ้อนกันถูกลำดับแล้ว เบราว์เซอร์ไม่ต้องเดาว่าข้อความไหนควรอยู่ข้างใน',
     source: 'https://www.w3schools.com/html/html_elements.asp',
   },
@@ -90,8 +85,7 @@ export const tasks: readonly ChapterTask[] = [
       'แอตทริบิวต์ให้ข้อมูลเพิ่มในแท็กเปิด รูปแบบชื่อ="ค่า" เช่น lang="th" บน html ระบุว่าเนื้อหาหลักเป็นภาษาไทย ช่วยเครื่องมืออ่านหน้าจอเลือกการออกเสียง',
     instruction: 'เปลี่ยนค่า lang ของ html ให้เป็นภาษาไทย คงย่อหน้า “บันทึกการขนย้าย” ไว้',
     starter: '<html lang="en">\n<body><p>บันทึกการขนย้าย</p></body>\n</html>',
-    solution: '<html lang="th">\n<body><p>บันทึกการขนย้าย</p></body>\n</html>',
-    hint: 'เปลี่ยน en เป็น th ในแท็กเปิด html ค่า th-TH ก็ระบุภาษาไทยได้',
+    hint: 'แอตทริบิวต์ภาษาอยู่ที่แท็กเปิดขององค์ประกอบราก ใช้รหัสภาษาของเนื้อหาแทนรหัสเดิม',
     success: 'หน้าบันทึกประกาศภาษาไทยแล้ว lang ระบุภาษา ไม่ได้แปลข้อความให้เอง',
     source: 'https://www.w3schools.com/html/html_attributes.asp',
   },
@@ -106,8 +100,7 @@ export const tasks: readonly ChapterTask[] = [
     instruction:
       'ให้ “แฟ้ม BLACKBOX” เป็นหัวข้อหลัก h1 และ “เส้นทางขนย้าย” เป็นหัวข้อย่อย h2 เรียงตามนี้',
     starter: '<h3>แฟ้ม BLACKBOX</h3>\n<h1>เส้นทางขนย้าย</h1>',
-    solution: '<h1>แฟ้ม BLACKBOX</h1>\n<h2>เส้นทางขนย้าย</h2>',
-    hint: 'แก้ทั้งแท็กเปิดและปิดของหัวข้อแรกเป็น h1 หัวข้อถัดไปเป็น h2',
+    hint: 'ให้ระดับหัวข้อสะท้อนความสัมพันธ์ของเรื่อง ตรวจทั้งชื่อแท็กเปิดและแท็กปิดให้ตรงกัน',
     success: 'หัวข้อเรียงเป็นชั้นแล้ว คนอ่านไล่จากแฟ้มคดีไปยังรายละเอียดเส้นทางได้',
     source: 'https://www.w3schools.com/html/html_headings.asp',
   },
@@ -122,8 +115,7 @@ export const tasks: readonly ChapterTask[] = [
     instruction:
       'แยกคำให้การเป็น p สองย่อหน้า ย่อหน้าแรก “รถออกเวลา 03:12” ย่อหน้าที่สอง “มุ่งหน้าไปสถานีสื่อสาร”',
     starter: '<p>รถออกเวลา 03:12\nมุ่งหน้าไปสถานีสื่อสาร</p>',
-    solution: '<p>รถออกเวลา 03:12</p>\n<p>มุ่งหน้าไปสถานีสื่อสาร</p>',
-    hint: 'ปิด </p> หลัง 03:12 แล้วเปิด <p> ใหม่ก่อนข้อความเรื่องสถานีสื่อสาร',
+    hint: 'ข้อความสองประเด็นควรเป็นองค์ประกอบย่อหน้าคนละชุด การขึ้นบรรทัดในโค้ดอย่างเดียวไม่พอ',
     success: 'คำให้การแยกเป็นสองย่อหน้า ครบเจ็ดจุดแล้ว กลับไปกู้หน้าภาพที่ CAM-07 ได้',
     source: 'https://www.w3schools.com/html/html_paragraphs.asp',
   },
@@ -140,8 +132,7 @@ export const finalTask: ChapterTask = {
   instruction:
     'แก้ img ให้เปิด suspect.png พร้อม alt ที่อธิบายผู้ต้องสงสัย เช่น “ผู้ต้องสงสัยเสื้อดำหน้าร้าน”',
   starter: '<img source="suspect.png" alt="">',
-  solution: '<img src="suspect.png" alt="ผู้ต้องสงสัยเสื้อดำหน้าร้าน">',
-  hint: 'ชื่อแอตทริบิวต์ที่ถูกคือ src ส่วน alt ต้องมีคำอธิบายภาพ ไม่ปล่อยว่าง',
+  hint: 'แอตทริบิวต์หนึ่งบอกตำแหน่งภาพ อีกแอตทริบิวต์อธิบายสาระเมื่อมองภาพไม่ได้ ตรวจหน้าที่ทั้งสองให้ครบ',
   success:
     'กู้ภาพพร้อมเวลา 03:12 ได้แล้ว ตราบนเสื้อเชื่อมกับสถานีสื่อสาร เก็บเป็นเบาะแสก่อน ยังไม่ยืนยันว่าเงาในภาพคือคู่หูของคิน',
   source: 'https://www.w3schools.com/html/html_images.asp',

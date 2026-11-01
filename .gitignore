@@ -5,6 +5,8 @@ art-source/
 evidence/
 .vercel/
 output/
+**/TechCare_Cheat_Sheet.pdf
+**/private-cheatsheet/
 test-results/
 *.tsbuildinfo
 .env

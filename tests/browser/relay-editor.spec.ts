@@ -1,6 +1,10 @@
 import { test, expect, type Page } from '@playwright/test'
-import { tasks, finalTask } from '../../src/relay/content'
+import { tasks as taskDefinitions, finalTask as finalDefinition } from '../../src/relay/content'
 import { solveRelayPuzzle } from './relay-helpers'
+import { expectNoAnswers } from './no-answers'
+import { privateAnswers, withPrivateAnswers } from '../private-answers'
+const tasks = withPrivateAnswers('relay', taskDefinitions)
+const finalTask = { ...finalDefinition, solution: privateAnswers.relay[7] }
 
 test.use({
   viewport: { width: 1440, height: 900 },
@@ -23,6 +27,7 @@ const getState = (page: Page) => page.evaluate(() => (window as any).relayEditor
 async function open(page: Page, index: number) {
   await page.evaluate((index) => (window as any).relayEditorHarness.open(index), index)
   await expect(page.getByRole('dialog')).toBeVisible()
+  await expectNoAnswers(page)
 }
 test('relay editor: seven real minigames, fixture navigation, runtime draft and final original record', async ({
   page,
@@ -53,7 +58,7 @@ test('relay editor: seven real minigames, fixture navigation, runtime draft and 
       await setCode(page, 'abc')
       await page.locator('.cm-content').press('Control+End')
       await page.getByRole('button', { name: 'แทรก href', exact: true }).click()
-      await expect(page.locator('.cm-content')).toHaveText('abchref="station.html"')
+      await expect(page.locator('.cm-content')).toHaveText('abchref=""')
       await page.locator('.cm-content').press('Control+z')
       await expect(page.locator('.cm-content')).toHaveText('abc')
       await setCode(

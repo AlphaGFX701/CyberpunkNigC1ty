@@ -2,8 +2,11 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { movePoint, changeView, interact, store, initialPositions } from '../src/model.ts'
 import { deviceEntry, deviceSolids, recoveryPoints, streetPoints, streetSolids } from '../src/chapter/layout.ts'
-import { chapter, tasks } from '../src/chapter/model.ts'
+import { chapter, tasks as taskDefinitions } from '../src/chapter/model.ts'
 import { puzzles } from '../src/chapter/puzzles.ts'
+
+import { privateAnswers, withPrivateAnswers } from './private-answers.ts'
+const tasks = withPrivateAnswers('arun', taskDefinitions)
 test('diagonal walking is normalized and a stalled frame cannot teleport', () => {
   const p = { x: 600, y: 550 },
     a = movePoint(p, 1, 0, 0.05, []),

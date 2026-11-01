@@ -1,10 +1,11 @@
+import { privateAnswers } from '../private-answers'
 import { test, expect, type Page } from '@playwright/test'
 import { enterGame } from './helpers'
 
 test.use({ viewport: { width:1280,height:720 }, actionTimeout:15000 })
 // Presentation fixtures advance through real model validators; this is not an end-to-end learning test.
 async function fixture(page:Page,phase:'arrive'|'traces'|'conclusion') {
- return page.evaluate(async phase=>{
+ return page.evaluate(async ({phase,answers})=>{
   const urls=performance.getEntriesByType('resource').map(r=>r.name)
   const module=async(path:string)=>import(urls.findLast(u=>u.includes(path)&&u.match(/\.(ts|tsx)(?:\?|$)/))??path)
   const {relay}=await module('/src/relay/model.ts')
@@ -14,10 +15,10 @@ async function fixture(page:Page,phase:'arrive'|'traces'|'conclusion') {
   relay.talkToOfficer();relay.collectClue('workorder');relay.collectClue('module')
   if(phase==='traces'){store.set({overlay:'hack'});return}
   relay.startHack()
-  const {puzzles}=await module('/src/relay/puzzles.ts'),{tasks,finalTask}=await module('/src/relay/content.ts')
-  for(let i=0;i<7;i++){if(!relay.submitPuzzle(i,puzzles[i].solution).ok||!relay.submitTask(i,tasks[i].solution).ok)throw new Error('Invalid presentation fixture '+i)}
-  if(!relay.submitImage(finalTask.solution).ok)throw new Error('Invalid final presentation fixture')
- },phase)
+  const {puzzles}=await module('/src/relay/puzzles.ts')
+  for(let i=0;i<7;i++){if(!relay.submitPuzzle(i,puzzles[i].solution).ok||!relay.submitTask(i,answers[i]).ok)throw new Error('Invalid presentation fixture '+i)}
+  if(!relay.submitImage(answers[7]).ok)throw new Error('Invalid final presentation fixture')
+ },{phase,answers:privateAnswers.relay})
 }
 async function fitsText(page:Page){
  const text=page.locator('.modal-backdrop[data-placement="dialogue"] .dialogue-surface__text')

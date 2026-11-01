@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { PixelButton } from '../ui/PixelUI'
 import { relay } from './model'
-import { puzzles, type PuzzleAnswer } from './puzzles'
+import { puzzles } from './puzzles'
 import './relay-puzzle.css'
 
 const routes = [
@@ -36,11 +36,6 @@ const records = [
   { id: 'forward', label: '03:21 ส่งต่อออกจากสถานี' },
   { id: 'unit', label: 'ใบงานมีหมายเลขหน่วยเก่าของคิน' },
 ]
-const clone = (answer: PuzzleAnswer): Record<string, string | string[]> =>
-  Object.fromEntries(
-    Object.entries(answer).map(([k, v]) => [k, typeof v === 'string' ? v : [...v]])
-  )
-
 /** Seven deliberately different interactions share only validation and the code hand-off. */
 export function RelayPuzzle({ index, onSolved }: { index: number; onSolved: () => void }) {
   const puzzle = puzzles[index]
@@ -367,17 +362,6 @@ export function RelayPuzzle({ index, onSolved }: { index: number; onSolved: () =
           }}
         >
           ตรวจ Puzzle → เขียน HTML
-        </PixelButton>
-        <PixelButton
-          variant="solution"
-          onClick={() => {
-            relay.reveal(index)
-            setAnswer(clone(puzzle.solution))
-            if (puzzle.kind === 'path') setFolder('logs')
-            setFeedback('แสดงการจัดคำตอบแล้ว อ่านเหตุผลจากโจทย์ก่อนกดตรวจ Puzzle')
-          }}
-        >
-          เฉลย Puzzle
         </PixelButton>
       </div>
     </section>

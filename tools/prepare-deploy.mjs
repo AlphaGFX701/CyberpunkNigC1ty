@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, writeFile, readdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -12,6 +12,16 @@ const entries = ['src', 'server', 'api', 'public', 'tools/check-runtime-assets.m
   'external-assets.json', 'package.json', 'package-lock.json', 'index.html',
   'tsconfig.json', 'tsconfig.server.json', 'vite.config.ts', 'vercel.json', '.vercelignore']
 for (const entry of entries) await cp(resolve(root, entry), resolve(stage, entry), { recursive: true })
+// Fail closed if a private answer artifact was accidentally copied into runtime inputs.
+async function checkPrivateFiles(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name)
+    if (/private[-_]?cheatsheet|private[-_]?answers|cheat[-_]?sheet/i.test(entry.name) || /\.pdf$/i.test(entry.name))
+      throw new Error('Private answer document found in deploy inputs; remove it before deployment')
+    if (entry.isDirectory()) await checkPrivateFiles(path)
+  }
+}
+await checkPrivateFiles(stage)
 // Unused NULLSIGNAL image files are omitted from public Git and deploy alike.
 const { rm } = await import('node:fs/promises')
 for (const name of ['corner-bracket.png', 'status-standby.png'])

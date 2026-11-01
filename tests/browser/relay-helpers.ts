@@ -1,6 +1,8 @@
 import { expect, type Page } from '@playwright/test'
+import { expectNoAnswers } from './no-answers'
 
 export async function solveRelayPuzzle(page: Page, index: number) {
+  await expectNoAnswers(page)
   const board = page.locator('.relay-puzzle')
   if (index === 0) {
     await board.getByRole('button', { name: 'ต้นทาง แฟ้มสถานี', exact: true }).click()
@@ -47,4 +49,5 @@ export async function solveRelayPuzzle(page: Page, index: number) {
   await page.screenshot({ path: `evidence/relay/puzzle-${index + 1}.png` })
   await board.getByRole('button', { name: 'ตรวจ Puzzle → เขียน HTML', exact: true }).click()
   await expect(page.locator('.cm-content')).toBeVisible()
+  await expectNoAnswers(page)
 }

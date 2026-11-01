@@ -1,7 +1,9 @@
 import { test, expect, type Page } from '@playwright/test'
 import { enterTitle, passAccessGate } from './helpers'
-import { arunLines, tasks } from '../../src/chapter/content'
+import { arunLines, tasks as taskDefinitions } from '../../src/chapter/content'
 import { streetPoints } from '../../src/chapter/layout'
+import { privateAnswers, withPrivateAnswers } from '../private-answers'
+const tasks = withPrivateAnswers('arun', taskDefinitions)
 
 test.use({ video: { mode: 'on', size: { width: 1440, height: 900 } }, actionTimeout: 12000 })
 test.afterEach(async ({ page }, info) => {

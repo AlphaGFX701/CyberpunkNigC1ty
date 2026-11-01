@@ -1,3 +1,4 @@
+import { privateAnswers } from '../private-answers'
 import { test, expect, type Page } from '@playwright/test'
 import { enterGame, openSettings, dismissTutorial, passAccessGate } from './helpers'
 import { relayPoints } from '../../src/relay/layout'
@@ -88,12 +89,11 @@ async function state(page: Page) {
   })
 }
 async function earnMidState(page: Page, count: number) {
-  await page.evaluate(async (count) => {
+  await page.evaluate(async ({ count, answers }) => {
     const urls = performance.getEntriesByType('resource').map((r) => r.name)
     const { relay } = await import(
       urls.findLast((u) => /\/src\/relay\/model\.ts(?:\?|$)/.test(u)) ?? '/src/relay/model.ts'
     )
-    const { tasks } = await import('/src/relay/content.ts')
     const { puzzles } = await import('/src/relay/puzzles.ts')
     const { cityProgress } = await import(
       urls.findLast((u) => /\/src\/city\/progression\.ts(?:\?|$)/.test(u)) ??
@@ -107,12 +107,12 @@ async function earnMidState(page: Page, count: number) {
     for (let i = 0; i < count; i++) {
       if (
         !relay.submitPuzzle(i, puzzles[i].solution).ok ||
-        !relay.submitTask(i, tasks[i].solution).ok
+        !relay.submitTask(i, answers[i]).ok
       )
         throw new Error('fixture repair failed validation')
     }
     cityProgress.arrive('relay')
-  }, count)
+  }, { count, answers: privateAnswers.relay })
 }
 async function skipDeparture(page: Page) {
   const departure = page.getByRole('dialog', { name: 'ก่อนออกจากร้าน', exact: true })

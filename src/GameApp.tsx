@@ -40,11 +40,9 @@ import { closeGameOverlay, commandFromKeyboard, executeGameCommand } from './gam
 const meta = caseNarrative.field
 
 const closeOverlay = closeGameOverlay
-const solution = '<img src="suspect.png" alt="ผู้ต้องสงสัยสวมเสื้อคลุมสีดำอยู่หน้าร้านซ่อม">'
 function Terminal({ boss = false }: { boss?: boolean }) {
   const [code, setCode] = useState('<img src="" alt="รูปภาพ">'),
     [hint, setHint] = useState(false),
-    [answer, setAnswer] = useState(false),
     [feedback, setFeedback] = useState(''),
     [success, setSuccess] = useState(false)
   const [shields, setShields] = useState(3)
@@ -90,20 +88,12 @@ function Terminal({ boss = false }: { boss?: boolean }) {
             <PixelButton onClick={() => setHint(!hint)} aria-expanded={hint}>
               คำใบ้
             </PixelButton>
-            <PixelButton
-              variant="solution"
-              onClick={() => setAnswer(!answer)}
-              aria-expanded={answer}
-            >
-              ดูเฉลย
-            </PixelButton>
           </div>
           {hint && (
             <p className="hint">
               src ระบุชื่อไฟล์ ส่วน alt ใช้ข้อความบอกสาระสำคัญ ไม่ใช่แค่คำว่า “รูปภาพ”
             </p>
           )}
-          {answer && <pre className="solution">{solution}</pre>}
           <p className="prototype-note">
             ฉากบอสนี้ยังเป็นโจทย์สาธิตแยก ไม่มอบหลักฐานแทนภารกิจทั้งเจ็ดที่ร้านอรุณ
           </p>
@@ -525,7 +515,7 @@ export function GameApp({ onMenu, active }: { onMenu: () => void; active: boolea
                 <li key={i}>
                   จุด {i + 1}: {learning.completed.includes(i) ? 'ผ่านแล้ว' : 'รอซ่อม'} ·{' '}
                   {item.revealed
-                    ? 'ดูเฉลย'
+                    ? 'เคยดูเฉลยในเวอร์ชันก่อน'
                     : item.usedHint
                       ? 'ใช้คำใบ้'
                       : item.attempts

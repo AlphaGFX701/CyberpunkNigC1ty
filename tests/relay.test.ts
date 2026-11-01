@@ -1,9 +1,13 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createRelay, relayScore, relayObjective } from '../src/relay/model.ts'
-import { tasks, finalTask, RELAY_RECORD } from '../src/relay/content.ts'
+import { tasks as taskDefinitions, finalTask as finalDefinition, RELAY_RECORD } from '../src/relay/content.ts'
 import { validateTask } from '../src/relay/validate.ts'
 import { puzzles, validatePuzzle } from '../src/relay/puzzles.ts'
+
+import { privateAnswers, withPrivateAnswers } from './private-answers.ts'
+const tasks = withPrivateAnswers('relay', taskDefinitions)
+const finalTask = { ...finalDefinition, solution: privateAnswers.relay[7] }
 
 const memory = () => {
   const values = new Map<string, string>()
@@ -28,6 +32,19 @@ const solveSeven = (relay: ReturnType<typeof createRelay>) => {
     assert.equal(relay.submitTask(index, task.solution).ok, true)
   })
 }
+
+test('public relay tasks have no canonical answers and preserve legacy help observations without reveal API', () => {
+  assert.ok(taskDefinitions.every((task) => !Object.hasOwn(task, 'solution')))
+  assert.equal(Object.hasOwn(finalDefinition, 'solution'), false)
+  const storage = memory(), original = createRelay(storage)
+  enter(original)
+  const old = { ...original.get(), observations: original.get().observations.map((item, index) => ({ ...item, revealed: index === 0 })) }
+  storage.values.set('techcare.chapter-relay.v1:guest:0', JSON.stringify(old))
+  const restored = createRelay(storage)
+  assert.equal(restored.get().observations[0].revealed, true)
+  assert.equal('reveal' in restored, false)
+  assert.equal(relayScore(restored.get()), 0)
+})
 
 test('relay has seven different minigame kinds and seven genuine short HTML repairs', () => {
   assert.equal(puzzles.length, 7)
@@ -126,7 +143,7 @@ test('physical investigation gates entering relay and puzzle gates each code sub
   assert.equal(relay.submitPuzzle(0, puzzles[0].solution).ok, true)
   assert.equal(relay.canEditTask(0), true)
 })
-test('check-only and solved puzzle grant no points; hints/reveal/retries do not reduce earned score', () => {
+test('check-only and solved puzzle grant no points; hints/retries do not reduce earned score', () => {
   const relay = createRelay(memory())
   enter(relay)
   relay.submitPuzzle(0, puzzles[0].solution)
@@ -135,11 +152,10 @@ test('check-only and solved puzzle grant no points; hints/reveal/retries do not 
   assert.equal(relay.get().observations[0].attempts, 0)
   assert.equal(relay.get().completed.length, 0)
   relay.useHint(0)
-  relay.reveal(0)
   relay.submitTask(0, tasks[0].starter)
   relay.submitTask(0, tasks[0].solution)
   assert.equal(relayScore(relay.get()), 10)
-  assert.deepEqual(relay.get().observations[0], { attempts: 2, usedHint: true, revealed: true })
+  assert.deepEqual(relay.get().observations[0], { attempts: 2, usedHint: true, revealed: false })
   relay.submitPuzzle(0, puzzles[0].solution)
   relay.submitTask(0, tasks[0].solution)
   assert.equal(relayScore(relay.get()), 10)
@@ -152,7 +168,6 @@ test('complete relay awards 70+30 and permits conclusion only after genuine fina
   assert.equal(relay.checkTask(7, finalTask.solution).ok, true)
   assert.equal(relay.get().finalRecovered, false)
   relay.useHint(7)
-  relay.reveal(7)
   assert.equal(relay.submitImage(finalTask.solution).ok, true)
   assert.equal(relayScore(relay.get()), 100)
   assert.equal(relay.markStory('conclusion'), true)

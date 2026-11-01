@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { enterGame, openSettings, selectScene } from './helpers'
+import { expectNoAnswers } from './no-answers'
+import { privateAnswers } from '../private-answers'
 test.beforeEach(async ({ page }) => {
   await enterGame(page)
 })
@@ -41,16 +43,30 @@ test('sample code accepts equivalent HTML, explains errors and preserves sandbox
   await page.getByRole('button', { name: 'ดูหน้าต่างโจทย์บอส' }).click()
   await page.getByRole('button', { name: 'ตรวจและกู้ภาพ' }).click()
   await expect(page.getByRole('status')).toContainText('ยังเปิดภาพไม่ได้')
-  await page.getByRole('button', { name: 'ดูเฉลย' }).click()
-  await expect(page.locator('.solution')).toContainText('suspect.png')
+  await expectNoAnswers(page)
   await page
     .getByLabel(/evidence.html/)
-    .fill("<IMG alt='ผู้ต้องสงสัยเสื้อดำหน้าร้าน' SRC='suspect.png' >")
+    .fill(privateAnswers.demo)
   await page.getByRole('button', { name: 'ตรวจและกู้ภาพ' }).click()
   await expect(page.getByRole('status')).toContainText('กู้ภาพสำเร็จ')
   await expect(page.locator('iframe')).toHaveAttribute('sandbox', '')
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog')).toBeHidden()
+})
+
+test('legacy revealed history is labelled as prior-version help without restoring an answer control', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('techcare.chapter-one.v1:guest:0', JSON.stringify({
+      version: 2, spoken: false, clues: [], entered: false,
+      completed: [], puzzleCompleted: [], imageRecovered: false, storageWarning: false,
+      observations: Array.from({ length: 8 }, (_, index) => ({ attempts: 0, usedHint: false, revealed: index === 0 })),
+    }))
+  })
+  await enterGame(page)
+  await page.keyboard.press('j')
+  await expect(page.getByRole('listitem').filter({ hasText: 'เคยดูเฉลยในเวอร์ชันก่อน' })).toHaveCount(1)
+  await expectNoAnswers(page)
+  await page.keyboard.press('j')
 })
 test('music loads and advances after user interaction', async ({ page }) => {
   await openSettings(page)

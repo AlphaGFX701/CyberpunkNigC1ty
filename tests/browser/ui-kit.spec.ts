@@ -66,7 +66,7 @@ test('nine-slice frames keep fixed borders at different widths and Thai text fit
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await expect(page.getByRole('link', { name: 'ดาวน์โหลดชุด Asset ZIP ↓' })).toBeVisible()
 })
-test('game uses pixel frames, pink answer sprites and the shared Phaser atlas without losing behavior', async ({
+test('game uses pixel frames and shared Phaser atlas without exposing an answer control', async ({
   page,
 }) => {
   const errors: string[] = []
@@ -80,12 +80,8 @@ test('game uses pixel frames, pink answer sprites and the shared Phaser atlas wi
   expect(
     await page.getByRole('dialog').evaluate((e) => getComputedStyle(e).borderImageSource)
   ).toContain('panel-window.png')
-  const reveal = page.getByRole('button', { name: 'ดูเฉลย' })
-  expect(await reveal.evaluate((e) => getComputedStyle(e).borderImageSource)).toContain(
-    'button-solution-normal.png'
-  )
-  await reveal.click()
-  await expect(page.locator('.solution')).toBeVisible()
+  await expect(page.getByRole('button', { name: /เฉลย/ })).toHaveCount(0)
+  await expect(page.locator('.solution')).toHaveCount(0)
   await page.getByRole('button', { name: 'ปิดหน้าต่าง' }).click()
   await expect(page.getByRole('dialog')).toBeHidden()
   expect(errors).toEqual([])
