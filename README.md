@@ -1,5 +1,9 @@
 # TechCare: รอยต่อสัญญาณ
 
+เล่นออนไลน์: **https://techcare-signal-trace.vercel.app/**
+
+เกมฉบับทดลองบน Vercel ใช้ Asset ในเครื่องผู้พัฒนาร่วมกับโค้ดนี้ ส่วน GitHub Public แยกไฟล์ภาพภายนอกตามข้อตกลงไว้
+
 ต้นแบบ React + TypeScript + React Three Fiber สำหรับแผนที่เมือง 3D และ Phaser 3 สำหรับฉากสืบสวน 2D ของแผนเกม 3 ตอน
 
 ## เปิดเกม

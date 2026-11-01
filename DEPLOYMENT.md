@@ -2,6 +2,8 @@
 
 Target Git repository: https://github.com/AlphaGFX701/CyberpunkNigC1ty
 
+Initial release, 1 November 2026: https://techcare-signal-trace.vercel.app/ · runtime source commit `e03f21c3676fde6d6c2effb5e35916573fbb23b1` · deployment `dpl_qAKMkafyhRMRoaHvpe1FKmJqxVu1`. Vercel reported READY and promotion succeeded. Project Vercel authentication is disabled for public access; Neon still protects account saves. Exact release/stable origins were added to Neon. Online gameplay and live OTP were left for the user at their request; no online playtest was performed.
+
 Target Vercel team: `God_like` / `god-like1`; project: `techcare-signal-trace`. This is separate from earlier TechCare games. Public Git is a code distribution, not a complete third-party asset pack; automatic Git deployments are disabled.
 
 ## Prepare and verify
