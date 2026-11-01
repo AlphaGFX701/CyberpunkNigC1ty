@@ -1,0 +1,431 @@
+/* Officer access: DOM forms remain legible over the existing pixel terminal. */
+.modal:has(.account-panel) {
+  width: min(740px, 100%);
+}
+.title-content h1 > span,
+.title-menu,
+.title-logline,
+.officer-name {
+  font-family: 'Chakra Petch', 'IBM Plex Sans Thai', sans-serif;
+}
+@media (min-width: 761px) {
+  .title-content {
+    padding-top: clamp(94px, 11vh, 130px);
+  }
+}
+.account-panel {
+  --account-line: #527f88;
+  --account-cyan: #9ee5e6;
+  --account-amber: #edc77f;
+  width: min(100%, 620px);
+  margin: auto;
+  padding: 8px 12px 20px;
+  color: #e4eeee;
+  font-family: 'Chakra Petch', 'IBM Plex Sans Thai', sans-serif;
+}
+.account-panel button,
+.account-panel input {
+  font: inherit;
+}
+.account-banner {
+  position: relative;
+  padding: 16px 0 18px 18px;
+  border-left: 2px solid var(--account-cyan);
+}
+.account-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -4px;
+  height: 6px;
+  width: 6px;
+  background: var(--account-cyan);
+}
+.account-channel {
+  font:
+    11px/1.7 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 1.8px;
+  color: var(--account-cyan);
+}
+.account-panel h3 {
+  margin: 8px 0 6px;
+  font-size: clamp(23px, 2.5vw, 30px);
+  font-weight: 600;
+  line-height: 1.45;
+}
+.account-panel p {
+  font-size: 17px;
+  line-height: 1.75;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.account-banner p {
+  color: #a9bfc4;
+}
+.account-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  border-bottom: 1px solid var(--account-line);
+  margin: 20px 0;
+}
+.account-tabs button {
+  min-height: 46px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: #142b34;
+  color: #b8c9cd;
+  cursor: pointer;
+  padding: 7px 8px;
+}
+.account-tabs button[aria-current='page'] {
+  border-bottom-color: var(--account-amber);
+  color: #ffe0a2;
+  background: #223741;
+}
+.account-tabs button:hover,
+.account-tabs button:focus-visible {
+  background: #27434c;
+  color: white;
+}
+.account-panel button:focus-visible,
+.account-panel input:focus-visible {
+  outline: 2px solid var(--account-amber);
+  outline-offset: 3px;
+}
+.account-panel button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.account-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+.account-form label {
+  font-size: 18px;
+  color: #dce8e9;
+  margin-top: 8px;
+}
+.account-form input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--account-line);
+  border-radius: 0;
+  min-height: 48px;
+  padding: 10px 12px;
+  color: #fff;
+  background: #091b24;
+  font-size: 19px;
+  box-shadow: inset 0 2px 5px #0003;
+}
+.account-form input:focus {
+  border-color: var(--account-cyan);
+}
+.account-form .pixel-button {
+  justify-self: stretch;
+  margin-top: 12px;
+  min-height: 52px;
+  font-size: 18px;
+}
+.account-password {
+  display: flex;
+  min-width: 0;
+}
+.account-password input {
+  flex: 1;
+}
+.account-password button {
+  background: #203b44;
+  color: #aee5e8;
+  border: 1px solid var(--account-line);
+  border-left: 0;
+  min-width: 68px;
+  padding: 8px;
+  cursor: pointer;
+}
+.account-panel .form-note {
+  color: #a4b9be;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.account-panel .account-message {
+  padding: 12px 14px;
+  margin: 14px 0;
+  border-left: 2px solid #8bc4cc;
+  background: #172e37;
+  color: #d5e4e7;
+  font-size: 16px;
+}
+.account-panel .account-error {
+  border-color: #f39fb4;
+  color: #ffd3df;
+  background: #35212f;
+}
+.account-panel .account-unconfigured {
+  border-color: var(--account-amber);
+  color: #ecd7ac;
+}
+.account-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 16px 0;
+}
+.account-links button,
+.account-guest-link {
+  color: #a8dce0;
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.account-guest-link {
+  margin: 10px 0 2px;
+  color: var(--account-amber);
+}
+.account-actions {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+.account-actions .pixel-button {
+  min-height: 54px;
+  white-space: normal;
+}
+.account-sync {
+  color: var(--account-amber);
+}
+.account-sync[data-sync='saved'] {
+  color: #a9dfb2;
+}
+.identity-status {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1px solid #6a8e92;
+  font-size: 11px;
+  color: #9bafb4;
+}
+.title-rail time {
+  font-variant-numeric: tabular-nums;
+}
+.title-rail time small {
+  font-size: 9px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.terminal-access {
+  max-width: 340px;
+  margin-top: 14px;
+  border: 1px solid #315761;
+  background: #0b1d27c9;
+  padding: 8px 12px;
+}
+.terminal-access-copy {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #a7bfc3;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.terminal-access kbd {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #74a2aa;
+  box-shadow: 0 2px 0 #203f48;
+  color: #cde5e8;
+  background: #16303b;
+  font:
+    14px 'IBM Plex Mono',
+    monospace;
+  flex: 0 0 auto;
+}
+.terminal-access-copy small {
+  margin-left: auto;
+  color: #829da3;
+  font:
+    8px 'IBM Plex Mono',
+    monospace;
+  flex: 0 0 auto;
+}
+.terminal-hold-track {
+  height: 2px;
+  background: #29434a;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.terminal-hold-track i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #a8f0ef;
+  transform-origin: left;
+}
+.terminal-access[data-holding='true'] {
+  border-color: #8ae0df;
+  box-shadow: 0 0 18px #72e8ed16;
+}
+.terminal-access[data-holding='true'] .terminal-access-copy {
+  color: #e5f6f4;
+}
+.title-evidence .blackbox-wave i {
+  transform-origin: center bottom;
+  animation-name: blackbox-signal;
+  animation-timing-function: steps(4, end);
+  animation-iteration-count: infinite;
+}
+.title-art .rain-layer {
+  opacity: 0.48;
+}
+.title-art .monitor-light {
+  animation-duration: 4.8s;
+}
+.title-art .kin-head {
+  animation-duration: 7s;
+}
+.title-art .kin-arm {
+  animation-duration: 4.4s;
+}
+.title-art .art-fallback {
+  left: auto;
+  right: 7%;
+  top: 18%;
+  max-width: 38%;
+  pointer-events: none;
+}
+.title-art .art-fallback button {
+  pointer-events: auto;
+}
+.account-live-status {
+  position: fixed;
+  top: 74px;
+  right: 24px;
+  z-index: 12;
+  max-width: 250px;
+  padding: 7px 12px;
+  border: 1px solid #628e96;
+  border-left: 2px solid #94cacb;
+  background: #102630ec;
+  color: #c6dfdf;
+  font:
+    14px/1.6 'Chakra Petch',
+    sans-serif;
+  cursor: pointer;
+}
+.account-live-status[data-sync='pending'],
+.account-live-status[data-sync='error'] {
+  border-left-color: #e2bd75;
+  color: #edd5a4;
+}
+.account-live-status[data-status='error'] {
+  border-left-color: #f0a0b5;
+  color: #ffd7e3;
+}
+.account-live-status:focus-visible {
+  outline: 2px solid #e2bd75;
+  outline-offset: 3px;
+}
+@keyframes blackbox-signal {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.4;
+  }
+  30% {
+    transform: scaleY(0.8);
+    opacity: 0.75;
+  }
+  55% {
+    transform: scaleY(1);
+    opacity: 0.95;
+  }
+  75% {
+    transform: scaleY(0.5);
+    opacity: 0.55;
+  }
+}
+[data-reduced-motion='true'] .blackbox-wave i {
+  animation: none;
+  transform: none;
+}
+@media (max-height: 800px) and (min-width: 761px) {
+  .title-content {
+    padding-top: 68px;
+    padding-bottom: 82px;
+  }
+  .title-content .title-logline {
+    margin: 12px 0 16px;
+    font-size: 16px;
+  }
+  .title-menu .play-action {
+    min-height: 52px;
+  }
+  .title-menu .pixel-button {
+    min-height: 44px;
+  }
+  .title-content .officer-name {
+    margin-top: 10px;
+  }
+  .terminal-access {
+    margin-top: 10px;
+  }
+}
+@media (max-width: 760px) {
+  .title-art .art-fallback {
+    left: 24px;
+    right: 24px;
+    top: 64px;
+    max-width: none;
+    font-size: 12px;
+  }
+  .title-art .art-fallback p {
+    margin: 0;
+  }
+  .title-art .art-fallback button {
+    display: none;
+  }
+  .account-live-status {
+    right: 12px;
+    max-width: 220px;
+  }
+  .account-panel {
+    padding: 4px 0 12px;
+  }
+  .account-banner {
+    padding-left: 12px;
+  }
+  .account-tabs button {
+    font-size: 15px;
+  }
+  .account-form label {
+    font-size: 17px;
+  }
+  .account-panel p {
+    font-size: 16px;
+  }
+  .account-panel .pixel-button {
+    min-height: 50px;
+  }
+  .identity-status {
+    display: block;
+    margin: 4px 0 0;
+    border: 0;
+    padding: 0;
+  }
+  .title-content .terminal-access {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-evidence .blackbox-wave i {
+    animation: none;
+    transform: none;
+  }
+}

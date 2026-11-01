@@ -1,0 +1,174 @@
+/* Original TechCare interaction art, separate from downloaded asset-pack files. */
+.pixel-button[data-feedback='menu'] {
+  --menu-feedback-color: var(--cyan);
+  transition: translate 70ms steps(2);
+}
+.pixel-button[data-feedback='menu'].pixel-primary {
+  --menu-feedback-color: var(--bg);
+}
+.pixel-button[data-feedback='menu']::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--menu-feedback-color);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.pixel-button[data-feedback='menu']:is(:hover, :focus-visible):not(:disabled)::after {
+  animation: menu-button-sweep 140ms ease-out forwards;
+}
+.pixel-button[data-feedback='menu'] .pixel-icon,
+.pixel-button[data-feedback='menu'] .menu-arrow {
+  transition: translate 140ms steps(3);
+}
+.title-menu
+  .pixel-button[data-feedback='menu']:is(:hover, :focus-visible):not(:disabled)
+  .pixel-icon,
+.title-menu
+  .pixel-button[data-feedback='menu']:is(:hover, :focus-visible):not(:disabled)
+  .menu-arrow {
+  transform: none;
+  translate: 2px 0;
+}
+.pixel-button[data-feedback='menu']:active:not(:disabled) {
+  translate: 0 1px;
+}
+
+.menu-reticle {
+  position: fixed;
+  z-index: 15;
+  left: -12px;
+  top: -12px;
+  width: 24px;
+  height: 24px;
+  color: var(--cyan);
+  pointer-events: none;
+  visibility: hidden;
+  contain: layout style;
+  filter: drop-shadow(1px 1px 0 var(--bg));
+}
+.menu-reticle[data-visible='true'] {
+  visibility: visible;
+}
+.menu-reticle i {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-color: currentColor;
+  border-style: solid;
+  transition:
+    inset 140ms steps(3),
+    color 140ms linear;
+}
+.menu-reticle i:nth-child(1) {
+  inset: 0 auto auto 0;
+  border-width: 1px 0 0 1px;
+}
+.menu-reticle i:nth-child(2) {
+  inset: 0 0 auto auto;
+  border-width: 1px 1px 0 0;
+}
+.menu-reticle i:nth-child(3) {
+  inset: auto auto 0 0;
+  border-width: 0 0 1px 1px;
+}
+.menu-reticle i:nth-child(4) {
+  inset: auto 0 0 auto;
+  border-width: 0 1px 1px 0;
+}
+.menu-reticle span {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  left: 11px;
+  top: 11px;
+  background: currentColor;
+}
+.menu-reticle[data-hover='true'] {
+  color: var(--amber);
+}
+.menu-reticle[data-hover='true'] i:nth-child(1) {
+  inset: 3px auto auto 3px;
+}
+.menu-reticle[data-hover='true'] i:nth-child(2) {
+  inset: 3px 3px auto auto;
+}
+.menu-reticle[data-hover='true'] i:nth-child(3) {
+  inset: auto auto 3px 3px;
+}
+.menu-reticle[data-hover='true'] i:nth-child(4) {
+  inset: auto 3px 3px auto;
+}
+.menu-reticle[data-pressed='true'] i:nth-child(1) {
+  inset: 5px auto auto 5px;
+}
+.menu-reticle[data-pressed='true'] i:nth-child(2) {
+  inset: 5px 5px auto auto;
+}
+.menu-reticle[data-pressed='true'] i:nth-child(3) {
+  inset: auto auto 5px 5px;
+}
+.menu-reticle[data-pressed='true'] i:nth-child(4) {
+  inset: auto 5px 5px auto;
+}
+@media (hover: hover) and (pointer: fine) {
+  [data-menu-cursor='active'],
+  [data-menu-cursor='active'] * {
+    cursor: none !important;
+  }
+}
+@keyframes menu-button-sweep {
+  from {
+    opacity: 0.2;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 0.8;
+    transform: scaleX(1);
+  }
+}
+[data-reduced-motion='true'] .pixel-button[data-feedback='menu'] {
+  transition: none;
+  translate: none;
+}
+[data-reduced-motion='true'] .pixel-button[data-feedback='menu']::after {
+  animation: none !important;
+}
+[data-reduced-motion='true']
+  .pixel-button[data-feedback='menu']:is(:hover, :focus-visible):not(:disabled)::after {
+  opacity: 0.8;
+  transform: none;
+}
+[data-reduced-motion='true'] .pixel-button[data-feedback='menu'] :is(.pixel-icon, .menu-arrow) {
+  translate: none !important;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-reticle {
+    display: none;
+  }
+  [data-menu-cursor='active'],
+  [data-menu-cursor='active'] * {
+    cursor: revert !important;
+  }
+  .pixel-button[data-feedback='menu']::after {
+    animation: none !important;
+  }
+  .pixel-button[data-feedback='menu']:is(:hover, :focus-visible):not(:disabled)::after {
+    opacity: 0.8;
+    transform: none;
+  }
+  .pixel-button[data-feedback='menu'] {
+    translate: none;
+    transition: none;
+  }
+  .pixel-button[data-feedback='menu'] :is(.pixel-icon, .menu-arrow) {
+    translate: none !important;
+    transition: none;
+  }
+}

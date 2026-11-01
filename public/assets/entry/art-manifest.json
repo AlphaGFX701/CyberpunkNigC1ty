@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "generator": "Built-in imagegen; normalized with nearest-neighbor",
+  "assets": [
+    {
+      "name": "lab",
+      "png": "/assets/entry/lab.png",
+      "runtime": "/assets/entry/lab.webp",
+      "width": 1280,
+      "height": 720,
+      "hasAlpha": false
+    },
+    {
+      "name": "dock",
+      "png": "/assets/entry/dock.png",
+      "runtime": "/assets/entry/dock.webp",
+      "width": 1280,
+      "height": 720,
+      "hasAlpha": false
+    },
+    {
+      "name": "camera",
+      "png": "/assets/entry/camera.png",
+      "runtime": "/assets/entry/camera.webp",
+      "width": 1280,
+      "height": 720,
+      "hasAlpha": false
+    },
+    {
+      "name": "null",
+      "png": "/assets/entry/null.png",
+      "runtime": "/assets/entry/null.webp",
+      "width": 1280,
+      "height": 720,
+      "hasAlpha": false
+    },
+    {
+      "name": "shop",
+      "png": "/assets/entry/shop.png",
+      "runtime": "/assets/entry/shop.webp",
+      "width": 1280,
+      "height": 720,
+      "hasAlpha": false
+    },
+    {
+      "name": "kin",
+      "png": "/assets/entry/kin.png",
+      "runtime": "/assets/entry/kin.png",
+      "width": 320,
+      "height": 640,
+      "hasAlpha": true
+    }
+  ],
+  "layers": [
+    "background plate",
+    "kin body",
+    "kin head",
+    "kin forearm",
+    "foreground cable",
+    "screen light",
+    "rain",
+    "signal corruption",
+    "DOM Thai dialogue"
+  ],
+  "composition": "src/entry/CinematicArt.tsx",
+  "motion": "src/entry/entry.css",
+  "storyboard": "src/entry/story.ts"
+}

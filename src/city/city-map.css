@@ -1,0 +1,748 @@
+.game-layer .world-frame.city-map {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  flex: 1;
+  overflow: hidden;
+  background: #08151d;
+  isolation: isolate;
+}
+.city-map {
+  --city-edge: #82bdb9;
+  --city-line: #344e59;
+  color: var(--ink);
+}
+.city-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.city-canvas canvas {
+  image-rendering: auto;
+  touch-action: none;
+}
+.city-header {
+  position: absolute;
+  left: 32px;
+  top: 28px;
+  z-index: 5;
+  pointer-events: none;
+  text-shadow: 0 2px 9px #08151d;
+}
+.city-header .eyebrow {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+.city-header h1 {
+  font-size: 27px;
+  line-height: 1.5;
+  margin: 7px 0 0;
+}
+.city-header p {
+  font-size: 13px;
+  margin: 6px 0 13px;
+  color: var(--muted);
+}
+.city-header p strong {
+  font-weight: 400;
+  color: var(--amber);
+  margin-left: 5px;
+}
+.city-header p i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--amber);
+  vertical-align: 2px;
+  margin-right: 9px;
+}
+.city-header > div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  pointer-events: auto;
+}
+.city-header > div > span {
+  font-size: 11px;
+  color: var(--muted);
+  padding-right: 12px;
+  border-right: 1px solid var(--line);
+}
+.city-header button {
+  background: #101d26d9;
+  padding: 7px 10px;
+  font-size: 12px;
+  border-color: var(--city-line);
+}
+.city-header button span {
+  padding-left: 12px;
+  color: var(--cyan);
+}
+.city-top-label {
+  position: absolute;
+  right: 34px;
+  top: 34px;
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  color: var(--muted);
+  letter-spacing: 1px;
+  z-index: 4;
+}
+.city-top-label > span {
+  display: block;
+  color: var(--cyan);
+  margin-bottom: 7px;
+}
+.city-top-label i {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--cyan);
+  margin-right: 8px;
+}
+.city-camera-tools {
+  position: absolute;
+  right: 26px;
+  top: 48%;
+  transform: translateY(-50%);
+  display: grid;
+  gap: 7px;
+  z-index: 5;
+}
+.city-camera-tools button {
+  width: 39px;
+  height: 39px;
+  background: #10212bdc;
+  color: var(--cyan);
+  border-color: #526e75;
+  font:
+    22px 'IBM Plex Mono',
+    monospace;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #06101777;
+}
+.city-camera-tools button:hover {
+  background: #28444e;
+  color: var(--amber);
+  border-color: var(--amber);
+}
+.city-camera-tools > span {
+  height: 7px;
+}
+.city-place-list {
+  position: absolute;
+  left: 32px;
+  top: 186px;
+  width: 280px;
+  max-height: calc(100% - 360px);
+  overflow: auto;
+  z-index: 7;
+  border: 1px solid var(--city-line);
+  background: #10202cf5;
+  padding: 7px;
+  box-shadow: 8px 10px 0 #030e1766;
+}
+.city-place-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 7px 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.city-place-list > div > button,
+.city-detail-head > button {
+  font: 21px monospace;
+  border: 0;
+  min-width: 30px;
+  height: 30px;
+  color: var(--muted);
+  padding: 0;
+}
+.city-place-list > button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 13px 15px;
+  background: #182d38;
+  border-color: var(--city-line);
+  margin-bottom: 5px;
+  border-radius: 0;
+}
+.city-place-list > button:hover {
+  background: #29434c;
+  border-color: var(--cyan);
+}
+.city-place-list > button small {
+  display: block;
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  color: var(--cyan);
+  letter-spacing: 1px;
+}
+.city-place-list > button strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 5px 0;
+}
+.city-place-list > button span {
+  font-size: 11px;
+  color: var(--amber);
+}
+.city-detail {
+  position: absolute;
+  right: 88px;
+  top: 120px;
+  width: 300px;
+  max-height: calc(100% - 175px);
+  overflow: auto;
+  z-index: 6;
+  background: #10202d;
+  border: 1px solid var(--city-line);
+  border-top: 2px solid var(--amber);
+  padding: 16px 21px 21px;
+  box-shadow: 8px 10px 0 #030e1766;
+  animation: city-card-in 180ms ease-out;
+}
+.city-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--city-line);
+  padding-bottom: 10px;
+  margin-bottom: 17px;
+}
+.city-detail-head > span {
+  font:
+    10px 'IBM Plex Mono',
+    monospace;
+  color: var(--amber);
+  letter-spacing: 2px;
+}
+.city-area-kind {
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+}
+.city-detail h2 {
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 6px 0;
+}
+.city-detail h2:focus {
+  outline: none;
+}
+.city-detail > p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #bfd0cd;
+  margin: 14px 0;
+}
+.city-detail > .city-district {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+.city-detail-task {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-top: 1px solid var(--city-line);
+  border-bottom: 1px solid var(--city-line);
+  padding: 15px 0;
+}
+.city-detail-task small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.city-detail-task strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--amber);
+  line-height: 1.7;
+}
+.city-detail > .city-detail-evidence {
+  font-size: 12px;
+  color: var(--muted);
+}
+.city-detail-evidence > span {
+  display: block;
+  font-size: 10px;
+  color: var(--cyan);
+  margin-bottom: 3px;
+}
+.city-detail > .city-intel-note {
+  border-left: 2px solid var(--cyan);
+  padding-left: 12px;
+  font-size: 11px;
+  color: var(--cyan);
+}
+.city-detail > .pixel-button {
+  width: 100%;
+  justify-content: space-between;
+  font-size: 15px;
+  margin-top: 6px;
+}
+.city-detail > .pixel-button .button-copy {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.game-layer .city-map .city-current-objective {
+  display: block;
+  left: 32px;
+  bottom: 67px;
+  top: auto;
+  right: auto;
+  width: 340px;
+  max-width: calc(100% - 64px);
+  padding: 16px 19px;
+  background: #10202de8;
+  border-left: 2px solid var(--amber);
+  border-top: 1px solid #344c56aa;
+  box-shadow: 4px 5px 0 #020b1355;
+  pointer-events: none;
+}
+.city-objective-code {
+  display: block;
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 1.5px;
+  color: var(--amber);
+}
+.city-current-objective > strong {
+  display: block;
+  font-size: 16px;
+  line-height: 1.65;
+  font-weight: 600;
+  margin-top: 7px;
+}
+.city-progress-strip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 14px;
+}
+.city-progress-strip > i {
+  height: 3px;
+  width: 30px;
+  background: var(--line);
+}
+.city-progress-strip > i.done {
+  background: var(--cyan);
+}
+.city-progress-strip > span {
+  font-size: 10px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.city-bottom {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 19px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 10px;
+  color: var(--muted);
+  z-index: 4;
+}
+.city-bottom > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.city-bottom .legend-open,
+.city-bottom .legend-locked {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--cyan);
+}
+.city-bottom .legend-locked {
+  background: #59656a;
+  margin-left: 8px;
+}
+.city-bottom > small {
+  font-size: 10px;
+  margin-left: auto;
+}
+.city-bottom > button {
+  font-size: 10px;
+  padding: 5px 8px;
+  color: var(--muted);
+  background: #101d26b0;
+}
+.city-noise {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.045;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, #7ab5c6 4px);
+  mix-blend-mode: screen;
+}
+.city-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 17px;
+  background: #091923;
+  color: var(--cyan);
+  font-size: 16px;
+}
+.city-loading > button {
+  font-size: 13px;
+  padding: 8px 14px;
+  margin-top: 10px;
+}
+.city-loader {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-left-color: var(--amber);
+  animation: city-loader-turn 1.2s steps(8) infinite;
+}
+.city-travel {
+  position: absolute;
+  inset: 0;
+  background: #08151dbf;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  pointer-events: none;
+}
+.city-travel > div {
+  width: 80px;
+  height: 1px;
+  background: var(--amber);
+  box-shadow: 0 0 20px #e7bf7755;
+  animation: city-transit 650ms ease-in-out;
+}
+.city-travel > span {
+  font-size: 20px;
+  color: var(--amber);
+}
+.city-travel > small {
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  color: var(--muted);
+  letter-spacing: 3px;
+}
+.city-warning {
+  position: absolute;
+  bottom: 49px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  max-width: 620px;
+  padding: 10px 16px;
+  border-left: 2px solid var(--amber);
+  background: var(--bg);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--amber);
+}
+.city-warning > button {
+  display: block;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--ink);
+  margin-top: 8px;
+}
+.city-event-toast {
+  position: absolute;
+  top: 175px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  background: #10212ef2;
+  border-left: 2px solid var(--cyan);
+  padding: 11px 17px;
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 60%;
+  box-shadow: 5px 5px 0 #030e1755;
+}
+@media (max-width: 760px) {
+  .city-event-toast {
+    top: 159px;
+    left: 18px;
+    right: 18px;
+    max-width: none;
+    transform: none;
+    font-size: 12px;
+    padding: 9px 12px;
+  }
+}
+.city-list-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, #193b4b, transparent 65%),
+    repeating-linear-gradient(0deg, transparent, transparent 49px, #344c5622 50px),
+    repeating-linear-gradient(90deg, transparent, transparent 49px, #344c5622 50px);
+}
+.city-list-backdrop > div {
+  position: absolute;
+  left: 30%;
+  top: 28%;
+  width: 40%;
+  height: 40%;
+  border: 1px solid #90c5c033;
+  transform: skewY(-15deg);
+  box-shadow:
+    10px 12px 0 #90c5c00a,
+    20px 24px 0 #90c5c00a;
+}
+.city-list-backdrop > span {
+  position: absolute;
+  left: 38%;
+  top: 65%;
+  font:
+    10px 'IBM Plex Mono',
+    monospace;
+  color: #90c5c066;
+  letter-spacing: 2px;
+}
+.city-intel {
+  padding: 28px 34px;
+}
+.city-intel h3 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 15px 0;
+}
+.city-intel p {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--muted);
+  margin: 17px 0;
+}
+.city-intel .pixel-button {
+  margin-top: 14px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+@keyframes city-card-in {
+  from {
+    opacity: 0;
+    translate: 6px 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0;
+  }
+}
+@keyframes city-loader-turn {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes city-transit {
+  0% {
+    scale: 0 1;
+  }
+  50% {
+    scale: 2 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+@media (max-width: 1000px) {
+  .city-header {
+    left: 22px;
+    top: 22px;
+  }
+  .city-header h1 {
+    font-size: 23px;
+  }
+  .city-detail {
+    right: 72px;
+    top: 105px;
+    width: 280px;
+  }
+  .city-top-label {
+    right: 24px;
+    font-size: 8px;
+  }
+  .city-bottom > small {
+    display: none;
+  }
+  .game-layer .city-map .city-current-objective {
+    left: 22px;
+    width: 300px;
+  }
+}
+@media (max-width: 760px) {
+  .city-header {
+    left: 18px;
+    top: 18px;
+  }
+  .city-header .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .city-header h1 {
+    font-size: 22px;
+  }
+  .city-header p {
+    font-size: 11px;
+    margin-top: 3px;
+  }
+  .city-header > div > span {
+    font-size: 9px;
+  }
+  .city-header button {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .city-top-label {
+    display: none;
+  }
+  .city-camera-tools {
+    right: 12px;
+    top: 40%;
+    gap: 5px;
+  }
+  .city-camera-tools button {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+  }
+  .city-place-list {
+    left: 18px;
+    top: 158px;
+    width: min(270px, calc(100% - 76px));
+    max-height: calc(100% - 290px);
+  }
+  .city-detail {
+    right: 14px;
+    left: 14px;
+    top: auto;
+    bottom: 48px;
+    width: auto;
+    max-height: 46dvh;
+    padding: 12px 17px 16px;
+  }
+  .city-detail-head {
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+  }
+  .city-detail h2 {
+    font-size: 22px;
+  }
+  .city-detail > p {
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 10px 0;
+  }
+  .city-detail > .city-district {
+    font-size: 10px;
+    margin-bottom: 12px;
+  }
+  .city-detail-task {
+    padding: 10px 0;
+  }
+  .city-detail > .pixel-button {
+    font-size: 14px;
+  }
+  .city-detail-evidence {
+    display: none;
+  }
+  .game-layer .city-map .city-current-objective {
+    left: 18px;
+    bottom: 67px;
+    width: calc(100% - 82px);
+    max-width: none;
+    padding: 10px 13px;
+  }
+  .city-current-objective > strong {
+    font-size: 13px;
+  }
+  .city-objective-code {
+    font-size: 7px;
+  }
+  .city-progress-strip {
+    margin-top: 9px;
+  }
+  .city-map:has(.city-detail) .city-current-objective {
+    display: none;
+  }
+  .city-bottom {
+    left: 18px;
+    right: 15px;
+    bottom: 13px;
+    gap: 7px;
+    font-size: 8px;
+  }
+  .city-bottom > button {
+    font-size: 8px;
+    margin-left: auto;
+    padding: 5px;
+  }
+  .city-bottom > div {
+    gap: 5px;
+  }
+  .city-bottom .legend-locked {
+    margin-left: 3px;
+  }
+  .city-warning {
+    bottom: 48px;
+    width: calc(100% - 36px);
+    font-size: 11px;
+    max-height: 110px;
+    overflow: auto;
+  }
+  .city-intel {
+    padding: 22px;
+  }
+  .city-intel h3 {
+    font-size: 21px;
+  }
+  .city-intel p {
+    font-size: 16px;
+  }
+  .city-travel > span {
+    font-size: 16px;
+  }
+}
+[data-reduced-motion='true'] .city-map *,
+[data-reduced-motion='true'] .city-map *::after {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-map * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

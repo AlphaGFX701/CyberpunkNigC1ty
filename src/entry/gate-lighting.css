@@ -1,0 +1,76 @@
+.gate-lighting {
+  position: absolute;
+  z-index: 2;
+  left: var(--gate-art-left);
+  top: var(--gate-art-top);
+  width: var(--gate-art-width);
+  height: var(--gate-art-height);
+  pointer-events: none;
+  overflow: visible;
+}
+.gate-light-fixture { --light-color: #78efff; --light-core: #dfffff; }
+.gate-light-fixture--amber { --light-color: #ffb34e; --light-core: #ffeab3; }
+.gate-light-dim { fill: #071823; opacity: .96; }
+.gate-light-emission { animation: gate-neon-door 5.6s linear infinite; }
+.gate-light-core { fill: var(--light-core); }
+.gate-light-bloom {
+  fill: var(--light-color);
+  stroke: var(--light-color);
+  stroke-width: 12;
+}
+.gate-light-spill, .gate-light-reflection { mix-blend-mode: screen; }
+.gate-light-reflection { opacity: .43; }
+.gate-light-cage { fill: none; stroke: #795b32; stroke-width: 3; }
+.gate-light-fixture--ceiling .gate-light-emission {
+  animation-name: gate-neon-ceiling;
+  animation-duration: 7.2s;
+  animation-delay: -2s;
+}
+.gate-light-fixture--amber .gate-light-emission {
+  animation-name: gate-neon-amber;
+  animation-duration: 6.8s;
+  animation-delay: -1.8s;
+}
+.gate-light-fixture--reader .gate-light-emission {
+  animation-name: gate-neon-reader;
+  animation-duration: 4.6s;
+}
+/* Localised pauses in power, not a full-screen strobe. */
+@keyframes gate-neon-door {
+  0%, 100% { opacity: .22; }
+  14%, 37% { opacity: 1; }
+  40%, 47% { opacity: .025; }
+  51%, 67% { opacity: 1; }
+  82% { opacity: .5; }
+}
+@keyframes gate-neon-ceiling {
+  0%, 100% { opacity: .9; }
+  22%, 29% { opacity: .03; }
+  33%, 55% { opacity: 1; }
+  72% { opacity: .28; }
+}
+@keyframes gate-neon-amber {
+  0%, 100% { opacity: .85; }
+  21% { opacity: 1; }
+  42%, 50% { opacity: .04; }
+  54%, 65% { opacity: .95; }
+  81% { opacity: .35; }
+}
+@keyframes gate-neon-reader {
+  0%, 100% { opacity: .25; }
+  35%, 60% { opacity: 1; }
+  76%, 83% { opacity: .1; }
+}
+.access-gate .terminal-reader-ring {
+  animation: gate-reader-aura 4.6s ease-in-out infinite;
+}
+@keyframes gate-reader-aura {
+  0%, 100% { box-shadow: 0 0 12px #59d7e92e, 0 0 38px #27d9f722; }
+  44%, 60% { box-shadow: 0 0 24px #88f7ffb0, 0 0 75px #35dfff69; }
+  80% { box-shadow: 0 0 8px #59d7e919; }
+}
+[data-reduced-motion='true'] .gate-light-emission,
+[data-reduced-motion='true'] .access-gate .terminal-reader-ring { animation: none; opacity: .8; }
+@media (prefers-reduced-motion: reduce) {
+  .gate-light-emission, .access-gate .terminal-reader-ring { animation: none; opacity: .8; }
+}

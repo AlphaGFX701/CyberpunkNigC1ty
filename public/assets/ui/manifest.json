@@ -1,0 +1,671 @@
+{
+  "name": "TechCare Pixel UI",
+  "version": 1,
+  "count": 55,
+  "pixelScale": 2,
+  "palette": {
+    "void": "#09151f",
+    "shadow": "#0d202b",
+    "dark": "#142732",
+    "panel": "#1b303b",
+    "plate": "#2d4752",
+    "edge": "#617f85",
+    "light": "#b3c9bd",
+    "amber": "#e7bf77",
+    "gold": "#aa8653",
+    "cyan": "#90c5c0",
+    "teal": "#527e84",
+    "pink": "#ed9fba",
+    "rose": "#a76b87",
+    "muted": "#778f96",
+    "green": "#a6d8b0",
+    "white": "#e2e9dc"
+  },
+  "sprites": {
+    "button-primary-normal": {
+      "group": "buttons",
+      "label": "ปุ่มหลัก · ปกติ",
+      "file": "/assets/ui/png/button-primary-normal.png",
+      "source": "ui-source/svg/button-primary-normal.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-primary-hover": {
+      "group": "buttons",
+      "label": "ปุ่มหลัก · ชี้เมาส์",
+      "file": "/assets/ui/png/button-primary-hover.png",
+      "source": "ui-source/svg/button-primary-hover.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-primary-pressed": {
+      "group": "buttons",
+      "label": "ปุ่มหลัก · กด",
+      "file": "/assets/ui/png/button-primary-pressed.png",
+      "source": "ui-source/svg/button-primary-pressed.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-primary-disabled": {
+      "group": "buttons",
+      "label": "ปุ่มหลัก · ปิดใช้งาน",
+      "file": "/assets/ui/png/button-primary-disabled.png",
+      "source": "ui-source/svg/button-primary-disabled.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-secondary-normal": {
+      "group": "buttons",
+      "label": "ปุ่มรอง · ปกติ",
+      "file": "/assets/ui/png/button-secondary-normal.png",
+      "source": "ui-source/svg/button-secondary-normal.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-secondary-hover": {
+      "group": "buttons",
+      "label": "ปุ่มรอง · ชี้เมาส์",
+      "file": "/assets/ui/png/button-secondary-hover.png",
+      "source": "ui-source/svg/button-secondary-hover.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-secondary-pressed": {
+      "group": "buttons",
+      "label": "ปุ่มรอง · กด",
+      "file": "/assets/ui/png/button-secondary-pressed.png",
+      "source": "ui-source/svg/button-secondary-pressed.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-secondary-disabled": {
+      "group": "buttons",
+      "label": "ปุ่มรอง · ปิดใช้งาน",
+      "file": "/assets/ui/png/button-secondary-disabled.png",
+      "source": "ui-source/svg/button-secondary-disabled.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-solution-normal": {
+      "group": "buttons",
+      "label": "ปุ่มเฉลย · ปกติ",
+      "file": "/assets/ui/png/button-solution-normal.png",
+      "source": "ui-source/svg/button-solution-normal.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-solution-hover": {
+      "group": "buttons",
+      "label": "ปุ่มเฉลย · ชี้เมาส์",
+      "file": "/assets/ui/png/button-solution-hover.png",
+      "source": "ui-source/svg/button-solution-hover.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-solution-pressed": {
+      "group": "buttons",
+      "label": "ปุ่มเฉลย · กด",
+      "file": "/assets/ui/png/button-solution-pressed.png",
+      "source": "ui-source/svg/button-solution-pressed.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-solution-disabled": {
+      "group": "buttons",
+      "label": "ปุ่มเฉลย · ปิดใช้งาน",
+      "file": "/assets/ui/png/button-solution-disabled.png",
+      "source": "ui-source/svg/button-solution-disabled.svg",
+      "width": 64,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-icon-normal": {
+      "group": "buttons",
+      "label": "ปุ่มไอคอน · ปกติ",
+      "file": "/assets/ui/png/button-icon-normal.png",
+      "source": "ui-source/svg/button-icon-normal.svg",
+      "width": 24,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-icon-hover": {
+      "group": "buttons",
+      "label": "ปุ่มไอคอน · ชี้เมาส์",
+      "file": "/assets/ui/png/button-icon-hover.png",
+      "source": "ui-source/svg/button-icon-hover.svg",
+      "width": 24,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-icon-pressed": {
+      "group": "buttons",
+      "label": "ปุ่มไอคอน · กด",
+      "file": "/assets/ui/png/button-icon-pressed.png",
+      "source": "ui-source/svg/button-icon-pressed.svg",
+      "width": 24,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "button-icon-disabled": {
+      "group": "buttons",
+      "label": "ปุ่มไอคอน · ปิดใช้งาน",
+      "file": "/assets/ui/png/button-icon-disabled.png",
+      "source": "ui-source/svg/button-icon-disabled.svg",
+      "width": 24,
+      "height": 24,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "panel-window": {
+      "group": "panels",
+      "label": "กรอบหน้าต่าง",
+      "file": "/assets/ui/png/panel-window.png",
+      "source": "ui-source/svg/panel-window.svg",
+      "width": 48,
+      "height": 48,
+      "nineSlice": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      }
+    },
+    "panel-dialogue": {
+      "group": "panels",
+      "label": "กรอบบทสนทนา",
+      "file": "/assets/ui/png/panel-dialogue.png",
+      "source": "ui-source/svg/panel-dialogue.svg",
+      "width": 48,
+      "height": 48,
+      "nineSlice": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      }
+    },
+    "panel-objective": {
+      "group": "panels",
+      "label": "กรอบภารกิจ",
+      "file": "/assets/ui/png/panel-objective.png",
+      "source": "ui-source/svg/panel-objective.svg",
+      "width": 48,
+      "height": 48,
+      "nineSlice": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      }
+    },
+    "panel-tooltip": {
+      "group": "panels",
+      "label": "กรอบคำแนะนำ",
+      "file": "/assets/ui/png/panel-tooltip.png",
+      "source": "ui-source/svg/panel-tooltip.svg",
+      "width": 32,
+      "height": 32,
+      "nineSlice": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      }
+    },
+    "panel-inventory": {
+      "group": "panels",
+      "label": "กรอบเก็บหลักฐาน",
+      "file": "/assets/ui/png/panel-inventory.png",
+      "source": "ui-source/svg/panel-inventory.svg",
+      "width": 48,
+      "height": 48,
+      "nineSlice": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      }
+    },
+    "panel-minimap": {
+      "group": "panels",
+      "label": "กรอบมินิแมพ",
+      "file": "/assets/ui/png/panel-minimap.png",
+      "source": "ui-source/svg/panel-minimap.svg",
+      "width": 32,
+      "height": 32,
+      "nineSlice": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      }
+    },
+    "panel-keycap": {
+      "group": "panels",
+      "label": "กรอบปุ่มคีย์บอร์ด",
+      "file": "/assets/ui/png/panel-keycap.png",
+      "source": "ui-source/svg/panel-keycap.svg",
+      "width": 24,
+      "height": 24,
+      "nineSlice": {
+        "top": 7,
+        "right": 7,
+        "bottom": 7,
+        "left": 7
+      }
+    },
+    "bar-shield-frame": {
+      "group": "bars",
+      "label": "กรอบแถบโล่",
+      "file": "/assets/ui/png/bar-shield-frame.png",
+      "source": "ui-source/svg/bar-shield-frame.svg",
+      "width": 96,
+      "height": 16,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "bar-shield-fill": {
+      "group": "bars",
+      "label": "ส่วนเติมแถบโล่",
+      "file": "/assets/ui/png/bar-shield-fill.png",
+      "source": "ui-source/svg/bar-shield-fill.svg",
+      "width": 80,
+      "height": 8,
+      "nineSlice": {
+        "top": 2,
+        "right": 2,
+        "bottom": 2,
+        "left": 2
+      }
+    },
+    "bar-boss-frame": {
+      "group": "bars",
+      "label": "กรอบแถบบอส",
+      "file": "/assets/ui/png/bar-boss-frame.png",
+      "source": "ui-source/svg/bar-boss-frame.svg",
+      "width": 96,
+      "height": 16,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "bar-boss-fill": {
+      "group": "bars",
+      "label": "ส่วนเติมแถบบอส",
+      "file": "/assets/ui/png/bar-boss-fill.png",
+      "source": "ui-source/svg/bar-boss-fill.svg",
+      "width": 80,
+      "height": 8,
+      "nineSlice": {
+        "top": 2,
+        "right": 2,
+        "bottom": 2,
+        "left": 2
+      }
+    },
+    "bar-progress-frame": {
+      "group": "bars",
+      "label": "กรอบแถบความคืบหน้า",
+      "file": "/assets/ui/png/bar-progress-frame.png",
+      "source": "ui-source/svg/bar-progress-frame.svg",
+      "width": 96,
+      "height": 16,
+      "nineSlice": {
+        "top": 6,
+        "right": 6,
+        "bottom": 6,
+        "left": 6
+      }
+    },
+    "bar-progress-fill": {
+      "group": "bars",
+      "label": "ส่วนเติมแถบความคืบหน้า",
+      "file": "/assets/ui/png/bar-progress-fill.png",
+      "source": "ui-source/svg/bar-progress-fill.svg",
+      "width": 80,
+      "height": 8,
+      "nineSlice": {
+        "top": 2,
+        "right": 2,
+        "bottom": 2,
+        "left": 2
+      }
+    },
+    "shield-full": {
+      "group": "shields",
+      "label": "โล่มีพลัง",
+      "file": "/assets/ui/png/shield-full.png",
+      "source": "ui-source/svg/shield-full.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "shield-empty": {
+      "group": "shields",
+      "label": "โล่หมดพลัง",
+      "file": "/assets/ui/png/shield-empty.png",
+      "source": "ui-source/svg/shield-empty.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "slot-normal": {
+      "group": "slots",
+      "label": "ช่องไอเทม · ปกติ",
+      "file": "/assets/ui/png/slot-normal.png",
+      "source": "ui-source/svg/slot-normal.svg",
+      "width": 32,
+      "height": 32,
+      "nineSlice": null
+    },
+    "slot-selected": {
+      "group": "slots",
+      "label": "ช่องไอเทม · เลือกอยู่",
+      "file": "/assets/ui/png/slot-selected.png",
+      "source": "ui-source/svg/slot-selected.svg",
+      "width": 32,
+      "height": 32,
+      "nineSlice": null
+    },
+    "slot-locked": {
+      "group": "slots",
+      "label": "ช่องไอเทม · ล็อก",
+      "file": "/assets/ui/png/slot-locked.png",
+      "source": "ui-source/svg/slot-locked.svg",
+      "width": 32,
+      "height": 32,
+      "nineSlice": null
+    },
+    "icon-close": {
+      "group": "icons",
+      "label": "ปิด",
+      "file": "/assets/ui/png/icon-close.png",
+      "source": "ui-source/svg/icon-close.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-back": {
+      "group": "icons",
+      "label": "ย้อนกลับ",
+      "file": "/assets/ui/png/icon-back.png",
+      "source": "ui-source/svg/icon-back.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-settings": {
+      "group": "icons",
+      "label": "ตั้งค่า",
+      "file": "/assets/ui/png/icon-settings.png",
+      "source": "ui-source/svg/icon-settings.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-music-on": {
+      "group": "icons",
+      "label": "เพลงเปิด",
+      "file": "/assets/ui/png/icon-music-on.png",
+      "source": "ui-source/svg/icon-music-on.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-music-off": {
+      "group": "icons",
+      "label": "เพลงปิด",
+      "file": "/assets/ui/png/icon-music-off.png",
+      "source": "ui-source/svg/icon-music-off.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-sfx-on": {
+      "group": "icons",
+      "label": "เอฟเฟกต์เปิด",
+      "file": "/assets/ui/png/icon-sfx-on.png",
+      "source": "ui-source/svg/icon-sfx-on.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-sfx-off": {
+      "group": "icons",
+      "label": "เอฟเฟกต์ปิด",
+      "file": "/assets/ui/png/icon-sfx-off.png",
+      "source": "ui-source/svg/icon-sfx-off.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-interact": {
+      "group": "icons",
+      "label": "โต้ตอบ",
+      "file": "/assets/ui/png/icon-interact.png",
+      "source": "ui-source/svg/icon-interact.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-journal": {
+      "group": "icons",
+      "label": "สมุดคดี",
+      "file": "/assets/ui/png/icon-journal.png",
+      "source": "ui-source/svg/icon-journal.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-evidence": {
+      "group": "icons",
+      "label": "หลักฐาน",
+      "file": "/assets/ui/png/icon-evidence.png",
+      "source": "ui-source/svg/icon-evidence.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-lock": {
+      "group": "icons",
+      "label": "ล็อก",
+      "file": "/assets/ui/png/icon-lock.png",
+      "source": "ui-source/svg/icon-lock.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "icon-check": {
+      "group": "icons",
+      "label": "สำเร็จ",
+      "file": "/assets/ui/png/icon-check.png",
+      "source": "ui-source/svg/icon-check.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "quest-new": {
+      "group": "quests",
+      "label": "เควสต์ใหม่",
+      "file": "/assets/ui/png/quest-new.png",
+      "source": "ui-source/svg/quest-new.svg",
+      "width": 16,
+      "height": 20,
+      "nineSlice": null
+    },
+    "quest-active": {
+      "group": "quests",
+      "label": "กำลังทำ",
+      "file": "/assets/ui/png/quest-active.png",
+      "source": "ui-source/svg/quest-active.svg",
+      "width": 16,
+      "height": 20,
+      "nineSlice": null
+    },
+    "quest-complete": {
+      "group": "quests",
+      "label": "สำเร็จ",
+      "file": "/assets/ui/png/quest-complete.png",
+      "source": "ui-source/svg/quest-complete.svg",
+      "width": 16,
+      "height": 20,
+      "nineSlice": null
+    },
+    "cursor-pointer": {
+      "group": "selectors",
+      "label": "เคอร์เซอร์",
+      "file": "/assets/ui/png/cursor-pointer.png",
+      "source": "ui-source/svg/cursor-pointer.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "selector-focus": {
+      "group": "selectors",
+      "label": "กรอบเลือก",
+      "file": "/assets/ui/png/selector-focus.png",
+      "source": "ui-source/svg/selector-focus.svg",
+      "width": 32,
+      "height": 32,
+      "nineSlice": {
+        "top": 10,
+        "right": 10,
+        "bottom": 10,
+        "left": 10
+      }
+    },
+    "map-player": {
+      "group": "minimap",
+      "label": "มินิแมพ · ผู้เล่น",
+      "file": "/assets/ui/png/map-player.png",
+      "source": "ui-source/svg/map-player.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "map-npc": {
+      "group": "minimap",
+      "label": "มินิแมพ · พยาน",
+      "file": "/assets/ui/png/map-npc.png",
+      "source": "ui-source/svg/map-npc.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "map-device": {
+      "group": "minimap",
+      "label": "มินิแมพ · อุปกรณ์",
+      "file": "/assets/ui/png/map-device.png",
+      "source": "ui-source/svg/map-device.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    },
+    "map-exit": {
+      "group": "minimap",
+      "label": "มินิแมพ · ทางออก",
+      "file": "/assets/ui/png/map-exit.png",
+      "source": "ui-source/svg/map-exit.svg",
+      "width": 16,
+      "height": 16,
+      "nineSlice": null
+    }
+  }
+}

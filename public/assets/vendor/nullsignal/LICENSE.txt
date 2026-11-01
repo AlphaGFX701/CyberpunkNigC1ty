@@ -1,0 +1,39 @@
+================================================================
+  利用規約 / Terms of Use
+  NULLSIGNAL — Dark-Tech UI / HUD Asset Kit
+================================================================
+
+ご購入(無料DL含む)をもって、以下に同意したものとみなします。
+By downloading (including free), you agree to the following.
+
+■ 許可される利用 / Allowed
+  - 商用・非商用を問わず、ゲーム・アプリ・動画・配信・印刷物・
+    デザイン制作物への組み込み利用(収益化を含む)。
+  - テキスト・色・形状・サイズの改変。
+  - 完成作品(ゲーム/動画/画像等)への素材としての利用・頒布。
+    Use in your own finished games / videos / apps / designs,
+    commercial or not, including monetized works.
+
+■ 禁止される利用 / Prohibited
+  - 素材ファイル(改変物を含む)そのものの再配布・再販売・共有。
+  - 本素材を主体とした素材集・テンプレート集としての二次配布。
+  - 本素材を学習データに用いた機械学習・生成AIモデルの作成/学習。
+  - 法令・公序良俗に反する用途、第三者を誹謗中傷する用途。
+    No redistribution/resale of the asset files themselves;
+    no use as training data for AI/ML models.
+
+■ クレジット / Credit
+  - 任意(不要)。記載いただける場合は「UI: NULLSIGNAL」等。歓迎します。
+    Optional. "UI: NULLSIGNAL" appreciated but not required.
+
+■ 著作権 / 免責 / Copyright & Disclaimer
+  - 本素材の著作権は制作者に帰属します。購入により本規約の範囲内での
+    非独占的使用許諾が付与されます(著作権譲渡ではありません)。
+  - 使用に起因する一切の損害について制作者は責任を負いません。
+  - 本規約は予告なく改定される場合があります。
+
+  本素材はコード(SVG/CSS)でベクター制作し、人が調整しています。
+  背景等に生成AIを補助的に用いた箇所があります(AI支援制作)。
+  This kit is vector-built with code (SVG/CSS) and human-arranged;
+  generative AI is used only as a subordinate background element.
+================================================================

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 64">
+  <path d="M13 3H284V46L268 61H3V13Z" fill="#061b25" stroke="#81dce0" stroke-width="2"/>
+  <path d="M24 10H277M10 23V54H257" fill="none" stroke="#2b6476"/>
+  <path d="M27 23V19M23 22A10 10 0 1 0 31 22" fill="none" stroke="#9df2eb" stroke-width="2.5"/>
+  <text x="51" y="39" fill="#e3f5ef" font-family="monospace" font-size="18" font-weight="700" letter-spacing="3">STANDBY</text>
+  <path d="M248 24V39M254 20V39M260 28V39" stroke="#d9b974" stroke-width="2"/>
+</svg>

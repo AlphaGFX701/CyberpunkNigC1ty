@@ -1,0 +1,476 @@
+@font-face {
+  font-family: 'Chakra Petch';
+  src: url('/assets/fonts/ChakraPetch-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chakra Petch';
+  src: url('/assets/fonts/ChakraPetch-SemiBold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: BoldPixels;
+  src: url('/assets/fonts/boldpixels.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+.kin-coach {
+  --coach-surface: #10232f;
+  display: flex;
+  color: #e5ece3;
+  font-family: 'Chakra Petch', Tahoma, sans-serif;
+  background: var(--coach-surface);
+  border: 2px solid #779fa0;
+  box-shadow:
+    0 0 0 3px #0a1620,
+    6px 7px 0 #06121ad9;
+  position: relative;
+  text-align: left;
+  isolation: isolate;
+}
+.kin-coach::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 22px;
+  width: 65px;
+  height: 2px;
+  background: var(--amber);
+}
+.kin-dock {
+  position: absolute;
+  z-index: 15;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1080px, calc(100% - 72px));
+  min-height: 200px;
+  max-height: calc(42dvh - 24px);
+}
+.kin-portrait {
+  flex: 0 0 185px;
+  align-self: stretch;
+  position: relative;
+  background: linear-gradient(150deg, #37627388, #08182233);
+  border-right: 1px solid #4c6c78;
+  margin: 9px 0 9px 9px;
+  overflow: visible;
+}
+.kin-portrait img {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 208px;
+  height: 260px;
+  object-fit: contain;
+  object-position: bottom;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.kin-portrait > span {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  font:
+    10px BoldPixels,
+    monospace;
+  color: #98bab9;
+  z-index: 1;
+  background: #10232f;
+  padding: 3px 6px;
+}
+.kin-dialogue-body {
+  padding: 16px 23px 18px;
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+.kin-dialogue-body > header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 11px;
+}
+.kin-name {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--amber);
+  padding-right: 18px;
+  border-right: 1px solid #4c6c78;
+}
+.kin-channel {
+  font:
+    10px BoldPixels,
+    monospace;
+  color: var(--cyan);
+  letter-spacing: 1px;
+}
+.kin-skip {
+  margin-left: auto;
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  font:
+    13px 'Chakra Petch',
+    sans-serif;
+  color: #9eb2b8;
+  padding: 5px 7px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.kin-line {
+  font-size: 22px;
+  line-height: 1.65;
+  min-height: 2.9em;
+  margin: 0 0 13px;
+  overflow-wrap: anywhere;
+}
+.kin-response-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.kin-response-actions .pixel-button {
+  font:
+    16px 'Chakra Petch',
+    sans-serif;
+  min-height: 38px;
+}
+.kin-reveal {
+  font:
+    13px 'Chakra Petch',
+    sans-serif;
+  color: var(--muted);
+  padding: 7px 11px;
+  background: #182e3b;
+}
+.kin-task-hint {
+  font-size: 13px;
+  color: var(--amber);
+}
+.kin-task-hint i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--amber);
+  margin-right: 8px;
+}
+.kin-storage-warning {
+  font-size: 12px;
+  color: var(--amber);
+}
+.kin-inline {
+  margin: 16px 22px 22px;
+  box-shadow: 3px 4px 0 #06121a;
+  border-width: 1px;
+  max-height: 310px;
+}
+.kin-inline .kin-portrait {
+  flex-basis: 105px;
+}
+.kin-inline .kin-portrait img {
+  width: 115px;
+  height: 144px;
+}
+.kin-inline .kin-dialogue-body {
+  padding: 12px 16px;
+}
+.kin-inline .kin-line {
+  font-size: 20px;
+  line-height: 1.6;
+  min-height: 0;
+}
+.kin-inline .kin-channel {
+  display: none;
+}
+.kin-inline .kin-name {
+  font-size: 18px;
+}
+.kin-inline .kin-portrait > span {
+  display: none;
+}
+.kin-compact {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 12;
+  width: min(680px, calc(100% - 48px));
+  box-shadow: 3px 4px 0 #06121a;
+  max-height: 205px;
+}
+.kin-compact .kin-portrait {
+  flex-basis: 105px;
+}
+.kin-compact .kin-portrait img {
+  width: 125px;
+  height: 156px;
+}
+.kin-compact .kin-portrait > span,
+.kin-compact .kin-channel {
+  display: none;
+}
+.kin-compact .kin-dialogue-body {
+  padding: 10px 15px;
+}
+.kin-compact .kin-line {
+  font-size: 20px;
+  line-height: 1.6;
+  min-height: 0;
+  margin-bottom: 5px;
+}
+.kin-compact .kin-task-hint {
+  display: none;
+}
+.game-layer .app {
+  position: relative;
+  --coach-space: 280px;
+}
+.app[data-tutorial-map='true'] .city-canvas {
+  bottom: var(--coach-space);
+}
+.app[data-tutorial-map='true'] .city-map .city-current-objective,
+.app[data-tutorial-map='true'] .city-bottom {
+  display: none;
+}
+.app[data-tutorial-map='true'] .city-camera-tools {
+  top: 30%;
+}
+.app[data-tutorial-map='true'] .city-detail {
+  top: 100px;
+  max-height: calc(100% - var(--coach-space) - 112px);
+  width: 280px;
+}
+.app[data-tutorial-map='true'] .city-detail > p {
+  font-size: 13px;
+  margin: 9px 0;
+}
+.app[data-tutorial-map='true'] .city-place-list {
+  max-height: calc(100% - var(--coach-space) - 195px);
+}
+.app[data-tutorial-field='true'] .world-frame .objective {
+  display: none;
+}
+[data-tutorial-highlight='true'] {
+  outline: 2px solid #f3cd81 !important;
+  outline-offset: 5px;
+  box-shadow: 0 0 0 7px #d9ab4a20 !important;
+}
+.kin-offer {
+  position: absolute;
+  z-index: 8;
+  left: 32px;
+  top: 240px;
+  border-left: 2px solid var(--amber);
+  background: #10232ff2;
+  padding: 12px 16px;
+  max-width: 290px;
+  font-family: 'Chakra Petch', sans-serif;
+}
+.kin-offer > p {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+.kin-offer .pixel-button {
+  font-size: 14px;
+}
+.tutorial-paused-note {
+  margin: 12px 0;
+  font-family: 'Chakra Petch', sans-serif;
+  color: var(--cyan);
+}
+.tutorial-pause-skip {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 15px;
+}
+.kin-name:focus {
+  outline: none;
+}
+@media (max-width: 760px) {
+  .kin-dock .kin-portrait img {
+    top: 24px;
+    bottom: auto;
+  }
+}
+@media (max-height: 780px) and (min-width: 761px) {
+  .game-layer .app {
+    --coach-space: 250px;
+  }
+  .kin-dock {
+    bottom: 16px;
+    min-height: 180px;
+    max-height: 235px;
+  }
+  .kin-dock .kin-line {
+    font-size: 22px;
+    line-height: 1.6;
+  }
+  .kin-dock .kin-portrait {
+    flex-basis: 150px;
+  }
+  .kin-dock .kin-portrait img {
+    height: 225px;
+    width: 180px;
+  }
+  .kin-dialogue-body {
+    padding: 12px 18px;
+  }
+  .kin-dock .kin-line {
+    margin-bottom: 9px;
+  }
+}
+@media (max-width: 760px) {
+  .game-layer .app {
+    --coach-space: 340px;
+  }
+  .kin-dock {
+    left: 10px;
+    right: 10px;
+    bottom: 12px;
+    width: auto;
+    transform: none;
+    max-height: 340px;
+    min-height: 230px;
+  }
+  .kin-portrait {
+    flex-basis: 75px;
+    margin: 6px 0 6px 6px;
+  }
+  .kin-portrait img {
+    width: 110px;
+    height: 138px;
+  }
+  .kin-portrait > span {
+    display: none;
+  }
+  .kin-dialogue-body {
+    padding: 10px 12px;
+  }
+  .kin-dialogue-body > header {
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-bottom: 7px;
+  }
+  .kin-name {
+    font-size: 19px;
+    padding-right: 10px;
+  }
+  .kin-channel {
+    display: none;
+  }
+  .kin-skip {
+    font-size: 12px;
+    padding: 4px 0;
+  }
+  .kin-line {
+    font-size: 20px;
+    line-height: 1.6;
+    min-height: 0;
+    margin-bottom: 10px;
+  }
+  .kin-response-actions {
+    gap: 7px;
+  }
+  .kin-response-actions .pixel-button {
+    font-size: 14px;
+    min-height: 36px;
+    padding: 8px 10px;
+  }
+  .kin-reveal {
+    font-size: 12px;
+  }
+  .kin-task-hint {
+    font-size: 12px;
+  }
+  .kin-inline {
+    margin: 12px 12px 16px;
+    max-height: 300px;
+  }
+  .kin-inline .kin-portrait {
+    flex-basis: 62px;
+  }
+  .kin-inline .kin-portrait img {
+    width: 80px;
+    height: 100px;
+  }
+  .kin-inline .kin-dialogue-body {
+    padding: 10px;
+  }
+  .kin-inline .kin-line {
+    font-size: 20px;
+  }
+  .kin-compact {
+    left: 10px;
+    bottom: 18px;
+    width: calc(100% - 20px);
+    max-height: 230px;
+  }
+  .kin-compact .kin-portrait {
+    flex-basis: 65px;
+  }
+  .kin-compact .kin-portrait img {
+    width: 90px;
+    height: 113px;
+  }
+  .kin-compact .kin-line {
+    font-size: 20px;
+  }
+  .kin-compact .kin-skip {
+    font-size: 11px;
+  }
+  .app[data-tutorial-map='true'] .city-header {
+    top: 10px;
+  }
+  .app[data-tutorial-map='true'] .city-header h1 {
+    font-size: 18px;
+  }
+  .app[data-tutorial-map='true'] .city-header p {
+    margin-bottom: 6px;
+  }
+  .app[data-tutorial-map='true'] .city-camera-tools {
+    top: 170px;
+    right: 10px;
+    transform: none;
+  }
+  .app[data-tutorial-map='true'] .city-camera-tools button {
+    height: 30px;
+    width: 30px;
+  }
+  .app[data-tutorial-map='true'] .city-place-list {
+    top: 137px;
+    max-height: calc(100% - var(--coach-space) - 145px);
+  }
+  .app[data-tutorial-map='true'] .city-detail {
+    left: 12px;
+    right: 50px;
+    top: 135px;
+    bottom: var(--coach-space);
+    max-height: none;
+    width: auto;
+    padding: 10px 14px;
+  }
+  .app[data-tutorial-map='true'] .city-detail-task,
+  .app[data-tutorial-map='true'] .city-detail-evidence,
+  .app[data-tutorial-map='true'] .city-detail > .city-district,
+  .app[data-tutorial-map='true'] .city-detail > p {
+    display: none;
+  }
+  .app[data-tutorial-map='true'] .city-detail-head {
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+  .app[data-tutorial-map='true'] .city-detail h2 {
+    font-size: 20px;
+  }
+  .kin-offer {
+    left: 18px;
+    top: 215px;
+    max-width: 250px;
+  }
+}

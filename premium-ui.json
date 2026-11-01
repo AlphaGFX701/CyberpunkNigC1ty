@@ -1,0 +1,9 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src"],
+  "locale": "th-TH",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Form", "Scrollbar", "Toast"],
+  "commands": { "unit": "npm test", "e2e": "npx playwright test", "build": "npm run build" },
+  "requiredCommands": ["unit", "e2e", "build"]
+}

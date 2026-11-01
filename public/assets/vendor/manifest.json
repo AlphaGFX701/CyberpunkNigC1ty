@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "obtained": "2026-11-01",
+  "source": "Public free-demo download buttons; no paid pack files",
+  "assets": {
+    "finnLoader": {
+      "file": "/assets/vendor/finnmercury/loading-03.png",
+      "width": 126,
+      "height": 21,
+      "frameWidth": 21,
+      "frameHeight": 21,
+      "frameCount": 6,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 21,
+          "h": 21
+        },
+        {
+          "x": 21,
+          "y": 0,
+          "w": 21,
+          "h": 21
+        },
+        {
+          "x": 42,
+          "y": 0,
+          "w": 21,
+          "h": 21
+        },
+        {
+          "x": 63,
+          "y": 0,
+          "w": 21,
+          "h": 21
+        },
+        {
+          "x": 84,
+          "y": 0,
+          "w": 21,
+          "h": 21
+        },
+        {
+          "x": 105,
+          "y": 0,
+          "w": 21,
+          "h": 21
+        }
+      ],
+      "playback": {
+        "frameMs": 120,
+        "note": "Application-selected timing; vendor does not specify timing for this sheet"
+      },
+      "author": "Finnmercury",
+      "source": "https://finnmercury.itch.io/sci-fi-ui-elements",
+      "creditRequired": true
+    }
+  },
+  "validation": [
+    {
+      "path": "finnmercury/loading-03.png",
+      "width": 126,
+      "height": 21,
+      "hasAlpha": true,
+      "sha256": "c912d39bfa5126adcb24cca5ffce7e4787d31f2148d3c9334e25e37ec2a5cb27"
+    }
+  ],
+  "originalAccents": [
+    "/assets/ui/techcare-corner.svg",
+    "/assets/ui/techcare-standby.svg"
+  ]
+}

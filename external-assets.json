@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "purpose": "Local runtime inputs; binary artwork intentionally excluded from public Git.",
+  "assets": [
+    {
+      "path": "public/assets/kin.png",
+      "bytes": 6276,
+      "sha256": "e7fdd009dfafba94808efedb86df3ab72ab37f4f3bbafc4d4d53a591eaca1943",
+      "source": "User-provided Cyberpunk_City_Ext_V1.0.zip"
+    },
+    {
+      "path": "public/assets/witness.png",
+      "bytes": 4579,
+      "sha256": "9c0bd266056289cb7152a5d36c9479647a4ef17c4089bc269eb606bac8985eee",
+      "source": "User-provided Cyberpunk_City_Ext_V1.0.zip"
+    },
+    {
+      "path": "public/assets/props.png",
+      "bytes": 43878,
+      "sha256": "fd2146c7cd2e09439765649ea83e4c735e844405fe3e010c469ceede3b98de0c",
+      "source": "User-provided Cyberpunk_City_Ext_V1.0.zip"
+    },
+    {
+      "path": "public/assets/city.png",
+      "bytes": 9196,
+      "sha256": "914f412031b9b503164e692ad55a9729c20cb7286ba36570ba1cff0ff80d7c25",
+      "source": "User-provided neo_zero_V1.0.zip"
+    },
+    {
+      "path": "public/assets/null.png",
+      "bytes": 454737,
+      "sha256": "8115dcb938e718cb097abfa769ac0980268c5511b258858e3efe05d409b406ab",
+      "source": "Original prototype local boss placeholder"
+    },
+    {
+      "path": "public/assets/vendor/finnmercury/loading-03.png",
+      "bytes": 431,
+      "sha256": "c912d39bfa5126adcb24cca5ffce7e4787d31f2148d3c9334e25e37ec2a5cb27",
+      "source": "Finnmercury — Free Version Pixel Sci-Fi UI"
+    }
+  ]
+}

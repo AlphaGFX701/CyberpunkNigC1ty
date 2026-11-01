@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "generator": "built-in imagegen",
+  "normalization": "nearest-neighbor, lossless WebP",
+  "assets": [
+    {
+      "name": "vault",
+      "width": 1280,
+      "height": 720,
+      "png": "/assets/blackbox/vault.png",
+      "runtime": "/assets/blackbox/vault.webp"
+    },
+    {
+      "name": "briefing",
+      "width": 1280,
+      "height": 720,
+      "png": "/assets/blackbox/briefing.png",
+      "runtime": "/assets/blackbox/briefing.webp"
+    },
+    {
+      "name": "memory",
+      "width": 1280,
+      "height": 720,
+      "png": "/assets/blackbox/memory.png",
+      "runtime": "/assets/blackbox/memory.webp"
+    }
+  ],
+  "reused": [
+    "/assets/entry/lab.webp",
+    "/assets/entry/kin.png",
+    "/assets/entry/shop.webp",
+    "/assets/entry/null.webp"
+  ],
+  "shotComposition": "src/narrative/case.ts",
+  "renderer": "src/entry/CinematicArt.tsx"
+}

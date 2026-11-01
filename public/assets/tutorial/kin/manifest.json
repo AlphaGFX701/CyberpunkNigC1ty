@@ -1,0 +1,209 @@
+{
+  "generator": "built-in image_gen (identity-preserve sprite sheet + edge cleanup)",
+  "canonicalReference": "/assets/entry/kin.png",
+  "source": "art-source/kin-tutorial/portraits-raw.png",
+  "frame": {
+    "width": 256,
+    "height": 320,
+    "anchor": [
+      128,
+      320
+    ],
+    "sharedScale": 0.8362369337979094,
+    "alphaThreshold": 128
+  },
+  "moods": [
+    "neutral",
+    "smile",
+    "smirk",
+    "serious",
+    "surprised"
+  ],
+  "states": [
+    "idle",
+    "talk",
+    "blink"
+  ],
+  "frames": [
+    {
+      "mood": "neutral",
+      "state": "idle",
+      "file": "/assets/tutorial/kin/neutral-idle.png",
+      "sha256": "6a2164fb54985212809a30d5720b3f27879f4fcd7dd6dc0427a11b787fce504a",
+      "sourceBounds": {
+        "left": 33,
+        "top": 12,
+        "width": 286,
+        "height": 309
+      }
+    },
+    {
+      "mood": "neutral",
+      "state": "talk",
+      "file": "/assets/tutorial/kin/neutral-talk.png",
+      "sha256": "accb27da0d56ccb9d90c216b553e87f83fc6babe00473995fe0588643b122710",
+      "sourceBounds": {
+        "left": 3,
+        "top": 12,
+        "width": 286,
+        "height": 309
+      }
+    },
+    {
+      "mood": "neutral",
+      "state": "blink",
+      "file": "/assets/tutorial/kin/neutral-blink.png",
+      "sha256": "98aa98c9fe57d467a34fdab64cbc467e017348cc385fa4855bdcc348595608c5",
+      "sourceBounds": {
+        "left": 3,
+        "top": 12,
+        "width": 286,
+        "height": 309
+      }
+    },
+    {
+      "mood": "smile",
+      "state": "idle",
+      "file": "/assets/tutorial/kin/smile-idle.png",
+      "sha256": "9885e1479ef38d9b8bcc9d2daa3ae5f272506add4b64b867efcf0f575bb8d4c0",
+      "sourceBounds": {
+        "left": 33,
+        "top": 10,
+        "width": 286,
+        "height": 311
+      }
+    },
+    {
+      "mood": "smile",
+      "state": "talk",
+      "file": "/assets/tutorial/kin/smile-talk.png",
+      "sha256": "7cef90a3b44c0a72d038ac2ca4fa97340139e8152197cd2528d4946d17678200",
+      "sourceBounds": {
+        "left": 3,
+        "top": 10,
+        "width": 286,
+        "height": 311
+      }
+    },
+    {
+      "mood": "smile",
+      "state": "blink",
+      "file": "/assets/tutorial/kin/smile-blink.png",
+      "sha256": "85ab6d64d152e1d931f6abf68fff6bf4e6cf03dfb60b1578a1386abfa7605098",
+      "sourceBounds": {
+        "left": 3,
+        "top": 9,
+        "width": 286,
+        "height": 312
+      }
+    },
+    {
+      "mood": "smirk",
+      "state": "idle",
+      "file": "/assets/tutorial/kin/smirk-idle.png",
+      "sha256": "529c82e0b294759497ee674867a89c0190ee0d96ceb56ec22045775a4f85cc83",
+      "sourceBounds": {
+        "left": 33,
+        "top": 6,
+        "width": 286,
+        "height": 313
+      }
+    },
+    {
+      "mood": "smirk",
+      "state": "talk",
+      "file": "/assets/tutorial/kin/smirk-talk.png",
+      "sha256": "5818e93e2d5f2ccf4bd6b338244eefdc4977ffb48085b7161d1e375ec7f410b7",
+      "sourceBounds": {
+        "left": 3,
+        "top": 6,
+        "width": 286,
+        "height": 313
+      }
+    },
+    {
+      "mood": "smirk",
+      "state": "blink",
+      "file": "/assets/tutorial/kin/smirk-blink.png",
+      "sha256": "1063648b00fee57a12956ea189f94f8558d56e77a919788096a2f1208de1ecf4",
+      "sourceBounds": {
+        "left": 3,
+        "top": 6,
+        "width": 286,
+        "height": 313
+      }
+    },
+    {
+      "mood": "serious",
+      "state": "idle",
+      "file": "/assets/tutorial/kin/serious-idle.png",
+      "sha256": "2bed4a90ada953127d147177262b48fc6c62cf028713a92a73e77c0f55b00438",
+      "sourceBounds": {
+        "left": 33,
+        "top": 3,
+        "width": 286,
+        "height": 314
+      }
+    },
+    {
+      "mood": "serious",
+      "state": "talk",
+      "file": "/assets/tutorial/kin/serious-talk.png",
+      "sha256": "72a07a18f35daed719212f2a53671dbc1c19ad83122c3f5b184d5fa9a9534207",
+      "sourceBounds": {
+        "left": 3,
+        "top": 3,
+        "width": 286,
+        "height": 314
+      }
+    },
+    {
+      "mood": "serious",
+      "state": "blink",
+      "file": "/assets/tutorial/kin/serious-blink.png",
+      "sha256": "0431010f11987ba9971147d133a454a2aa6657920f06f4216b24e6abb91aa5fd",
+      "sourceBounds": {
+        "left": 3,
+        "top": 3,
+        "width": 286,
+        "height": 314
+      }
+    },
+    {
+      "mood": "surprised",
+      "state": "idle",
+      "file": "/assets/tutorial/kin/surprised-idle.png",
+      "sha256": "41ac489002f3d298f3e67b8d542e0039a492f9d621f0cf3a47e65d8b4cd86d0b",
+      "sourceBounds": {
+        "left": 32,
+        "top": 0,
+        "width": 287,
+        "height": 311
+      }
+    },
+    {
+      "mood": "surprised",
+      "state": "talk",
+      "file": "/assets/tutorial/kin/surprised-talk.png",
+      "sha256": "b4309d5e1c650b69c49dcfbf8455b377b571bdadbd0c87cf6605d60424c4508c",
+      "sourceBounds": {
+        "left": 3,
+        "top": 0,
+        "width": 286,
+        "height": 311
+      }
+    },
+    {
+      "mood": "surprised",
+      "state": "blink",
+      "file": "/assets/tutorial/kin/surprised-blink.png",
+      "sha256": "256159a15d57f80fd1a3a0ca9238e474dea26f859054f6028b16ca8cb4149b2c",
+      "sourceBounds": {
+        "left": 3,
+        "top": 0,
+        "width": 286,
+        "height": 311
+      }
+    }
+  ]
+}

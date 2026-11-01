@@ -1,0 +1,130 @@
+.city-canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #091a24;
+  touch-action: none;
+}
+.city-canvas canvas {
+  display: block;
+  outline: none;
+}
+.city-pin-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+.city-pin-anchor {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  pointer-events: none;
+}
+.city-pin {
+  pointer-events: auto;
+}
+.city-pin {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  border: 0;
+  background: none;
+  padding: 8px;
+  color: #b9d8d6;
+  font-family: 'IBM Plex Sans Thai', Tahoma, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transform: translateY(-7px);
+}
+.city-pin:hover {
+  background: none;
+  color: #e7bf77;
+  border: 0;
+}
+.city-pin:focus-visible {
+  outline: 2px solid #e7bf77;
+  outline-offset: 3px;
+  background: #10232bd9;
+}
+.city-pin .pin-label {
+  font-size: 12px;
+  line-height: 1.5;
+  background: #0b2028e8;
+  padding: 4px 9px;
+  border: 1px solid #587b7e;
+  border-left: 2px solid #90c5c0;
+  box-shadow: 0 4px 16px #06131a88;
+}
+.city-pin[data-current='true'] .pin-label,
+.city-pin[data-selected='true'] .pin-label {
+  border-left-color: #e7bf77;
+  color: #e7bf77;
+}
+.city-pin .pin-label small {
+  display: block;
+  font-size: 9px;
+  color: #a8b9b7;
+}
+.city-pin .pin-stem {
+  height: 22px;
+  width: 1px;
+  background: linear-gradient(#90c5c0, #90c5c022);
+}
+.city-pin .pin-head {
+  height: 9px;
+  width: 9px;
+  background: #90c5c0;
+  box-shadow: 0 0 0 4px #90c5c022;
+  rotate: 45deg;
+}
+.city-pin[data-current='true'] .pin-head,
+.city-pin[data-selected='true'] .pin-head {
+  background: #e7bf77;
+  box-shadow: 0 0 0 5px #e7bf7722;
+}
+.city-canvas[data-camera-paused='true'] .city-pin {
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .city-pin .pin-label {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  .city-pin .pin-label small {
+    font-size: 8px;
+  }
+  .city-pin {
+    gap: 4px;
+    padding: 5px;
+  }
+  .city-pin .pin-stem {
+    height: 15px;
+  }
+  /* The two west-bank POIs are close at the city overview. Keep their geographic
+     heads in place and fan only the labels, with a short leader back to each pin. */
+  .city-pin[data-city-pin='base'] .pin-label {
+    position: relative;
+    transform: translateX(-28px);
+  }
+  .city-pin[data-city-pin='arun'] .pin-label {
+    position: relative;
+    transform: translateX(28px);
+  }
+  .city-pin[data-city-pin='base'] .pin-label::after,
+  .city-pin[data-city-pin='arun'] .pin-label::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 28px;
+    height: 1px;
+    background: #7ca4a4;
+  }
+  .city-pin[data-city-pin='base'] .pin-label::after {
+    left: 50%;
+  }
+  .city-pin[data-city-pin='arun'] .pin-label::after {
+    right: 50%;
+  }
+}

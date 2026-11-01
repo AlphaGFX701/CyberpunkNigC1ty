@@ -1,0 +1,24 @@
+node_modules/
+dist/
+art-source/
+evidence/
+.vercel/
+output/
+test-results/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Third-party artwork is supplied locally for finished-game deployment only.
+/public/assets/kin.png
+/public/assets/witness.png
+/public/assets/props.png
+/public/assets/city.png
+/public/assets/null.png
+/public/assets/vendor/**/*.png
+
+.vercel
+.env*
+
+!.env.example
