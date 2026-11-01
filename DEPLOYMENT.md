@@ -6,6 +6,12 @@ Initial release, 1 November 2026: https://techcare-signal-trace.vercel.app/ · r
 
 Target Vercel team: `God_like` / `god-like1`; project: `techcare-signal-trace`. This is separate from earlier TechCare games. Public Git is a code distribution, not a complete third-party asset pack; automatic Git deployments are disabled.
 
+## Two-chapter release candidate — 2 November 2026
+
+Source commit: `99ed5e1` (pushed to main). Candidate deployment: `dpl_2QhN84z7F6t5e72LyFqT5F8sSyT1`, https://techcare-signal-trace-gb0s3sywm-god-like1.vercel.app . Contains both playable chapters, final-chapter prompt documentation, new gait/dialogue/music/tutorial and the bundled account Function. The final chapter itself is not implemented.
+
+Verified:120 unit/API tests, production build and8 critical desktop browser cases. Candidate online config200/configuredtrue, session200/null, player401 when unsigned; bounded invalid-account probe401/INVALID_EMAIL_OR_PASSWORD and cross-origin403/ORIGIN_REJECTED. Its exact origin is added to Neon. Candidate has no Vercel authentication wall. The user has been asked to perform real Login/OTP, refresh and logout/login; those results and promotion are pending. Never treat the invalid-account probe as proof of email delivery or authenticated save persistence.
+
 ## Prepare and verify
 
 ### Account Function repair — 2 November 2026
